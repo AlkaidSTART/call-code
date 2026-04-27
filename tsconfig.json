@@ -1,10 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "CommonJS",
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "target": "ES2020",
+    "module": "Node16",
+    "moduleResolution": "Node16",
     "strict": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    "paths": {
+      "@agent-core/*": ["./packages/agent-core/src/*"]
+    }
+  },
+  "include": ["packages/agent-core/src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "apps"]
 }
