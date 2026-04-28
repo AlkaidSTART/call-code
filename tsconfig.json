@@ -3,6 +3,7 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
@@ -11,7 +12,8 @@
     "paths": {
       "@agent-core/*": ["./packages/agent-core/src/*"],
       "@core/*": ["./packages/agent-core/src/core/*"],
-      "@tools": ["./packages/agent-core/src/tools/index.ts"],        "@tools/*": ["./packages/agent-core/src/tools/*"],
+      "@tools": ["./packages/agent-core/src/tools/index.ts"],
+      "@tools/*": ["./packages/agent-core/src/tools/*"],
       "@config/*": ["./packages/agent-core/src/config/*"],
       "@types/*": ["./packages/agent-core/src/types/*"],
       "@utils/*": ["./packages/agent-core/src/utils/*"],
@@ -19,7 +21,7 @@
       "@prompt/*": ["./packages/agent-core/src/config/*"]
     }
   },
-  "include": ["packages/agent-core/src/**/*.ts"],
+  "include": ["packages/agent-core/src/**/*.ts", "source/**/*.tsx"],
   "exclude": ["node_modules", "dist", "apps"],
   "composite": true
 }
