@@ -1,7 +1,7 @@
-import { callLLM } from './llm';
-import { listFilesTool } from '../tools';
-import { systemPrompt } from '../prompt/system';
-import { toolPrompt } from '../prompt/tool';
+import { callLLM } from '@core/llm';
+import { listFilesTool } from '@tools';
+import { systemPrompt } from '@prompt/systemPrompt';
+import { toolPrompt } from '@prompt/toolPrompt';
 interface Message {
   role: 'system' | 'user' | 'assistant';
   content: string;
