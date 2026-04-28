@@ -18,7 +18,6 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
 
-    // 你这个项目建议关闭的一些规则
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'warn',
   },
