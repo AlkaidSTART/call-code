@@ -261,7 +261,6 @@ const App = () => {
 
       {/* Input Area */}
       <Box borderStyle="single" borderColor="#333333" paddingX={1}>
-        <Text color="#00E6FF">λ </Text>
         <TextInput
           value={state.currentInput}
           onChange={(val) => setState((p) => ({ ...p, currentInput: val }))}
