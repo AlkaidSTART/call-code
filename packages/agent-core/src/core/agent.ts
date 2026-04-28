@@ -1,10 +1,10 @@
-import { callLLM } from '@core/llm';
-import { systemPrompt } from '@prompt/systemPrompt';
-import { toolPrompt } from '@prompt/toolPrompt';
-import { tools } from '@tools';
-import { run } from 'node:test';
 import { runLoop } from '@core/loop';
+import type { StreamHandlers } from '@core/llm';
 
-export const agent = async (input: string) => {
-  const res = await runLoop(input);
+export const agent = async (
+  input: string,
+  handlers: StreamHandlers = {},
+): Promise<string> => {
+  const res = await runLoop(input, handlers);
+  return res || '';
 };

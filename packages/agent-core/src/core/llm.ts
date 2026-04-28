@@ -1,17 +1,24 @@
 import 'dotenv/config';
 import { OpenAI } from 'openai';
 
-//定义消息类型
 export interface Message {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
-//创建OpenAI客户端
+
+export interface StreamHandlers {
+  onStart?: () => void;
+  onDelta?: (delta: string) => void;
+  onComplete?: (content: string) => void;
+  onError?: (error: unknown) => void;
+  onTrace?: (message: string) => void;
+}
+
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.OPENAI_API_BASE_URL,
 });
-//基础调用函数
+
 export async function callLLM(messages: Message[]) {
   const res = await client.chat.completions.create({
     model: 'deepseek-v4-flash',
@@ -20,4 +27,38 @@ export async function callLLM(messages: Message[]) {
   });
 
   return res.choices[0].message.content;
+}
+
+export async function streamLLM(
+  messages: Message[],
+  handlers: StreamHandlers = {},
+) {
+  handlers.onStart?.();
+
+  try {
+    const stream = await client.chat.completions.create({
+      model: 'deepseek-v4-flash',
+      messages,
+      temperature: 0,
+      stream: true,
+    });
+
+    let content = '';
+
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content ?? '';
+      if (!delta) {
+        continue;
+      }
+
+      content += delta;
+      handlers.onDelta?.(delta);
+    }
+
+    handlers.onComplete?.(content);
+    return content;
+  } catch (error) {
+    handlers.onError?.(error);
+    throw error;
+  }
 }
