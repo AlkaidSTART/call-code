@@ -2,21 +2,29 @@ import React, { useState, useCallback } from 'react';
 import { render, Text, Box } from 'ink';
 import { agent } from '@core/agent';
 import TextInput from 'ink-text-input';
+import Spinner from 'ink-spinner';
+import Divider from 'ink-divider';
+
+interface Message {
+  type: 'user' | 'agent' | 'trace';
+  content: string;
+  isComplete?: boolean;
+}
 
 interface State {
   status: 'idle' | 'loading' | 'success' | 'error';
-  input: string;
-  output: string;
+  currentInput: string;
+  messages: Message[];
   error?: string;
-  trace: string[];
+  currentTrace: string;
 }
 
 const App = () => {
   const [state, setState] = useState<State>({
     status: 'idle',
-    input: '',
-    output: '',
-    trace: [],
+    currentInput: '',
+    messages: [],
+    currentTrace: '',
   });
 
   const handleSubmit = useCallback(async (text: string) => {
@@ -24,134 +32,173 @@ const App = () => {
       return;
     }
 
+    const newUserMsg: Message = { type: 'user', content: text };
+
     setState((prev) => ({
       ...prev,
       status: 'loading',
-      input: text,
-      output: '',
+      currentInput: '',
+      messages: [...prev.messages, newUserMsg],
+      currentTrace: '思考中...',
       error: undefined,
-      trace: ['开始处理输入...', '正在准备流式输出...'],
     }));
 
+    let currentResponse = '';
+
     try {
-      const result = await agent(text, {
+      await agent(text, {
         onStart: () => {
           setState((prev) => ({
             ...prev,
-            trace: [...prev.trace, '模型已开始返回内容'],
+            currentTrace: '唤起模型...',
           }));
         },
         onDelta: (delta) => {
-          setState((prev) => ({
-            ...prev,
-            output: `${prev.output}${delta}`,
-          }));
+          currentResponse += delta;
+          setState((prev) => {
+            // 找到最后一个 agent 消息并更新，或者新加一个
+            const lastMsg = prev.messages[prev.messages.length - 1];
+            if (lastMsg && lastMsg.type === 'agent' && !lastMsg.isComplete) {
+              const newMsgs = [...prev.messages];
+              newMsgs[newMsgs.length - 1] = {
+                ...lastMsg,
+                content: currentResponse,
+              };
+              return { ...prev, messages: newMsgs };
+            } else {
+              return {
+                ...prev,
+                messages: [
+                  ...prev.messages,
+                  {
+                    type: 'agent',
+                    content: currentResponse,
+                    isComplete: false,
+                  },
+                ],
+              };
+            }
+          });
         },
         onComplete: (content) => {
-          setState((prev) => ({
-            ...prev,
-            trace: [...prev.trace, '流式输出完成'],
-            output: content,
-          }));
+          setState((prev) => {
+            const newMsgs = prev.messages.map((m, i) =>
+              i === prev.messages.length - 1 && m.type === 'agent'
+                ? { ...m, content, isComplete: true }
+                : m,
+            );
+            return {
+              ...prev,
+              messages: newMsgs,
+              currentTrace: '',
+            };
+          });
         },
         onError: (error) => {
           setState((prev) => ({
             ...prev,
-            trace: [...prev.trace, '模型调用失败'],
+            status: 'error',
             error: error instanceof Error ? error.message : String(error),
+            currentTrace: '',
           }));
         },
         onTrace: (message) => {
           setState((prev) => ({
             ...prev,
-            trace: [...prev.trace, message],
+            currentTrace: message,
           }));
         },
       });
+
       setState((prev) => ({
         ...prev,
         status: 'success',
-        output: result,
-        trace: [...prev.trace, '执行成功'],
       }));
     } catch (error) {
       setState((prev) => ({
         ...prev,
         status: 'error',
         error: error instanceof Error ? error.message : String(error),
-        trace: [...prev.trace, '执行失败'],
       }));
     }
   }, []);
 
   return (
-    <Box flexDirection="column" padding={1}>
-      {/* Header */}
-      <Box marginBottom={1}>
-        <Text bold color="cyan">
-          🤖 Coding Agent CLI
+    <Box flexDirection="column" paddingX={2} paddingY={1}>
+      {/* branding: call-code Header */}
+      <Box marginBottom={1} justifyContent="space-between">
+        <Text bold color="#D1D1D1">
+          CALL-CODE <Text dimColor>v1.0.0</Text>
         </Text>
       </Box>
 
-      {/* Input Section */}
+      {/* Message History */}
       <Box flexDirection="column" marginBottom={1}>
-        <Text bold>输入指令:</Text>
+        {state.messages.map((msg, index) => (
+          <Box key={index} flexDirection="column" marginTop={1}>
+            {msg.type === 'user' ? (
+              <Box>
+                <Text color="#8A8A8A" bold>
+                  ＞{' '}
+                </Text>
+                <Text bold color="#FFFFFF">
+                  {msg.content}
+                </Text>
+              </Box>
+            ) : (
+              <Box flexDirection="column" marginLeft={2}>
+                <Box marginBottom={1}>
+                  <Divider
+                    title="RESPONSE"
+                    titleColor="#D7D7D7"
+                    dividerColor="#333333"
+                  />
+                </Box>
+                <Text color="#D7D7D7">{msg.content}</Text>
+                {!msg.isComplete && <Text color="#D7D7D7">...</Text>}
+              </Box>
+            )}
+          </Box>
+        ))}
+      </Box>
+
+      {/* Thinking / Trace Section (Floating/Status style) */}
+      {state.status === 'loading' && (
+        <Box marginLeft={2} marginBottom={1}>
+          <Text color="#6B6B6B">
+            <Spinner type="dots" />{' '}
+            <Text italic>{state.currentTrace || '思考中...'}</Text>
+          </Text>
+        </Box>
+      )}
+
+      {/* Error Message */}
+      {state.status === 'error' && (
+        <Box borderStyle="round" borderColor="red" paddingX={1} marginY={1}>
+          <Text color="red">Error: {state.error}</Text>
+        </Box>
+      )}
+
+      {/* Fixed Bottom Input Area */}
+      <Box
+        marginTop={1}
+        borderStyle="single"
+        borderColor="#333333"
+        paddingX={1}
+      >
+        <Text color="#D7D7D7"></Text>
         <TextInput
-          value={state.input}
-          onChange={(value) =>
-            setState((prev) => ({
-              ...prev,
-              input: value,
-            }))
-          }
+          value={state.currentInput}
+          onChange={(val) => setState((p) => ({ ...p, currentInput: val }))}
           onSubmit={handleSubmit}
-          placeholder="输入你的指令后按 Enter"
+          placeholder="Ask call-code a question..."
         />
       </Box>
 
-      {/* Status Indicator */}
-      {state.status === 'loading' && (
-        <Box marginBottom={1}>
-          <Text color="yellow">⏳ 处理中...</Text>
-        </Box>
-      )}
-
-      <Box flexDirection="column" marginBottom={1}>
-        <Text bold>思考 / 过程:</Text>
-        {state.trace.length === 0 ? (
-          <Text dimColor>等待输入...</Text>
-        ) : (
-          state.trace.map((item, index) => (
-            <Text key={`${item}-${index}`} color="blue">
-              • {item}
-            </Text>
-          ))
-        )}
-      </Box>
-
-      {state.status === 'success' && (
-        <Box flexDirection="column" marginBottom={1}>
-          <Text bold color="green">
-            ✅ 执行成功
-          </Text>
-          <Box borderStyle="round" borderColor="green" paddingX={1}>
-            <Text>{state.output}</Text>
-          </Box>
-        </Box>
-      )}
-
-      {state.status === 'error' && (
-        <Box flexDirection="column" marginBottom={1}>
-          <Text bold color="red">
-            ❌ 执行失败
-          </Text>
-          <Text color="red">{state.error}</Text>
-        </Box>
-      )}
-
-      {/* Footer */}
       <Box marginTop={1}>
-        <Text dimColor>按 Ctrl+C 退出</Text>
+        <Text dimColor size="small">
+          Press Ctrl+C to exit
+        </Text>
       </Box>
     </Box>
   );
