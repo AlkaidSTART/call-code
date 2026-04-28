@@ -19,3 +19,4 @@ out
 .remix-serve-build
 .remix-serve-cache
 .remix-serve-node_modules
+.env/*
