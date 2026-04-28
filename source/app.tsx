@@ -3,7 +3,6 @@ import { render, Text, Box } from 'ink';
 import { agent } from '@core/agent';
 import TextInput from 'ink-text-input';
 import Spinner from 'ink-spinner';
-import Divider from 'ink-divider';
 
 interface Message {
   type: 'user' | 'agent' | 'trace';
@@ -147,13 +146,6 @@ const App = () => {
               </Box>
             ) : (
               <Box flexDirection="column" marginLeft={2}>
-                <Box marginBottom={1}>
-                  <Divider
-                    title="RESPONSE"
-                    titleColor="#D7D7D7"
-                    dividerColor="#333333"
-                  />
-                </Box>
                 <Text color="#D7D7D7">{msg.content}</Text>
                 {!msg.isComplete && <Text color="#D7D7D7">...</Text>}
               </Box>
