@@ -4,8 +4,8 @@
     "rootDir": "src",
     "outDir": "dist",
 
-    "declaration": true,          // 👉 生成类型定义（很重要）
-    "composite": true             // 👉 支持被其他包引用（关键）
+    "declaration": true,
+    "composite": true
   },
   "include": ["src"]
 }
