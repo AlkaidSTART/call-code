@@ -20,3 +20,4 @@ out
 .remix-serve-cache
 .remix-serve-node_modules
 .env/*
+bundle.*

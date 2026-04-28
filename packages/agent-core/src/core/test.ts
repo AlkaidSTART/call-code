@@ -1,11 +1,14 @@
-import { callLLM } from './llm.ts';
-const res = await callLLM([
-  {
-    role: 'system',
-    content: '你是一个专业的法律助手',
-  },
-  {
-    role: 'user',
-    content: '你好',
-  },
-]);
+import { callLLM } from './llm';
+
+async function main() {
+  const res = await callLLM([
+    {
+      role: 'user',
+      content: '随便返回一个JSON，比如 {"msg":"hello"}',
+    },
+  ]);
+
+  console.log('LLM返回：', res);
+}
+
+main();

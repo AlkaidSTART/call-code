@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { OpenAI } from 'openai';
 
 //定义消息类型
@@ -8,6 +9,7 @@ export interface Message {
 //创建OpenAI客户端
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  baseURL: process.env.OPENAI_API_BASE_URL,
 });
 //基础调用函数
 export async function callLLM(messages: Message[]) {
