@@ -14,7 +14,7 @@ const client = new OpenAI({
 //基础调用函数
 export async function callLLM(messages: Message[]) {
   const res = await client.chat.completions.create({
-    model: 'deepseek-v4-pro',
+    model: 'deepseek-v4-flash',
     messages,
     temperature: 0,
   });
