@@ -169,8 +169,13 @@ const App = () => {
         >
           <Box marginBottom={1}>
             <Text bold>
-              <Text color="#00E6FF">C A L L</Text>
-              <Text color="#CCCCCC"> C O D E </Text>
+              <Text bold color="#00E6FF">
+                C A L L
+              </Text>
+              <Text bold color="#CCCCCC">
+                {' '}
+                C O D E{' '}
+              </Text>
             </Text>
           </Box>
         </Box>
