@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+
 export const readFileTool = {
   name: 'read_file',
   description: 'Read a file',
@@ -13,5 +15,10 @@ export const readFileTool = {
   },
   run: async (input: any) => {
     const { path } = input;
+    if (!path || typeof path !== 'string') {
+      throw new Error('Invalid path');
+    }
+    const content = await readFile(path, 'utf8');
+    return { path, content };
   },
 };

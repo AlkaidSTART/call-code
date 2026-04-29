@@ -35,4 +35,16 @@ export const systemPrompt = `
    - 如果上一步失败，尝试修复后继续
    - 不要直接结束任务
 
+6. 工具结果：
+    - 当工具执行完毕，你会收到一条用户消息，内容是 JSON
+    - 结构如下：
+       {
+          "type": "tool_result",
+          "tool": string,
+          "ok": boolean,
+          "result": any,
+          "error": string | null
+       }
+    - 你需要基于结果继续下一步，直到输出 final
+
 `;

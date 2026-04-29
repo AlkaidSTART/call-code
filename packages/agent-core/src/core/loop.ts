@@ -1,11 +1,43 @@
 import { streamLLM } from '@core/llm';
 import { ContextBuilder, type ContextMessage } from '@core/context';
-import { systemPrompt } from '@prompt/systemPrompt';
+import { systemPrompt } from '@prompt/system';
+import { toolPrompt } from '@prompt/tool';
+import { tools } from '@tools';
 import type { StreamHandlers } from '@core/llm';
 
 const contextBuilder = new ContextBuilder(8000);
 
+type AgentResponse = {
+  type: 'tool_call' | 'final' | string;
+  tool: string | null;
+  arguments: Record<string, unknown> | null;
+  message: string;
+};
+// 解析模型响应的函数
+const parseAgentResponse = (response: string): AgentResponse | null => {
+  try {
+    const parsed = JSON.parse(response) as AgentResponse;
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+    if (!('type' in parsed)) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+// 判断是否继续循环的函数
 const shouldContinueLoop = (response: string) => {
+  const parsed = parseAgentResponse(response);
+  if (parsed?.type === 'tool_call') {
+    return true;
+  }
+  if (parsed?.type === 'final') {
+    return false;
+  }
+
   const normalized = response.trim().toLowerCase();
 
   if (!normalized) {
@@ -59,7 +91,7 @@ export const runLoop = async (
       handlers.onTrace?.(`第 ${step} 轮开始，正在请求模型...`);
 
       const messages = contextBuilder.build({
-        system: systemPrompt,
+        system: `${systemPrompt}\n${toolPrompt}`,
         history,
         input,
       });
@@ -91,7 +123,55 @@ export const runLoop = async (
       });
       console.log(`[Step ${step}] LLM回复：`, res);
 
+      const parsed = parseAgentResponse(res);
+      if (parsed?.type === 'tool_call' && parsed.tool) {
+        const tool = tools.find((item) => item.name === parsed.tool);
+        if (!tool) {
+          history.push({
+            role: 'user',
+            content: JSON.stringify({
+              type: 'tool_result',
+              tool: parsed.tool,
+              ok: false,
+              error: `Unknown tool: ${parsed.tool}`,
+            }),
+          });
+          handlers.onTrace?.(`未找到工具 ${parsed.tool}，继续下一轮`);
+          continue;
+        }
+
+        try {
+          const result = await tool.run(parsed.arguments ?? {});
+          history.push({
+            role: 'user',
+            content: JSON.stringify({
+              type: 'tool_result',
+              tool: parsed.tool,
+              ok: true,
+              result,
+            }),
+          });
+          handlers.onTrace?.(`工具 ${parsed.tool} 执行成功，继续下一轮`);
+          continue;
+        } catch (error) {
+          history.push({
+            role: 'user',
+            content: JSON.stringify({
+              type: 'tool_result',
+              tool: parsed.tool,
+              ok: false,
+              error: error instanceof Error ? error.message : String(error),
+            }),
+          });
+          handlers.onTrace?.(`工具 ${parsed.tool} 执行失败，继续下一轮`);
+          continue;
+        }
+      }
+
       if (!shouldContinueLoop(res)) {
+        if (parsed?.type === 'final') {
+          return parsed.message || '';
+        }
         return res;
       }
 

@@ -1,3 +1,6 @@
+import { readdir } from 'node:fs/promises';
+import pathModule from 'node:path';
+
 export const listFilesTool = {
   name: 'list_files',
   description: 'List files in a directory',
@@ -13,5 +16,14 @@ export const listFilesTool = {
   },
   run: async (input: any) => {
     const { path } = input;
+    if (!path || typeof path !== 'string') {
+      throw new Error('Invalid path');
+    }
+    const entries = await readdir(path, { withFileTypes: true });
+    return entries.map((entry) => ({
+      name: entry.name,
+      path: pathModule.join(path, entry.name),
+      type: entry.isDirectory() ? 'directory' : 'file',
+    }));
   },
 };
