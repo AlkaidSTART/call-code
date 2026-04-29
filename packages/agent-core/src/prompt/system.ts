@@ -5,7 +5,7 @@ export const systemPrompt = `
 
 {
   "type": "tool_call" | "final",
-  "tool": "read_file" | "write_file" | "run_command" | "list_files" | null,
+  "tool": "get_environment" | "read_file" | "write_file" | "run_command" | "list_files" | null,
   "arguments": object | null,
   "message": string
 }
@@ -30,6 +30,9 @@ export const systemPrompt = `
 4. 工具使用原则：
    - 每一步只做一个明确操作
    - 不要重复调用同一个工具
+   - 当用户要求你操作桌面、当前目录、工作区、下载目录等环境位置时，先调用 get_environment 感知环境
+   - 创建文件优先使用 write_file，不要为了写文件而调用 run_command
+   - 用户说“桌面”时，可以使用 get_environment 返回的 desktop 绝对路径，或使用 Desktop/...、桌面/...、desktop:/... 路径别名
 
 5. 错误处理：
    - 如果上一步失败，尝试修复后继续

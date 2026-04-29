@@ -1,5 +1,6 @@
 import { readdir } from 'node:fs/promises';
 import pathModule from 'node:path';
+import { resolveUserPath } from '@tools/pathUtils';
 
 export const listFilesTool = {
   name: 'list_files',
@@ -19,11 +20,16 @@ export const listFilesTool = {
     if (!path || typeof path !== 'string') {
       throw new Error('Invalid path');
     }
-    const entries = await readdir(path, { withFileTypes: true });
-    return entries.map((entry) => ({
-      name: entry.name,
-      path: pathModule.join(path, entry.name),
-      type: entry.isDirectory() ? 'directory' : 'file',
-    }));
+    const resolvedPath = resolveUserPath(path);
+    const entries = await readdir(resolvedPath, { withFileTypes: true });
+    return {
+      requestedPath: path,
+      path: resolvedPath,
+      entries: entries.map((entry) => ({
+        name: entry.name,
+        path: pathModule.join(resolvedPath, entry.name),
+        type: entry.isDirectory() ? 'directory' : 'file',
+      })),
+    };
   },
 };

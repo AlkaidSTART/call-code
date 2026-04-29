@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { resolveUserPath } from '@tools/pathUtils';
 
 export const readFileTool = {
   name: 'read_file',
@@ -18,7 +19,8 @@ export const readFileTool = {
     if (!path || typeof path !== 'string') {
       throw new Error('Invalid path');
     }
-    const content = await readFile(path, 'utf8');
-    return { path, content };
+    const resolvedPath = resolveUserPath(path);
+    const content = await readFile(resolvedPath, 'utf8');
+    return { requestedPath: path, path: resolvedPath, content };
   },
 };

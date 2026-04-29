@@ -1,18 +1,17 @@
 import { vi, describe, it, expect } from 'vitest';
 
 // Mock runLoop to avoid calling the real loop implementation
-vi.mock('../src/core/loop', () => ({
+vi.mock('@core/loop', () => ({
   runLoop: vi.fn(async (input: string) => `handled:${input}`),
 }));
 
 import { agent } from '../src/core/agent';
-import { runLoop } from '../src/core/loop';
+import { runLoop } from '@core/loop';
 
 describe('agent', () => {
-  it('calls runLoop with input and returns undefined (agent currently returns nothing)', async () => {
-    const spy = vi.spyOn(await import('../src/core/loop'), 'runLoop');
+  it('calls runLoop with input and returns the final response', async () => {
     const res = await agent('task');
-    expect(spy).toHaveBeenCalledWith('task');
-    expect(res).toBeUndefined();
+    expect(runLoop).toHaveBeenCalledWith('task', {});
+    expect(res).toBe('handled:task');
   });
 });

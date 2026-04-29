@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import pathModule from 'node:path';
+import { resolveUserPath } from '@tools/pathUtils';
 
 export const writeFileTool = {
   name: 'write_file',
@@ -26,8 +27,13 @@ export const writeFileTool = {
     if (typeof content !== 'string') {
       throw new Error('Invalid content');
     }
-    await mkdir(path ? pathModule.dirname(path) : '.', { recursive: true });
-    await writeFile(path, content, 'utf8');
-    return { path, bytesWritten: Buffer.byteLength(content, 'utf8') };
+    const resolvedPath = resolveUserPath(path);
+    await mkdir(pathModule.dirname(resolvedPath), { recursive: true });
+    await writeFile(resolvedPath, content, 'utf8');
+    return {
+      requestedPath: path,
+      path: resolvedPath,
+      bytesWritten: Buffer.byteLength(content, 'utf8'),
+    };
   },
 };

@@ -273,7 +273,7 @@ const App = () => {
 
       {/* Footer controls - Moved outside for a cleaner input box */}
       <Box justifyContent="space-between" paddingX={1} marginTop={0}>
-        <Text dimColor size="small">
+        <Text dimColor>
           <Text bold color="#FFFFFF">
             TAB
           </Text>{' '}
