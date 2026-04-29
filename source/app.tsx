@@ -7,6 +7,24 @@ import { get_encoding } from 'tiktoken';
 
 const encoding = get_encoding('cl100k_base');
 
+const brandLines = [
+  '  ______ ___    __    __       ______ ____  ____  ______',
+  ' / ____//   |  / /   / /      / ____// __ \\/ __ \\/ ____/',
+  '/ /    / /| | / /   / /      / /    / / / / / / / __/   ',
+  '/ /___ / ___ |/ /___/ /___   / /___ / /_/ / /_/ / /___   ',
+  '\\____//_/  |_/_____/_____/   \\____/ \\____/_____/_____/   ',
+];
+
+const colors = {
+  ink: '#E8E4DD',
+  muted: '#8E8780',
+  faint: '#5E5852',
+  clay: '#C9A27E',
+  clayDim: '#A98263',
+  border: '#6F6258',
+  panel: '#333333',
+};
+
 interface Message {
   type: 'user' | 'agent' | 'trace';
   content: string;
@@ -157,25 +175,59 @@ const App = () => {
     }
   }, []);
 
+  const isHome = state.view === 'home';
+  const inputPlaceholder = isHome ? 'Ask Call Code to build...' : 'Reply...';
+  const inputBorderColor = isHome ? colors.border : colors.panel;
+  const modeColor = state.mode === 'plan' ? colors.clay : colors.ink;
+
+  const controls = (
+    <Box justifyContent="space-between" paddingX={1} marginTop={isHome ? 0 : 0}>
+      <Text dimColor>
+        <Text color={colors.ink}>tab</Text> mode ·{' '}
+        <Text color={colors.ink}>esc</Text> home ·{' '}
+        <Text color={colors.ink}>ctrl-c</Text> exit
+      </Text>
+
+      <Box>
+        <Box marginRight={2}>
+          <Text dimColor>tokens </Text>
+          <Text color={colors.muted}>{totalTokens}</Text>
+        </Box>
+        <Text bold color={modeColor}>
+          {state.mode.toUpperCase()}
+        </Text>
+      </Box>
+    </Box>
+  );
+
   return (
     <Box flexDirection="column" paddingX={1} paddingY={0}>
-      {state.view === 'home' ? (
+      {isHome ? (
         <Box
           flexDirection="column"
-          height={10}
-          justifyContent="center"
-          alignItems="center"
+          marginTop={1}
           marginBottom={1}
+          alignItems="center"
         >
-          <Box marginBottom={1}>
-            <Text bold>
-              <Text bold color="#00E6FF">
-                C A L L
+          <Box flexDirection="column" marginBottom={1}>
+            {brandLines.map((line, index) => (
+              <Text
+                key={line}
+                bold
+                color={index < 2 ? colors.clay : colors.ink}
+              >
+                {line}
               </Text>
-              <Text bold color="#CCCCCC">
-                {' '}
-                C O D E{' '}
-              </Text>
+            ))}
+          </Box>
+
+          <Box>
+            <Text color={state.mode === 'plan' ? colors.clay : colors.muted}>
+              plan
+            </Text>
+            <Text color={colors.faint}> / </Text>
+            <Text color={state.mode === 'build' ? colors.clay : colors.muted}>
+              build
             </Text>
           </Box>
         </Box>
@@ -199,9 +251,7 @@ const App = () => {
             </Box>
             <Box>
               <Text dimColor>Mode: </Text>
-              <Text color={state.mode === 'plan' ? '#00E6FF' : '#FF0055'}>
-                {state.mode.toUpperCase()}
-              </Text>
+              <Text color={modeColor}>{state.mode.toUpperCase()}</Text>
               <Text dimColor italic>
                 {' '}
                 (ESC to Home)
@@ -259,43 +309,20 @@ const App = () => {
         </Box>
       )}
 
+      {controls}
+
       {/* Input Area */}
-      <Box borderStyle="single" borderColor="#333333" paddingX={1}>
-        <TextInput
-          value={state.currentInput}
-          onChange={(val) => setState((p) => ({ ...p, currentInput: val }))}
-          onSubmit={handleSubmit}
-          placeholder={
-            state.view === 'home' ? 'What should we build today?' : 'Reply...'
-          }
-        />
-      </Box>
-
-      {/* Footer controls - Moved outside for a cleaner input box */}
-      <Box justifyContent="space-between" paddingX={1} marginTop={0}>
-        <Text dimColor>
-          <Text bold color="#FFFFFF">
-            TAB
-          </Text>{' '}
-          Mode •{' '}
-          <Text bold color="#FFFFFF">
-            ESC
-          </Text>{' '}
-          Home •{' '}
-          <Text bold color="#FFFFFF">
-            ^C
-          </Text>{' '}
-          Exit
+      <Box borderStyle="round" borderColor={inputBorderColor} paddingX={1}>
+        <Text color={isHome ? colors.clay : colors.muted}>
+          {isHome ? '>' : '›'}{' '}
         </Text>
-
-        <Box>
-          <Box marginRight={2}>
-            <Text dimColor>Tokens: </Text>
-            <Text color="#8A8A8A">{totalTokens}</Text>
-          </Box>
-          <Text bold color={state.mode === 'plan' ? '#00E6FF' : '#FF0055'}>
-            {state.mode.toUpperCase()}
-          </Text>
+        <Box flexGrow={1}>
+          <TextInput
+            value={state.currentInput}
+            onChange={(val) => setState((p) => ({ ...p, currentInput: val }))}
+            onSubmit={handleSubmit}
+            placeholder={inputPlaceholder}
+          />
         </Box>
       </Box>
     </Box>
