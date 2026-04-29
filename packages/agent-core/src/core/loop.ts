@@ -102,12 +102,8 @@ export const runLoop = async (
           handlers.onTrace?.(`第 ${step} 轮流式输出已开始`);
           handlers.onStart?.();
         },
-        onDelta: (delta) => {
-          handlers.onDelta?.(delta);
-        },
         onComplete: (content) => {
           handlers.onTrace?.(`第 ${step} 轮流式输出完成`);
-          handlers.onComplete?.(content);
         },
         onError: (error) => {
           handlers.onTrace?.(`第 ${step} 轮请求失败`);
@@ -121,7 +117,6 @@ export const runLoop = async (
         role: 'assistant',
         content: res,
       });
-      console.log(`[Step ${step}] LLM回复：`, res);
 
       const parsed = parseAgentResponse(res);
       if (parsed?.type === 'tool_call' && parsed.tool) {

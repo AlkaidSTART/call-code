@@ -90,61 +90,18 @@ const App = () => {
       view: 'chat',
       status: 'loading',
       currentInput: '',
-      messages: [...prev.messages, newUserMsg],
+      messages: [newUserMsg],
       currentTrace: '思考中...',
       error: undefined,
     }));
 
-    let currentResponse = '';
-
     try {
-      await agent(text, {
+      const finalResponse = await agent(text, {
         onStart: () => {
           setState((prev) => ({
             ...prev,
             currentTrace: '唤起模型...',
           }));
-        },
-        onDelta: (delta) => {
-          currentResponse += delta;
-          setState((prev) => {
-            // 找到最后一个 agent 消息并更新，或者新加一个
-            const lastMsg = prev.messages[prev.messages.length - 1];
-            if (lastMsg && lastMsg.type === 'agent' && !lastMsg.isComplete) {
-              const newMsgs = [...prev.messages];
-              newMsgs[newMsgs.length - 1] = {
-                ...lastMsg,
-                content: currentResponse,
-              };
-              return { ...prev, messages: newMsgs };
-            } else {
-              return {
-                ...prev,
-                messages: [
-                  ...prev.messages,
-                  {
-                    type: 'agent',
-                    content: currentResponse,
-                    isComplete: false,
-                  },
-                ],
-              };
-            }
-          });
-        },
-        onComplete: (content) => {
-          setState((prev) => {
-            const newMsgs = prev.messages.map((m, i) =>
-              i === prev.messages.length - 1 && m.type === 'agent'
-                ? { ...m, content, isComplete: true }
-                : m,
-            );
-            return {
-              ...prev,
-              messages: newMsgs,
-              currentTrace: '',
-            };
-          });
         },
         onError: (error) => {
           setState((prev) => ({
@@ -165,6 +122,15 @@ const App = () => {
       setState((prev) => ({
         ...prev,
         status: 'success',
+        currentTrace: '',
+        messages: [
+          newUserMsg,
+          {
+            type: 'agent',
+            content: finalResponse || '已完成',
+            isComplete: true,
+          },
+        ],
       }));
     } catch (error) {
       setState((prev) => ({
