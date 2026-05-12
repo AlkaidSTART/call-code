@@ -21,3 +21,4 @@ out
 .remix-serve-node_modules
 .env/*
 bundle.*
+docs/*
