@@ -1,4 +1,5 @@
 import { get_encoding, type Tiktoken } from 'tiktoken';
+import type { TaskState } from '@core/state';
 
 export interface ContextMessage {
   role: 'system' | 'user' | 'assistant';
@@ -8,7 +9,7 @@ export interface ContextMessage {
 export interface BuildContextInput {
   system: string;
   history: ContextMessage[];
-  input: string;
+  task: TaskState;
   summary?: string;
 }
 
@@ -22,16 +23,29 @@ export class ContextBuilder {
   build({
     system,
     history,
-    input,
+    task,
     summary,
   }: BuildContextInput): ContextMessage[] {
     const messages: ContextMessage[] = [{ role: 'system', content: system }];
+
+    messages.push({
+      role: 'system',
+      content: JSON.stringify({
+        type: 'task_state',
+        id: task.id,
+        mode: task.mode,
+        objective: task.objective,
+        constraints: task.constraints,
+        workspace: task.workspace ?? null,
+        createdAt: task.createdAt,
+      }),
+    });
 
     if (summary) {
       messages.push({ role: 'system', content: summary });
     }
 
-    const userMessage: ContextMessage = { role: 'user', content: input };
+    const userMessage: ContextMessage = { role: 'user', content: task.input };
     const budget = Math.max(
       0,
       this.maxTokens - this.countMessagesTokens([...messages, userMessage]),

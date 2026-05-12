@@ -4,6 +4,7 @@ import { systemPrompt } from '@prompt/system';
 import { toolPrompt } from '@prompt/tool';
 import { tools } from '@tools';
 import type { StreamHandlers } from '@core/llm';
+import type { TaskState } from '@core/state';
 
 const contextBuilder = new ContextBuilder(8000);
 
@@ -78,7 +79,7 @@ const shouldContinueLoop = (response: string) => {
 };
 
 export const runLoop = async (
-  input: string,
+  task: TaskState,
   handlers: StreamHandlers = {},
 ): Promise<string> => {
   const history: ContextMessage[] = [];
@@ -93,7 +94,7 @@ export const runLoop = async (
       const messages = contextBuilder.build({
         system: `${systemPrompt}\n${toolPrompt}`,
         history,
-        input,
+        task,
       });
 
       const res = await streamLLM(messages, {

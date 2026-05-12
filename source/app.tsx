@@ -96,28 +96,35 @@ const App = () => {
     }));
 
     try {
-      const finalResponse = await agent(text, {
-        onStart: () => {
-          setState((prev) => ({
-            ...prev,
-            currentTrace: '唤起模型...',
-          }));
+      const finalResponse = await agent(
+        text,
+        {
+          onStart: () => {
+            setState((prev) => ({
+              ...prev,
+              currentTrace: '唤起模型...',
+            }));
+          },
+          onError: (error) => {
+            setState((prev) => ({
+              ...prev,
+              status: 'error',
+              error: error instanceof Error ? error.message : String(error),
+              currentTrace: '',
+            }));
+          },
+          onTrace: (message) => {
+            setState((prev) => ({
+              ...prev,
+              currentTrace: message,
+            }));
+          },
         },
-        onError: (error) => {
-          setState((prev) => ({
-            ...prev,
-            status: 'error',
-            error: error instanceof Error ? error.message : String(error),
-            currentTrace: '',
-          }));
+        {
+          mode: state.mode,
+          workspace: process.cwd(),
         },
-        onTrace: (message) => {
-          setState((prev) => ({
-            ...prev,
-            currentTrace: message,
-          }));
-        },
-      });
+      );
 
       setState((prev) => ({
         ...prev,
