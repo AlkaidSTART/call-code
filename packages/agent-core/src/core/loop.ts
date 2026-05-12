@@ -1,5 +1,5 @@
 import { streamLLM } from '@core/llm';
-import { ContextBuilder, type ContextMessage } from '@core/context';
+import { ContextBuilder, type ContextMessage } from '@agent-core/context/builder';
 import { systemPrompt } from '@prompt/system';
 import { toolPrompt } from '@prompt/tool';
 import { tools } from '@tools';
