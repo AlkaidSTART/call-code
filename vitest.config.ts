@@ -17,6 +17,8 @@ export default defineConfig({
       '@utils': path.resolve(__dirname, './packages/agent-core/src/utils'),
       '@web': path.resolve(__dirname, './packages/agent-core/src/web'),
       '@prompt': path.resolve(__dirname, './packages/agent-core/src/prompt'),
+      '@policy': path.resolve(__dirname, './packages/agent-core/src/policy'),
+      '@protocol': path.resolve(__dirname, './packages/agent-core/src/protocol'),
     },
   },
 });

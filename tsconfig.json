@@ -18,7 +18,9 @@
       "@types/*": ["./packages/agent-core/src/types/*"],
       "@utils/*": ["./packages/agent-core/src/utils/*"],
       "@web/*": ["./packages/agent-core/src/web/*"],
-      "@prompt/*": ["./packages/agent-core/src/prompt/*"]
+      "@prompt/*": ["./packages/agent-core/src/prompt/*"],
+      "@policy/*": ["./packages/agent-core/src/policy/*"],
+      "@protocol/*": ["./packages/agent-core/src/protocol/*"]
     }
   },
   "include": ["packages/agent-core/src/**/*.ts", "source/**/*.tsx"],

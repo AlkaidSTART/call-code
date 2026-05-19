@@ -1,17 +1,17 @@
-export type AgentMode = 'default' | 'strict';
+import type { AgentMode } from '@core/state';
 
 export interface ModePolicy {
   readonly allowRunCommand: boolean;
-  readonly requireEnvironmentProbeForWorkspacePaths: boolean;
+  readonly allowWriteFile: boolean;
 }
 
 export const modePolicies: Record<AgentMode, ModePolicy> = {
-  default: {
-    allowRunCommand: true,
-    requireEnvironmentProbeForWorkspacePaths: true,
+  plan: {
+    allowRunCommand: false,
+    allowWriteFile: false,
   },
-  strict: {
+  build: {
     allowRunCommand: true,
-    requireEnvironmentProbeForWorkspacePaths: true,
+    allowWriteFile: true,
   },
 };

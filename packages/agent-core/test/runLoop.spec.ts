@@ -7,6 +7,7 @@ vi.mock('@core/llm', () => ({
 
 import { runLoop } from '../src/core/loop';
 import { streamLLM } from '@core/llm';
+import { createTaskState } from '@core/state';
 
 describe('runLoop', () => {
   it('executes a tool call and continues until final', async () => {
@@ -29,7 +30,7 @@ describe('runLoop', () => {
       );
 
     const traces: string[] = [];
-    const res = await runLoop('看看当前环境', {
+    const res = await runLoop(createTaskState('看看当前环境'), {
       onTrace: (message) => traces.push(message),
     });
 
