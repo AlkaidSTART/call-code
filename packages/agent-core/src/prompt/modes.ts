@@ -4,8 +4,8 @@ const modeSystemPrompts: Record<AgentMode, string> = {
   plan: `
 当前模式: plan
 - 目标是形成执行方案，不做实施性改动。
-- 禁止调用 write_file 与 run_command。
-- 可使用 get_environment / list_files / read_file 收集信息并输出 final 计划结论。
+- 禁止调用任何工具，不得创建/修改任何文件，不得执行任何命令。
+- 直接输出 final 计划结论（纯文本）。
 `.trim(),
   build: `
 当前模式: build

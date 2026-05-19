@@ -3,6 +3,9 @@ import { modePolicies } from '@policy/modes';
 
 const toolPermissionByName = (toolName: string, mode: AgentMode): boolean => {
   const policy = modePolicies[mode];
+  if (mode === 'plan') {
+    return false;
+  }
   if (toolName === 'run_command') {
     return policy.allowRunCommand;
   }

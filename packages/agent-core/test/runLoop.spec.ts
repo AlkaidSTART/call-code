@@ -38,4 +38,18 @@ describe('runLoop', () => {
     expect(traces).toContain('工具 get_environment 执行成功，继续下一轮');
     expect(res).toBe('环境已感知');
   });
+
+  it('returns plain text instead of raw json when loop stops on non-final JSON', async () => {
+    vi.mocked(streamLLM).mockResolvedValueOnce(
+      JSON.stringify({
+        type: 'status',
+        tool: null,
+        arguments: null,
+        message: '仅输出文本',
+      }),
+    );
+
+    const res = await runLoop(createTaskState('只要文本输出'));
+    expect(res).toBe('仅输出文本');
+  });
 });

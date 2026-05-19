@@ -5,7 +5,11 @@ import { toolPrompt } from '@prompt/tool';
 import { getModePrompt } from '@prompt/modes';
 import type { StreamHandlers } from '@core/llm';
 import type { TaskState } from '@core/state';
-import { parseAgentResponse, shouldContinueLoop } from '@protocol/parser';
+import {
+  extractFinalText,
+  parseAgentResponse,
+  shouldContinueLoop,
+} from '@protocol/parser';
 import { executeToolCall } from '@tools/executor';
 
 const contextBuilder = new ContextBuilder(8000);
@@ -63,10 +67,7 @@ export const runLoop = async (
       }
 
       if (!shouldContinueLoop(res)) {
-        if (parsed?.type === 'final') {
-          return parsed.message || '';
-        }
-        return res;
+        return extractFinalText(res);
       }
 
       handlers.onTrace?.(`第 ${step} 轮判断任务未完成，准备进入下一轮`);

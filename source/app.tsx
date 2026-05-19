@@ -34,24 +34,47 @@ interface Message {
 interface State {
   view: 'home' | 'chat';
   mode: 'plan' | 'build';
+  phase: 'idle' | 'planning' | 'awaiting_confirm' | 'building';
   status: 'idle' | 'loading' | 'success' | 'error';
   currentInput: string;
   messages: Message[];
   error?: string;
   currentTrace: string;
+  planDraft: string;
+  confirmSelection: 0 | 1;
 }
 
 const App = () => {
   const [state, setState] = useState<State>({
     view: 'home',
     mode: 'build',
+    phase: 'idle',
     status: 'idle',
     currentInput: '',
     messages: [],
     currentTrace: '',
+    planDraft: '',
+    confirmSelection: 0,
   });
 
   useInput((input, key) => {
+    if (state.phase === 'awaiting_confirm' && state.status !== 'loading') {
+      if (key.upArrow || key.leftArrow) {
+        setState((prev) => ({ ...prev, confirmSelection: 0 }));
+        return;
+      }
+      if (key.downArrow || key.rightArrow) {
+        setState((prev) => ({ ...prev, confirmSelection: 1 }));
+        return;
+      }
+      if (key.return) {
+        if (state.confirmSelection === 0) {
+          void handleSubmit('__CONFIRM_EXECUTE__');
+        }
+        return;
+      }
+    }
+
     if (key.tab) {
       // Toggle mode on Tab
       setState((prev) => ({
@@ -83,61 +106,103 @@ const App = () => {
       return;
     }
 
-    const newUserMsg: Message = { type: 'user', content: text };
+    const trimmed = text.trim();
+    const isConfirmTrigger = text === '__CONFIRM_EXECUTE__';
+    const newUserMsg: Message = {
+      type: 'user',
+      content: isConfirmTrigger ? '执行计划（选择）' : text,
+    };
+    const isConfirm =
+      state.phase === 'awaiting_confirm' && isConfirmTrigger;
 
-    setState((prev) => ({
-      ...prev,
-      view: 'chat',
-      status: 'loading',
-      currentInput: '',
-      messages: [newUserMsg],
-      currentTrace: '思考中...',
-      error: undefined,
-    }));
+    if (state.phase === 'awaiting_confirm' && !isConfirm) {
+      setState((prev) => ({
+        ...prev,
+        view: 'chat',
+        mode: 'plan',
+        status: 'loading',
+        currentInput: '',
+        messages: [...prev.messages, newUserMsg],
+        currentTrace: '继续根据你的修改意见调整计划...',
+        error: undefined,
+      }));
+    } else {
+      setState((prev) => ({
+        ...prev,
+        view: 'chat',
+        mode: isConfirm ? 'build' : prev.mode,
+        phase: isConfirm ? 'building' : prev.phase,
+        status: 'loading',
+        currentInput: '',
+        messages:
+          prev.phase === 'awaiting_confirm'
+            ? [...prev.messages, newUserMsg]
+            : [newUserMsg],
+        currentTrace: `思考中...（模式: ${state.mode.toUpperCase()}）`,
+        error: undefined,
+      }));
+    }
 
     try {
-      const finalResponse = await agent(
-        text,
-        {
-          onStart: () => {
-            setState((prev) => ({
-              ...prev,
-              currentTrace: '唤起模型...',
-            }));
-          },
-          onError: (error) => {
-            setState((prev) => ({
-              ...prev,
-              status: 'error',
-              error: error instanceof Error ? error.message : String(error),
-              currentTrace: '',
-            }));
-          },
-          onTrace: (message) => {
-            setState((prev) => ({
-              ...prev,
-              currentTrace: message,
-            }));
-          },
+      const runMode =
+        state.phase === 'awaiting_confirm' && isConfirm ? 'build' : state.mode;
+      const promptInput =
+        state.phase === 'awaiting_confirm' && isConfirm
+          ? `已确认执行以下计划，请直接开始实施：\n${state.planDraft}`
+          : state.phase === 'awaiting_confirm' && !isConfirm
+          ? `${state.planDraft}\n\n用户修改意见：${text}`
+          : text;
+
+      const finalResponse = await agent(promptInput, {
+        onStart: () => {
+          setState((prev) => ({
+            ...prev,
+            currentTrace: '唤起模型...',
+          }));
         },
-        {
-          mode: state.mode,
-          workspace: process.cwd(),
+        onError: (error) => {
+          setState((prev) => ({
+            ...prev,
+            status: 'error',
+            error: error instanceof Error ? error.message : String(error),
+            currentTrace: '',
+          }));
         },
-      );
+        onTrace: (message) => {
+          setState((prev) => ({
+            ...prev,
+            currentTrace: message,
+          }));
+        },
+      }, { mode: runMode, workspace: process.cwd() });
 
       setState((prev) => ({
         ...prev,
         status: 'success',
         currentTrace: '',
-        messages: [
-          newUserMsg,
-          {
-            type: 'agent',
-            content: finalResponse || '已完成',
-            isComplete: true,
-          },
-        ],
+        phase:
+          runMode === 'plan' ? 'awaiting_confirm' : 'idle',
+        mode: runMode === 'plan' ? 'plan' : 'build',
+        planDraft: runMode === 'plan' ? finalResponse || '请确认是否执行这个计划。' : '',
+        confirmSelection: 0,
+        messages:
+          runMode === 'plan'
+            ? [
+                ...prev.messages.filter((msg) => msg.type !== 'agent'),
+                {
+                  type: 'agent',
+                  content: `${finalResponse || '请确认是否执行这个计划。'}\n\n可直接补充新信息继续完善计划，或在下方面板选择是否执行。`,
+                  isComplete: true,
+                },
+              ]
+            : [
+                ...prev.messages,
+                {
+                  type: 'agent',
+                  content: finalResponse || '已完成',
+                  isComplete: true,
+                },
+              ],
       }));
     } catch (error) {
       setState((prev) => ({
@@ -146,10 +211,14 @@ const App = () => {
         error: error instanceof Error ? error.message : String(error),
       }));
     }
-  }, []);
+  }, [state.mode, state.phase, state.planDraft]);
 
   const isHome = state.view === 'home';
-  const inputPlaceholder = isHome ? 'Ask Call Code to build...' : 'Reply...';
+  const inputPlaceholder = isHome
+    ? 'Ask Call Code to build...'
+    : state.phase === 'awaiting_confirm'
+      ? '输入更多信息，继续完善计划...'
+      : 'Reply...';
   const inputBorderColor = isHome ? colors.border : colors.panel;
   const modeColor = state.mode === 'plan' ? colors.clay : colors.ink;
 
@@ -283,6 +352,27 @@ const App = () => {
       )}
 
       {controls}
+
+      {state.phase === 'awaiting_confirm' && state.status !== 'loading' && (
+        <Box
+          borderStyle="round"
+          borderColor={colors.border}
+          paddingX={1}
+          marginBottom={1}
+          flexDirection="column"
+        >
+          <Text color={colors.clay}>计划确认</Text>
+          <Text color={colors.muted}>
+            使用 ↑/↓ 选择，Enter 确认。输入框可继续补充信息。
+          </Text>
+          <Text color={state.confirmSelection === 0 ? colors.clay : colors.muted}>
+            {state.confirmSelection === 0 ? '›' : ' '} 执行计划（自动切换 BUILD）
+          </Text>
+          <Text color={state.confirmSelection === 1 ? colors.clay : colors.muted}>
+            {state.confirmSelection === 1 ? '›' : ' '} 继续完善计划（保持 PLAN）
+          </Text>
+        </Box>
+      )}
 
       {/* Input Area */}
       <Box borderStyle="round" borderColor={inputBorderColor} paddingX={1}>

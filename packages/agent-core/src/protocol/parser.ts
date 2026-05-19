@@ -59,3 +59,17 @@ export const shouldContinueLoop = (response: string): boolean => {
     normalized.includes(signal.toLowerCase()),
   );
 };
+
+export const extractFinalText = (response: string): string => {
+  const parsed = parseAgentResponse(response);
+  if (parsed?.type === 'final') {
+    return typeof parsed.message === 'string' ? parsed.message : '';
+  }
+  if (parsed) {
+    if (typeof parsed.message === 'string' && parsed.message.trim()) {
+      return parsed.message;
+    }
+    return '';
+  }
+  return response;
+};
