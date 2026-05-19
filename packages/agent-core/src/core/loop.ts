@@ -1,5 +1,7 @@
 import { streamLLM } from '@core/llm';
-import { ContextBuilder, type ContextMessage } from '@agent-core/context/builder';
+import { ContextBuilder } from '@agent-core/context/context-builder';
+import { buildRuntimeContext } from '@agent-core/context/runtime-context';
+import type { ContextMessage } from '@agent-core/context/context-types';
 import { systemPrompt } from '@prompt/system';
 import { toolPrompt } from '@prompt/tool';
 import { getModePrompt } from '@prompt/modes';
@@ -11,6 +13,12 @@ import {
   shouldContinueLoop,
 } from '@protocol/parser';
 import { executeToolCall } from '@tools/executor';
+import {
+  archiveShortMemory,
+  promoteStableFact,
+  writeShortMemory,
+} from '@agent-core/memory/memory-writer';
+import { retrieveMemoryForTask } from '@agent-core/memory/memory-retriever';
 
 const contextBuilder = new ContextBuilder(8000);
 
@@ -27,13 +35,17 @@ export const runLoop = async (
     try {
       handlers.onTrace?.(`第 ${step} 轮开始，正在请求模型...`);
 
-      const messages = contextBuilder.build({
+      const memory = retrieveMemoryForTask(task.input, task.id);
+      const runtimeContext = buildRuntimeContext(contextBuilder, {
         system: `${systemPrompt}\n${getModePrompt(task.mode)}\n${toolPrompt}`,
         history,
         task,
+        shortMemory: memory.shortSummary,
+        longMemory: memory.longFacts,
+        includeHistorySummary: step > 1,
       });
 
-      const res = await streamLLM(messages, {
+      const res = await streamLLM(runtimeContext.messages, {
         ...handlers,
         onStart: () => {
           handlers.onTrace?.(`第 ${step} 轮流式输出已开始`);
@@ -54,6 +66,7 @@ export const runLoop = async (
         role: 'assistant',
         content: res,
       });
+      writeShortMemory(task, 'assistant', res, ['model-response']);
 
       const parsed = parseAgentResponse(res);
       if (parsed?.type === 'tool_call' && parsed.tool) {
@@ -62,19 +75,24 @@ export const runLoop = async (
           role: 'user',
           content: execution.content,
         });
+        writeShortMemory(task, 'tool', execution.content, ['tool-result', parsed.tool]);
         handlers.onTrace?.(execution.trace);
         continue;
       }
 
       if (!shouldContinueLoop(res)) {
+        archiveShortMemory(task);
+        promoteStableFact(task, 'task-objective', task.objective, history);
         return extractFinalText(res);
       }
 
       handlers.onTrace?.(`第 ${step} 轮判断任务未完成，准备进入下一轮`);
     } catch (error) {
+      archiveShortMemory(task);
       return `执行出错: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
+  archiveShortMemory(task);
   return '已超出最大循环次数';
 };

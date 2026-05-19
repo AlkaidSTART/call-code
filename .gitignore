@@ -20,6 +20,7 @@ out
 .remix-serve-cache
 .remix-serve-node_modules
 .env/*
+.agent-memory/
 bundle.*
 docs/*
 Agent.md
