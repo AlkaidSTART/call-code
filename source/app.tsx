@@ -56,7 +56,7 @@ type ActivityItem =
     };
 
 interface State {
-  view: 'home' | 'chat';
+  view: 'home' | 'chat' | 'history';
   mode: 'plan' | 'build';
   phase: 'idle' | 'planning' | 'awaiting_confirm' | 'building';
   status: 'idle' | 'loading' | 'success' | 'error';
@@ -64,7 +64,6 @@ interface State {
   messages: Message[];
   recentHistory: ShortMemoryItem[];
   relatedPages: RelatedPage[];
-  activityFocus: boolean;
   activitySelection: number;
   error?: string;
   currentTrace: string;
@@ -97,8 +96,7 @@ const extractRelatedPages = (items: ShortMemoryItem[]): RelatedPage[] => {
 
       pages.set(pagePath, {
         path: pagePath,
-        label:
-          pagePath.split('/').filter(Boolean).slice(-1)[0] ?? pagePath,
+        label: pagePath.split('/').filter(Boolean).slice(-1)[0] ?? pagePath,
       });
     }
   }
@@ -122,7 +120,8 @@ const clampActivitySelection = (
   selection: number,
   activity: ReturnType<typeof loadActivityPanel>,
 ): number => {
-  const itemCount = activity.recentHistory.length + activity.relatedPages.length;
+  const itemCount =
+    activity.recentHistory.length + activity.relatedPages.length;
   return Math.min(selection, Math.max(itemCount - 1, 0));
 };
 
@@ -142,7 +141,10 @@ const loadPagePreview = (pagePath: string): string => {
       const entries = fs.readdirSync(resolvedPath, { withFileTypes: true });
       const content = entries
         .slice(0, 30)
-        .map((entry) => `${entry.isDirectory() ? '[dir]' : '[file]'} ${entry.name}`)
+        .map(
+          (entry) =>
+            `${entry.isDirectory() ? '[dir]' : '[file]'} ${entry.name}`,
+        )
         .join('\n');
 
       return `相关页面: ${pagePath}\n路径: ${resolvedPath}\n\n${content || '目录为空'}`;
@@ -191,7 +193,6 @@ const App = () => {
     messages: [],
     recentHistory: initialActivity.recentHistory,
     relatedPages: initialActivity.relatedPages,
-    activityFocus: false,
     activitySelection: 0,
     currentTrace: '',
     planDraft: '',
@@ -218,10 +219,14 @@ const App = () => {
   );
 
   useInput((input, key) => {
-    if (key.ctrl && input === 'h' && state.view === 'chat') {
+    if (
+      key.ctrl &&
+      input === 'h' &&
+      (state.view === 'chat' || state.view === 'home')
+    ) {
       setState((prev) => ({
         ...prev,
-        activityFocus: !prev.activityFocus,
+        view: 'history',
         activitySelection: Math.min(
           prev.activitySelection,
           Math.max(activityItems.length - 1, 0),
@@ -230,9 +235,9 @@ const App = () => {
       return;
     }
 
-    if (state.activityFocus) {
+    if (state.view === 'history') {
       if (key.escape) {
-        setState((prev) => ({ ...prev, activityFocus: false }));
+        setState((prev) => ({ ...prev, view: 'chat' }));
         return;
       }
 
@@ -263,7 +268,7 @@ const App = () => {
 
         setState((prev) => ({
           ...prev,
-          activityFocus: false,
+          view: 'chat',
           messages: [
             ...prev.messages,
             {
@@ -353,331 +358,361 @@ const App = () => {
     }));
   }, []);
 
-  const handleCommand = useCallback((rawCommand: string): boolean => {
-    const command = rawCommand.trim().toLowerCase();
-    if (!command.startsWith('/')) {
-      return false;
-    }
+  const handleCommand = useCallback(
+    (rawCommand: string): boolean => {
+      const command = rawCommand.trim().toLowerCase();
+      if (!command.startsWith('/')) {
+        return false;
+      }
 
-    if (state.status === 'loading' && !readOnlyCommands.has(command)) {
-      showCommandMessage('当前任务运行中，只能使用 /help 或 /status。');
-      return true;
-    }
+      if (state.status === 'loading' && !readOnlyCommands.has(command)) {
+        showCommandMessage('当前任务运行中，只能使用 /help 或 /status。');
+        return true;
+      }
 
-    const refreshActivity = () => {
-      const activity = loadActivityPanel();
-      return {
-        ...activity,
-        activitySelection: clampActivitySelection(state.activitySelection, activity),
+      const refreshActivity = () => {
+        const activity = loadActivityPanel();
+        return {
+          ...activity,
+          activitySelection: clampActivitySelection(
+            state.activitySelection,
+            activity,
+          ),
+        };
       };
-    };
 
-    switch (command) {
-      case '/help':
-        showCommandMessage(commandHelp);
-        return true;
+      switch (command) {
+        case '/help':
+          showCommandMessage(commandHelp);
+          return true;
 
-      case '/history': {
-        const activity = loadActivityPanel();
-        setState((prev) => ({
-          ...prev,
-          view: 'chat',
-          currentInput: '',
-          ...activity,
-          activityFocus: true,
-          activitySelection: 0,
-          messages:
-            activity.recentHistory.length + activity.relatedPages.length === 0
-              ? [
-                  ...prev.messages,
-                  {
-                    type: 'agent',
-                    content: '暂无最近对话或相关页面。',
-                    isComplete: true,
-                  },
-                ]
-              : prev.messages,
-        }));
-        return true;
+        case '/history': {
+          const activity = loadActivityPanel();
+          setState((prev) => ({
+            ...prev,
+            view: 'history',
+            currentInput: '',
+            ...activity,
+            activitySelection: 0,
+            messages:
+              activity.recentHistory.length + activity.relatedPages.length === 0
+                ? [
+                    ...prev.messages,
+                    {
+                      type: 'agent',
+                      content: '暂无最近对话或相关页面。',
+                      isComplete: true,
+                    },
+                  ]
+                : prev.messages,
+          }));
+          return true;
+        }
+
+        case '/pages': {
+          const activity = loadActivityPanel();
+          setState((prev) => ({
+            ...prev,
+            view: 'history',
+            currentInput: '',
+            ...activity,
+            activitySelection: firstPageSelection(activity),
+            messages:
+              activity.relatedPages.length === 0
+                ? [
+                    ...prev.messages,
+                    {
+                      type: 'agent',
+                      content: '暂无相关页面。',
+                      isComplete: true,
+                    },
+                  ]
+                : prev.messages,
+          }));
+          return true;
+        }
+
+        case '/memory': {
+          const snapshot = memoryStore.snapshot();
+          const lastError = memoryStore.getLastError();
+          showCommandMessage(
+            [
+              'Memory 概览',
+              `短期记忆: ${snapshot.short.length}`,
+              `长期记忆: ${snapshot.long.length}`,
+              `文件: ${memoryStore.getMemoryFile()}`,
+              `最近错误: ${lastError ?? '无'}`,
+            ].join('\n'),
+          );
+          return true;
+        }
+
+        case '/status':
+          showCommandMessage(
+            [
+              '当前状态',
+              `view: ${state.view}`,
+              `mode: ${state.mode}`,
+              `phase: ${state.phase}`,
+              `status: ${state.status}`,
+              `tokens: ${totalTokens}`,
+              `最近历史: ${state.recentHistory.length}`,
+              `相关页面: ${state.relatedPages.length}`,
+            ].join('\n'),
+          );
+          return true;
+
+        case '/mode':
+          showCommandMessage(
+            `当前模式: ${state.mode.toUpperCase()}\n当前阶段: ${state.phase}`,
+          );
+          return true;
+
+        case '/plan':
+          setState((prev) => ({
+            ...prev,
+            view: 'chat',
+            mode: 'plan',
+            currentInput: '',
+            messages: [
+              ...prev.messages,
+              {
+                type: 'agent',
+                content: '已切换到 PLAN 模式。',
+                isComplete: true,
+              },
+            ],
+          }));
+          return true;
+
+        case '/build':
+          setState((prev) => ({
+            ...prev,
+            view: 'chat',
+            mode: 'build',
+            currentInput: '',
+            messages: [
+              ...prev.messages,
+              {
+                type: 'agent',
+                content: '已切换到 BUILD 模式。',
+                isComplete: true,
+              },
+            ],
+          }));
+          return true;
+
+        case '/clear':
+          setState((prev) => ({
+            ...prev,
+            view: 'chat',
+            status: 'idle',
+            currentInput: '',
+            messages: [],
+            error: undefined,
+            currentTrace: '',
+            phase: 'idle',
+            planDraft: '',
+            confirmSelection: 0,
+            ...refreshActivity(),
+          }));
+          return true;
+
+        case '/home':
+          setState((prev) => ({
+            ...prev,
+            view: 'home',
+            currentInput: '',
+          }));
+          return true;
+
+        case '/exit':
+          setState((prev) => ({
+            ...prev,
+            view: 'home',
+            phase: 'idle',
+            status: 'idle',
+            currentInput: '',
+            messages: [],
+            error: undefined,
+            currentTrace: '',
+            planDraft: '',
+            confirmSelection: 0,
+            ...refreshActivity(),
+          }));
+          return true;
+
+        default:
+          showCommandMessage(
+            `未知命令：${rawCommand.trim()}，输入 /help 查看可用命令。`,
+          );
+          return true;
+      }
+    },
+    [
+      showCommandMessage,
+      state.activitySelection,
+      state.mode,
+      state.phase,
+      state.recentHistory.length,
+      state.relatedPages.length,
+      state.status,
+      state.view,
+      totalTokens,
+    ],
+  );
+
+  const handleSubmit = useCallback(
+    async (text: string) => {
+      if (!text.trim()) {
+        return;
       }
 
-      case '/pages': {
-        const activity = loadActivityPanel();
-        setState((prev) => ({
-          ...prev,
-          view: 'chat',
-          currentInput: '',
-          ...activity,
-          activityFocus: activity.relatedPages.length > 0,
-          activitySelection: firstPageSelection(activity),
-          messages:
-            activity.relatedPages.length === 0
-              ? [
-                  ...prev.messages,
-                  {
-                    type: 'agent',
-                    content: '暂无相关页面。',
-                    isComplete: true,
-                  },
-                ]
-              : prev.messages,
-        }));
-        return true;
+      const trimmed = text.trim();
+      if (handleCommand(trimmed)) {
+        return;
       }
 
-      case '/memory': {
-        const snapshot = memoryStore.snapshot();
-        const lastError = memoryStore.getLastError();
-        showCommandMessage(
-          [
-            'Memory 概览',
-            `短期记忆: ${snapshot.short.length}`,
-            `长期记忆: ${snapshot.long.length}`,
-            `文件: ${memoryStore.getMemoryFile()}`,
-            `最近错误: ${lastError ?? '无'}`,
-          ].join('\n'),
-        );
-        return true;
-      }
+      const isConfirmTrigger = text === '__CONFIRM_EXECUTE__';
+      const newUserMsg: Message = {
+        type: 'user',
+        content: isConfirmTrigger ? '执行计划（选择）' : text,
+      };
+      const isConfirm = state.phase === 'awaiting_confirm' && isConfirmTrigger;
 
-      case '/status':
-        showCommandMessage(
-          [
-            '当前状态',
-            `view: ${state.view}`,
-            `mode: ${state.mode}`,
-            `phase: ${state.phase}`,
-            `status: ${state.status}`,
-            `tokens: ${totalTokens}`,
-            `最近历史: ${state.recentHistory.length}`,
-            `相关页面: ${state.relatedPages.length}`,
-          ].join('\n'),
-        );
-        return true;
-
-      case '/mode':
-        showCommandMessage(`当前模式: ${state.mode.toUpperCase()}\n当前阶段: ${state.phase}`);
-        return true;
-
-      case '/plan':
+      if (state.phase === 'awaiting_confirm' && !isConfirm) {
         setState((prev) => ({
           ...prev,
           view: 'chat',
           mode: 'plan',
+          status: 'loading',
           currentInput: '',
-          messages: [
-            ...prev.messages,
-            { type: 'agent', content: '已切换到 PLAN 模式。', isComplete: true },
-          ],
+          messages: [...prev.messages, newUserMsg],
+          currentTrace: '继续根据你的修改意见调整计划...',
+          error: undefined,
         }));
-        return true;
-
-      case '/build':
+      } else {
         setState((prev) => ({
           ...prev,
           view: 'chat',
-          mode: 'build',
+          mode: isConfirm ? 'build' : prev.mode,
+          phase: isConfirm ? 'building' : prev.phase,
+          status: 'loading',
           currentInput: '',
-          messages: [
-            ...prev.messages,
-            { type: 'agent', content: '已切换到 BUILD 模式。', isComplete: true },
-          ],
-        }));
-        return true;
-
-      case '/clear':
-        setState((prev) => ({
-          ...prev,
-          view: 'chat',
-          status: 'idle',
-          currentInput: '',
-          messages: [],
+          messages:
+            prev.phase === 'awaiting_confirm'
+              ? [...prev.messages, newUserMsg]
+              : [newUserMsg],
+          currentTrace: `思考中...（模式: ${state.mode.toUpperCase()}）`,
           error: undefined,
-          currentTrace: '',
-          activityFocus: false,
-          phase: 'idle',
-          planDraft: '',
-          confirmSelection: 0,
-          ...refreshActivity(),
         }));
-        return true;
+      }
 
-      case '/home':
+      try {
+        const runMode =
+          state.phase === 'awaiting_confirm' && isConfirm
+            ? 'build'
+            : state.mode;
+        const promptInput =
+          state.phase === 'awaiting_confirm' && isConfirm
+            ? `已确认执行以下计划，请直接开始实施：\n${state.planDraft}`
+            : state.phase === 'awaiting_confirm' && !isConfirm
+              ? `${state.planDraft}\n\n用户修改意见：${text}`
+              : text;
+
+        const finalResponse = await agent(
+          promptInput,
+          {
+            onStart: () => {
+              setState((prev) => ({
+                ...prev,
+                currentTrace: '唤起模型...',
+              }));
+            },
+            onError: (error) => {
+              setState((prev) => ({
+                ...prev,
+                status: 'error',
+                error: error instanceof Error ? error.message : String(error),
+                currentTrace: '',
+              }));
+            },
+            onTrace: (message) => {
+              setState((prev) => ({
+                ...prev,
+                currentTrace: message,
+              }));
+            },
+          },
+          { mode: runMode, workspace: process.cwd() },
+        );
+
         setState((prev) => ({
-          ...prev,
-          view: 'home',
-          currentInput: '',
-          activityFocus: false,
-        }));
-        return true;
-
-      case '/exit':
-        setState((prev) => ({
-          ...prev,
-          view: 'home',
-          phase: 'idle',
-          status: 'idle',
-          currentInput: '',
-          messages: [],
-          error: undefined,
+          ...(() => {
+            const activity = loadActivityPanel();
+            return {
+              ...prev,
+              ...activity,
+              activitySelection: clampActivitySelection(
+                prev.activitySelection,
+                activity,
+              ),
+            };
+          })(),
+          status: 'success',
           currentTrace: '',
-          planDraft: '',
+          phase: runMode === 'plan' ? 'awaiting_confirm' : 'idle',
+          mode: runMode === 'plan' ? 'plan' : 'build',
+          planDraft:
+            runMode === 'plan'
+              ? finalResponse || '请确认是否执行这个计划。'
+              : '',
           confirmSelection: 0,
-          activityFocus: false,
-          ...refreshActivity(),
+          messages:
+            runMode === 'plan'
+              ? [
+                  ...prev.messages.filter((msg) => msg.type !== 'agent'),
+                  {
+                    type: 'agent',
+                    content: `${finalResponse || '请确认是否执行这个计划。'}\n\n可直接补充新信息继续完善计划，或在下方面板选择是否执行。`,
+                    isComplete: true,
+                  },
+                ]
+              : [
+                  ...prev.messages,
+                  {
+                    type: 'agent',
+                    content: finalResponse || '已完成',
+                    isComplete: true,
+                  },
+                ],
         }));
-        return true;
-
-      default:
-        showCommandMessage(`未知命令：${rawCommand.trim()}，输入 /help 查看可用命令。`);
-        return true;
-    }
-  }, [
-    showCommandMessage,
-    state.activitySelection,
-    state.mode,
-    state.phase,
-    state.recentHistory.length,
-    state.relatedPages.length,
-    state.status,
-    state.view,
-    totalTokens,
-  ]);
-
-  const handleSubmit = useCallback(async (text: string) => {
-    if (!text.trim()) {
-      return;
-    }
-
-    const trimmed = text.trim();
-    if (handleCommand(trimmed)) {
-      return;
-    }
-
-    const isConfirmTrigger = text === '__CONFIRM_EXECUTE__';
-    const newUserMsg: Message = {
-      type: 'user',
-      content: isConfirmTrigger ? '执行计划（选择）' : text,
-    };
-    const isConfirm =
-      state.phase === 'awaiting_confirm' && isConfirmTrigger;
-
-    if (state.phase === 'awaiting_confirm' && !isConfirm) {
-      setState((prev) => ({
-        ...prev,
-        view: 'chat',
-        mode: 'plan',
-        status: 'loading',
-        currentInput: '',
-        messages: [...prev.messages, newUserMsg],
-        currentTrace: '继续根据你的修改意见调整计划...',
-        error: undefined,
-      }));
-    } else {
-      setState((prev) => ({
-        ...prev,
-        view: 'chat',
-        mode: isConfirm ? 'build' : prev.mode,
-        phase: isConfirm ? 'building' : prev.phase,
-        status: 'loading',
-        currentInput: '',
-        messages:
-          prev.phase === 'awaiting_confirm'
-            ? [...prev.messages, newUserMsg]
-            : [newUserMsg],
-        currentTrace: `思考中...（模式: ${state.mode.toUpperCase()}）`,
-        error: undefined,
-      }));
-    }
-
-    try {
-      const runMode =
-        state.phase === 'awaiting_confirm' && isConfirm ? 'build' : state.mode;
-      const promptInput =
-        state.phase === 'awaiting_confirm' && isConfirm
-          ? `已确认执行以下计划，请直接开始实施：\n${state.planDraft}`
-          : state.phase === 'awaiting_confirm' && !isConfirm
-          ? `${state.planDraft}\n\n用户修改意见：${text}`
-          : text;
-
-      const finalResponse = await agent(promptInput, {
-        onStart: () => {
-          setState((prev) => ({
-            ...prev,
-            currentTrace: '唤起模型...',
-          }));
-        },
-        onError: (error) => {
-          setState((prev) => ({
-            ...prev,
-            status: 'error',
-            error: error instanceof Error ? error.message : String(error),
-            currentTrace: '',
-          }));
-        },
-        onTrace: (message) => {
-          setState((prev) => ({
-            ...prev,
-            currentTrace: message,
-          }));
-        },
-      }, { mode: runMode, workspace: process.cwd() });
-
-      setState((prev) => ({
-        ...(() => {
-          const activity = loadActivityPanel();
-          return {
-            ...prev,
-            ...activity,
-            activitySelection: clampActivitySelection(prev.activitySelection, activity),
-          };
-        })(),
-        status: 'success',
-        currentTrace: '',
-        phase:
-          runMode === 'plan' ? 'awaiting_confirm' : 'idle',
-        mode: runMode === 'plan' ? 'plan' : 'build',
-        planDraft: runMode === 'plan' ? finalResponse || '请确认是否执行这个计划。' : '',
-        confirmSelection: 0,
-        messages:
-          runMode === 'plan'
-            ? [
-                ...prev.messages.filter((msg) => msg.type !== 'agent'),
-                {
-                  type: 'agent',
-                  content: `${finalResponse || '请确认是否执行这个计划。'}\n\n可直接补充新信息继续完善计划，或在下方面板选择是否执行。`,
-                  isComplete: true,
-                },
-              ]
-            : [
-                ...prev.messages,
-                {
-                  type: 'agent',
-                  content: finalResponse || '已完成',
-                  isComplete: true,
-                },
-              ],
-      }));
-    } catch (error) {
-      setState((prev) => ({
-        ...(() => {
-          const activity = loadActivityPanel();
-          return {
-            ...prev,
-            ...activity,
-            activitySelection: clampActivitySelection(prev.activitySelection, activity),
-          };
-        })(),
-        status: 'error',
-        error: error instanceof Error ? error.message : String(error),
-      }));
-    }
-  }, [state.mode, state.phase, state.planDraft]);
+      } catch (error) {
+        setState((prev) => ({
+          ...(() => {
+            const activity = loadActivityPanel();
+            return {
+              ...prev,
+              ...activity,
+              activitySelection: clampActivitySelection(
+                prev.activitySelection,
+                activity,
+              ),
+            };
+          })(),
+          status: 'error',
+          error: error instanceof Error ? error.message : String(error),
+        }));
+      }
+    },
+    [state.mode, state.phase, state.planDraft],
+  );
 
   const isHome = state.view === 'home';
+  const isHistory = state.view === 'history';
   const modeColor = state.mode === 'plan' ? colors.clay : colors.ink;
   const isChoosing =
-    state.activityFocus ||
+    isHistory ||
     (state.phase === 'awaiting_confirm' && state.status !== 'loading');
   const inputFocused = !isChoosing;
   const inputPlaceholder = isHome
@@ -686,7 +721,7 @@ const App = () => {
       ? '正在选择，Esc 返回输入...'
       : state.phase === 'awaiting_confirm'
         ? '输入更多信息，继续完善计划...'
-        : 'Reply...';
+        : '输入你的内容...';
   const inputBorderColor = isChoosing
     ? colors.clay
     : isHome
@@ -694,12 +729,12 @@ const App = () => {
       : colors.panel;
 
   const controls = (
-    <Box justifyContent="space-between" paddingX={1} marginTop={isHome ? 0 : 0}>
+    <Box justifyContent="space-between" paddingX={1} marginTop={0}>
       <Text dimColor>
-        <Text color={colors.ink}>tab</Text> mode ·{' '}
-        <Text color={colors.ink}>ctrl-h</Text> history ·{' '}
-        <Text color={colors.ink}>esc</Text> home ·{' '}
-        <Text color={colors.ink}>ctrl-c</Text> exit
+        <Text color={colors.ink}>[Tab]</Text> mode ·{' '}
+        <Text color={colors.ink}>[Ctrl-H]</Text> history ·{' '}
+        <Text color={colors.ink}>[Esc]</Text> home ·{' '}
+        <Text color={colors.ink}>[Ctrl-C]</Text> exit
       </Text>
 
       <Box>
@@ -707,9 +742,6 @@ const App = () => {
           <Text dimColor>tokens </Text>
           <Text color={colors.muted}>{totalTokens}</Text>
         </Box>
-        <Text bold color={modeColor}>
-          {state.mode.toUpperCase()}
-        </Text>
       </Box>
     </Box>
   );
@@ -745,34 +777,54 @@ const App = () => {
             </Text>
           </Box>
         </Box>
+      ) : isHistory ? (
+        <Box flexDirection="column" paddingX={1} marginBottom={1}>
+          <Box justifyContent="space-between" marginBottom={1}>
+            <Text color="#00E6FF" bold>
+              历史选择
+            </Text>
+            <Text dimColor>Esc 返回 · Enter 确定</Text>
+          </Box>
+          <Box flexDirection="column">
+            {activityItems.length === 0 ? (
+              <Text color={colors.faint}>暂无最近对话</Text>
+            ) : (
+              activityItems.map((item, index) => (
+                <Box key={item.id}>
+                  <Text
+                    color={
+                      state.activitySelection === index
+                        ? '#00E6FF'
+                        : colors.faint
+                    }
+                  >
+                    {state.activitySelection === index ? '›' : ' '}
+                  </Text>
+                  <Text
+                    color={
+                      item.type === 'history' && item.role === 'user'
+                        ? '#00E6FF'
+                        : colors.muted
+                    }
+                  >
+                    {item.type === 'history'
+                      ? item.role === 'user'
+                        ? ' [U] '
+                        : ' [A] '
+                      : ' [P] '}
+                  </Text>
+                  <Text color={colors.ink}>
+                    {item.type === 'history'
+                      ? compactText(item.content)
+                      : `${item.label} ${compactText(item.path, 72)}`}
+                  </Text>
+                </Box>
+              ))
+            )}
+          </Box>
+        </Box>
       ) : (
         <Box flexDirection="column">
-          {/* Header in Chat View */}
-          <Box
-            borderStyle="round"
-            borderColor="#333333"
-            paddingX={1}
-            marginBottom={1}
-            justifyContent="space-between"
-          >
-            <Box>
-              <Text bold color="#00E6FF">
-                CALL
-              </Text>
-              <Text bold color="#CCCCCC">
-                CODE
-              </Text>
-            </Box>
-            <Box>
-              <Text dimColor>Mode: </Text>
-              <Text color={modeColor}>{state.mode.toUpperCase()}</Text>
-              <Text dimColor italic>
-                {' '}
-                (ESC to Home)
-              </Text>
-            </Box>
-          </Box>
-
           {/* Message History */}
           <Box flexDirection="column" marginBottom={0}>
             {state.messages.map((msg, index) => (
@@ -785,9 +837,9 @@ const App = () => {
                 {msg.type === 'user' ? (
                   <Box>
                     <Text color="#00E6FF" bold>
-                      User:
+                      ❯{' '}
                     </Text>
-                    <Text color="#FFFFFF"> {msg.content}</Text>
+                    <Text color="#E8E4DD">{msg.content}</Text>
                   </Box>
                 ) : (
                   <Box flexDirection="column">
@@ -797,55 +849,6 @@ const App = () => {
                 )}
               </Box>
             ))}
-          </Box>
-
-          <Box
-            borderStyle="round"
-            borderColor={colors.border}
-            paddingX={1}
-            marginBottom={1}
-            flexDirection="column"
-          >
-            <Box justifyContent="space-between">
-              <Text color={state.activityFocus ? '#00E6FF' : colors.clay}>
-                最近活动
-              </Text>
-              <Text color={colors.faint}>
-                Ctrl+H 选择 · {state.recentHistory.length} 条 / {state.relatedPages.length} 页
-              </Text>
-            </Box>
-
-            {activityItems.length === 0 ? (
-              <Text color={colors.faint}>暂无最近对话</Text>
-            ) : (
-              activityItems.map((item, index) => (
-                <Box key={item.id}>
-                  <Text
-                    color={
-                      state.activityFocus && state.activitySelection === index
-                        ? '#00E6FF'
-                        : colors.faint
-                    }
-                  >
-                    {state.activityFocus && state.activitySelection === index ? '>' : ' '}{' '}
-                  </Text>
-                  <Text color={item.type === 'history' && item.role === 'user' ? '#00E6FF' : colors.muted}>
-                    {item.type === 'history' ? (item.role === 'user' ? 'U' : 'A') : 'P'}{' '}
-                  </Text>
-                  <Text color={colors.ink}>
-                    {item.type === 'history'
-                      ? compactText(item.content)
-                      : `${item.label} ${compactText(item.path, 72)}`}
-                  </Text>
-                </Box>
-              ))
-            )}
-
-            {state.activityFocus && activityItems.length > 0 && (
-              <Text color={colors.faint}>
-                ↑/↓ 选择 · Enter 查看 · Esc 返回输入
-              </Text>
-            )}
           </Box>
         </Box>
       )}
@@ -875,30 +878,29 @@ const App = () => {
       {controls}
 
       {state.phase === 'awaiting_confirm' && state.status !== 'loading' && (
-        <Box
-          borderStyle="round"
-          borderColor={colors.border}
-          paddingX={1}
-          marginBottom={1}
-          flexDirection="column"
-        >
+        <Box paddingX={1} marginBottom={1} flexDirection="column">
           <Text color={colors.clay}>计划确认</Text>
           <Text color={colors.muted}>
             使用 ↑/↓ 选择，Enter 确认。输入框可继续补充信息。
           </Text>
-          <Text color={state.confirmSelection === 0 ? colors.clay : colors.muted}>
-            {state.confirmSelection === 0 ? '›' : ' '} 执行计划（自动切换 BUILD）
+          <Text
+            color={state.confirmSelection === 0 ? colors.clay : colors.muted}
+          >
+            {state.confirmSelection === 0 ? '›' : ' '} 执行计划（自动切换
+            BUILD）
           </Text>
-          <Text color={state.confirmSelection === 1 ? colors.clay : colors.muted}>
+          <Text
+            color={state.confirmSelection === 1 ? colors.clay : colors.muted}
+          >
             {state.confirmSelection === 1 ? '›' : ' '} 继续完善计划（保持 PLAN）
           </Text>
         </Box>
       )}
 
       {/* Input Area */}
-      <Box borderStyle="round" borderColor={inputBorderColor} paddingX={1}>
-        <Text color={isHome ? colors.clay : colors.muted}>
-          {isHome ? '>' : '›'}{' '}
+      <Box paddingX={1} marginTop={1}>
+        <Text color={isHome ? colors.clay : modeColor} bold>
+          [{state.mode.toUpperCase()}] ❯{' '}
         </Text>
         <Box flexGrow={1}>
           <TextInput

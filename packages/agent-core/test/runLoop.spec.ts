@@ -1,4 +1,4 @@
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock streamLLM to ensure no network calls during tests
 vi.mock('@core/llm', () => ({
@@ -10,6 +10,10 @@ import { streamLLM } from '@core/llm';
 import { createTaskState } from '@core/state';
 
 describe('runLoop', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('executes a tool call and continues until final', async () => {
     vi.mocked(streamLLM)
       .mockResolvedValueOnce(
@@ -51,5 +55,13 @@ describe('runLoop', () => {
 
     const res = await runLoop(createTaskState('只要文本输出'));
     expect(res).toBe('仅输出文本');
+  });
+
+  it('uses fallback stop signal when model output is non-protocol text', async () => {
+    vi.mocked(streamLLM).mockResolvedValueOnce('已完成：全部处理完毕');
+
+    const res = await runLoop(createTaskState('测试非协议完成'));
+    expect(res).toBe('已完成：全部处理完毕');
+    expect(streamLLM).toHaveBeenCalledTimes(1);
   });
 });

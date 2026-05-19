@@ -12,6 +12,7 @@ import {
   parseAgentResponse,
   shouldContinueLoop,
 } from '@protocol/parser';
+import { isToolCallAction } from '@protocol/action';
 import { executeToolCall } from '@tools/executor';
 import {
   archiveShortMemory,
@@ -69,7 +70,7 @@ export const runLoop = async (
       writeShortMemory(task, 'assistant', res, ['model-response']);
 
       const parsed = parseAgentResponse(res);
-      if (parsed?.type === 'tool_call' && parsed.tool) {
+      if (parsed && isToolCallAction(parsed)) {
         const execution = await executeToolCall(task.mode, parsed);
         history.push({
           role: 'user',

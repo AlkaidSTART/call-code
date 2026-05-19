@@ -1,20 +1,9 @@
-export interface AgentResponse {
-  type: 'tool_call' | 'final' | string;
-  tool: string | null;
-  arguments: Record<string, unknown> | null;
-  message: string;
-}
+import { isAgentAction, isFinalAction, isToolCallAction, type AgentAction } from '@protocol/action';
 
-export const parseAgentResponse = (response: string): AgentResponse | null => {
+export const parseAgentResponse = (response: string): AgentAction | null => {
   try {
-    const parsed = JSON.parse(response) as AgentResponse;
-    if (!parsed || typeof parsed !== 'object') {
-      return null;
-    }
-    if (!('type' in parsed)) {
-      return null;
-    }
-    return parsed;
+    const parsed = JSON.parse(response) as unknown;
+    return isAgentAction(parsed) ? parsed : null;
   } catch {
     return null;
   }
@@ -22,10 +11,10 @@ export const parseAgentResponse = (response: string): AgentResponse | null => {
 
 export const shouldContinueLoop = (response: string): boolean => {
   const parsed = parseAgentResponse(response);
-  if (parsed?.type === 'tool_call') {
+  if (parsed && isToolCallAction(parsed)) {
     return true;
   }
-  if (parsed?.type === 'final') {
+  if (parsed && isFinalAction(parsed)) {
     return false;
   }
 
@@ -62,14 +51,19 @@ export const shouldContinueLoop = (response: string): boolean => {
 
 export const extractFinalText = (response: string): string => {
   const parsed = parseAgentResponse(response);
-  if (parsed?.type === 'final') {
-    return typeof parsed.message === 'string' ? parsed.message : '';
+  if (parsed && isFinalAction(parsed)) {
+    return parsed.message;
   }
-  if (parsed) {
-    if (typeof parsed.message === 'string' && parsed.message.trim()) {
-      return parsed.message;
+  if (parsed && parsed.message.trim()) {
+    return parsed.message;
+  }
+  try {
+    const fallback = JSON.parse(response) as { message?: unknown };
+    if (typeof fallback.message === 'string' && fallback.message.trim()) {
+      return fallback.message;
     }
-    return '';
+  } catch {
+    // keep raw response for non-JSON fallback
   }
   return response;
 };
