@@ -18,7 +18,6 @@ out
 .remix-serve-cache
 .remix-serve-node_modules
 .env/*
-.agent-memory/
 .agent-sessions/
 bundle.*
 docs/*

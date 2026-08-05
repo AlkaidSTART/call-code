@@ -14,11 +14,7 @@ import {
 } from '@protocol/parser';
 import { isToolCallAction } from '@protocol/action';
 import { executeToolCall } from '@tools/executor';
-import {
-  archiveShortMemory,
-  promoteStableFact,
-  writeShortMemory,
-} from '@agent-core/memory/memory-writer';
+import { promoteStableFact } from '@agent-core/memory/memory-writer';
 import { retrieveMemoryForTask } from '@agent-core/memory/memory-retriever';
 import {
   appendTaskEntry,
@@ -62,12 +58,11 @@ export const runLoop = async (
     try {
       handlers.onTrace?.(`第 ${step} 轮开始，正在请求模型...`);
 
-      const memory = retrieveMemoryForTask(task.input, task.id);
+      const memory = retrieveMemoryForTask(task.input);
       const runtimeContext = buildRuntimeContext(contextBuilder, {
         system: `${systemPrompt}\n${getModePrompt(task.mode)}\n${toolPrompt}`,
         history,
         task,
-        shortMemory: memory.shortSummary,
         longMemory: memory.longFacts,
         includeHistorySummary: step > 1,
       });
@@ -96,7 +91,6 @@ export const runLoop = async (
       if (store) {
         appendTaskEntry(task, { role: 'assistant', content: res, tags: ['model-response'] }, store);
       }
-      writeShortMemory(task, 'assistant', res, ['model-response']);
 
       const parsed = parseAgentResponse(res);
       if (parsed && isToolCallAction(parsed)) {
@@ -123,24 +117,20 @@ export const runLoop = async (
             },
           }, store);
         }
-        writeShortMemory(task, 'tool', execution.content, ['tool-result', parsed.tool]);
         handlers.onTrace?.(execution.trace);
         continue;
       }
 
       if (!shouldContinueLoop(res)) {
-        archiveShortMemory(task);
         promoteStableFact(task, 'task-objective', task.objective, history);
         return extractFinalText(res);
       }
 
       handlers.onTrace?.(`第 ${step} 轮判断任务未完成，准备进入下一轮`);
     } catch (error) {
-      archiveShortMemory(task);
       return `执行出错: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
-  archiveShortMemory(task);
   return '已超出最大循环次数';
 };

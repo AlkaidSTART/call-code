@@ -1,17 +1,8 @@
-export type MemoryKind = 'short' | 'long';
-
 export interface MemoryBase {
   id: string;
   createdAt: string;
   updatedAt: string;
   taskId?: string;
-}
-
-export interface ShortMemoryItem extends MemoryBase {
-  kind: 'short';
-  role: 'user' | 'assistant' | 'system' | 'tool';
-  content: string;
-  tags: string[];
 }
 
 export interface LongMemoryItem extends MemoryBase {
@@ -22,9 +13,6 @@ export interface LongMemoryItem extends MemoryBase {
   sourceCount: number;
 }
 
-export type MemoryItem = ShortMemoryItem | LongMemoryItem;
-
 export interface MemorySnapshot {
-  short: ShortMemoryItem[];
   long: LongMemoryItem[];
 }

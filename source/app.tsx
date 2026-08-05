@@ -441,7 +441,6 @@ const App = () => {
           showCommandMessage(
             [
               'Memory 概览',
-              `短期记忆: ${snapshot.short.length}`,
               `长期记忆: ${snapshot.long.length}`,
             ].join('\n'),
           );
