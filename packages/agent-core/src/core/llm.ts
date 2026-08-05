@@ -19,9 +19,11 @@ const client = new OpenAI({
   baseURL: process.env.OPENAI_API_BASE_URL,
 });
 
+const llmModel = process.env.OPENAI_MODEL ?? 'deepseek-v4-flash';
+
 export async function callLLM(messages: Message[]) {
   const res = await client.chat.completions.create({
-    model: 'deepseek-v4-flash',
+    model: llmModel,
     messages,
     temperature: 0,
   });
@@ -37,7 +39,7 @@ export async function streamLLM(
 
   try {
     const stream = await client.chat.completions.create({
-      model: 'deepseek-v4-flash',
+      model: llmModel,
       messages,
       temperature: 0,
       stream: true,
