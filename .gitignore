@@ -24,4 +24,4 @@ out
 bundle.*
 docs/*
 Agent.md
-packages/agent-core/test/*
+/test/
