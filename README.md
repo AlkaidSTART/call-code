@@ -1,5 +1,10 @@
 # call-code
 
+![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![pnpm](https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white)
+![MIT License](https://img.shields.io/badge/License-MIT-4B32C3)
+
 call-code 是一个本地运行的终端编程 Agent（CLI coding agent），基于 Node.js、TypeScript 和 Ink 构建。它可以在用户当前工作目录中接受自然语言任务，通过工具调用读取文件、写入文件、执行命令、查看环境信息，并结合本地短/长期记忆持续完成任务。
 
 ## 功能特性
@@ -10,6 +15,37 @@ call-code 是一个本地运行的终端编程 Agent（CLI coding agent），基
 - 结构化响应协议：模型输出统一为 `tool_call` 或 `final` 的 JSON action，循环解析并继续执行。
 - 本地记忆：短期记忆按任务保存，长期记忆按主题沉淀，并持久化到 `.agent-memory/memory.json`。
 - 上下文预算：运行时基于 token 估算对历史消息做裁剪，减少超出模型上下文的风险。
+
+## 架构
+
+```text
+source/app.tsx                         CLI 层
+   首页 / 对话 / 历史 / 相关页面预览
+        │  用户输入、命令与活动面板操作
+        ▼
+agent-core                             核心层
+├─ core/       agent 与 runLoop 主循环：规划 -> 执行 -> 观察
+├─ context/    构建上下文、历史摘要与 token 预算
+├─ protocol/   解析 tool_call / final JSON action
+├─ policy/     PLAN / BUILD 模式下的工具权限
+├─ tools/      get_environment / read_file / write_file
+│              list_files / run_command
+├─ memory/     short / long 记忆，持久化到 .agent-memory
+└─ prompt/     系统提示词、工具说明与模式提示词
+        │  OpenAI chat.completions 请求（支持流式）
+        ▼
+OpenAI-compatible LLM                  模型层
+        ▲
+        │  返回 tool_call 或 final action
+        └── 循环执行，直到任务完成
+```
+
+运行时的核心流程：
+
+1. CLI 接收自然语言任务，交给 agent 构建上下文并调用 LLM。
+2. 模型返回 `tool_call` 或 `final`，由 protocol 解析为结构化 action。
+3. policy 按 `PLAN` / `BUILD` 模式校验权限，允许后由对应工具执行。
+4. 工具执行结果作为 observation 回写，memory 记录关键信息，循环继续，直到返回 `final`。
 
 ## 项目结构
 
