@@ -53,6 +53,7 @@ pnpm exec tsx source/app.tsx
 | --- | --- |
 | `OPENAI_API_KEY` | 必填，OpenAI 兼容 API 的 Key。 |
 | `OPENAI_API_BASE_URL` | 可选，自定义 OpenAI 兼容 base URL。 |
+| `OPENAI_MODEL` | 可选，模型名称，默认 `deepseek-v4-flash`。 |
 | `AGENT_MEMORY_FILE` | 可选，记忆持久化文件路径，默认 `.agent-memory/memory.json`。 |
 | `AGENT_DESKTOP_DIR` | 可选，覆盖桌面目录路径，便于测试或自定义工作环境。 |
 
