@@ -21,6 +21,7 @@ describe('agent', () => {
         workspace: undefined,
       }),
       {},
+      { persist: true },
     );
     expect(res).toBe('handled:task');
   });

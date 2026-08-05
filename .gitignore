@@ -19,6 +19,7 @@ out
 .remix-serve-node_modules
 .env/*
 .agent-memory/
+.agent-sessions/
 bundle.*
 docs/*
 pnpm-workspace.yaml

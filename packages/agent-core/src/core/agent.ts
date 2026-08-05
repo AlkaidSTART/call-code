@@ -17,6 +17,6 @@ export const agent = async (
 ): Promise<string> => {
   const task = createTaskState(input, options);
   writeShortMemory(task, 'user', task.input, ['task-input']);
-  const res = await runLoop(task, handlers);
+  const res = await runLoop(task, handlers, { persist: true });
   return res || '';
 };
