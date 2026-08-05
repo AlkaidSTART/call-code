@@ -62,8 +62,8 @@ packages/
       prompt/                # 系统提示词、工具说明、模式提示词
       tools/                 # 环境、文件、命令等本地工具
       policy/                # PLAN/BUILD 模式下的工具权限
-packages/agent-core/test/    # agent-core 本地单元测试
-vitest.config.ts             # Vitest 测试配置
+ tests/                       # 项目统一单元测试
+ vitest.config.ts             # Vitest 测试配置
 ```
 
 ## 快速开始
@@ -108,7 +108,7 @@ pnpm run build:agent-core
 
 ## 测试说明
 
-测试文件放在对应包的 `test/` 目录下，例如 `packages/agent-core/test/`；根目录的 `vitest.config.ts` 会统一收集并运行所有包内的测试。
+测试文件统一放在项目根目录的 `tests/` 目录下，根目录的 `vitest.config.ts` 会统一收集并运行。
 
 ## License
 
