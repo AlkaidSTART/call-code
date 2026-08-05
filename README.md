@@ -62,6 +62,8 @@ packages/
       prompt/                # 系统提示词、工具说明、模式提示词
       tools/                 # 环境、文件、命令等本地工具
       policy/                # PLAN/BUILD 模式下的工具权限
+      web/                   # GitHub Pages 客户端数据导出
+  client/                    # 静态会话历史界面，可部署到 GitHub Pages
 tests/                        # 项目统一单元测试
  vitest.config.ts             # Vitest 测试配置
 ```
@@ -103,6 +105,9 @@ pnpm exec vitest run --reporter verbose
 
 # 构建 agent-core
 pnpm run build:agent-core
+
+# 导出会话历史到 packages/client/data.json
+pnpm export:web
 ```
 
 ## 测试说明

@@ -8,7 +8,8 @@
     "start": "tsx source/app.tsx",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --reporter verbose",
-    "build:agent-core": "tsc -p packages/agent-core/tsconfig.json"
+    "build:agent-core": "tsc -p packages/agent-core/tsconfig.json",
+    "export:web": "tsx source/export-web.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",

@@ -24,7 +24,11 @@
       "@protocol/*": ["./packages/agent-core/src/protocol/*"]
     }
   },
-  "include": ["packages/agent-core/src/**/*.ts", "source/**/*.tsx"],
+  "include": [
+    "packages/agent-core/src/**/*.ts",
+    "source/**/*.ts",
+    "source/**/*.tsx"
+  ],
   "exclude": ["node_modules", "dist", "apps"],
   "composite": true
 }

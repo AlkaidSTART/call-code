@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import fs from 'node:fs';
+import { resolve } from 'node:path';
 import { render, Text, Box, useInput } from 'ink';
 import { agent } from '@core/agent';
 import { llmModel } from '@core/llm';
@@ -8,11 +9,13 @@ import Spinner from 'ink-spinner';
 import { get_encoding } from 'tiktoken';
 import { memoryStore } from '@agent-core/memory/memory-store';
 import {
+  getSharedSessionStore,
   loadRecentFeed,
   loadRecentHistory,
   setSharedSessionStore,
   type RecentHistoryItem,
 } from '@agent-core/session/session-repository';
+import { writeWebExport } from '@web/export';
 import { SessionStore } from '../packages/session-sqlite/src/index';
 import { resolveUserPath } from '@tools/pathUtils';
 
@@ -170,6 +173,7 @@ const commandHelp = [
   '/pages - 打开相关页面选择',
   '/memory - 查看 memory 概览',
   '/status - 查看当前 CLI 状态',
+  '/export - 导出会话数据到 GitHub Pages 客户端',
   '/mode - 查看当前模式和阶段',
   '/plan - 切换到 PLAN 模式',
   '/build - 切换到 BUILD 模式',
@@ -462,6 +466,23 @@ const App = () => {
             ].join('\n'),
           );
           return true;
+
+        case '/export': {
+          try {
+            const outputPath =
+              process.env.CALL_CODE_WEB_DATA ??
+              resolve(process.cwd(), 'packages/client/data.json');
+            const data = writeWebExport(getSharedSessionStore(), outputPath);
+            showCommandMessage(
+              `已导出 ${data.sessions.length} 个会话到 ${outputPath}`,
+            );
+          } catch (error) {
+            showCommandMessage(
+              `导出失败: ${error instanceof Error ? error.message : String(error)}`,
+            );
+          }
+          return true;
+        }
 
         case '/mode':
           showCommandMessage(

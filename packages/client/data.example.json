@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-08-05T12:00:00.000Z",
+  "sessions": [
+    {
+      "id": "demo-build",
+      "createdAt": "2026-08-05T10:10:00.000Z",
+      "cwd": "/Users/allure/Desktop/demo-app",
+      "parentSessionId": null,
+      "metadata": {
+        "mode": "build",
+        "objective": "为仪表盘增加搜索过滤"
+      },
+      "stats": {
+        "messageCount": 4,
+        "cachedTokens": 1200,
+        "uncachedTokens": 860,
+        "totalTokens": 2060,
+        "costTotal": 0.04
+      },
+      "entries": [
+        {
+          "seq": 1,
+          "id": "e-user-1",
+          "parentId": null,
+          "type": "user",
+          "role": "user",
+          "timestamp": "2026-08-05T10:10:00.000Z",
+          "text": "给仪表盘加一个搜索框，按任务状态过滤列表。",
+          "payload": {
+            "content": "给仪表盘加一个搜索框，按任务状态过滤列表。",
+            "tags": ["task-input"]
+          }
+        },
+        {
+          "seq": 2,
+          "id": "e-assistant-1",
+          "parentId": "e-user-1",
+          "type": "assistant",
+          "role": "assistant",
+          "timestamp": "2026-08-05T10:10:12.000Z",
+          "text": "我会先读取现有仪表盘组件，找出状态字段和列表渲染位置，再补充搜索过滤。",
+          "payload": {
+            "content": "我会先读取现有仪表盘组件，找出状态字段和列表渲染位置，再补充搜索过滤。",
+            "tags": ["model-response"]
+          }
+        },
+        {
+          "seq": 3,
+          "id": "e-tool-1",
+          "parentId": "e-assistant-1",
+          "type": "tool",
+          "role": "tool",
+          "timestamp": "2026-08-05T10:10:18.000Z",
+          "tool": "read_file",
+          "text": "{\"path\":\"src/pages/dashboard.tsx\"}\nsuccess",
+          "payload": {
+            "content": "{\"path\":\"src/pages/dashboard.tsx\"}\nsuccess",
+            "tool": "read_file",
+            "tags": ["tool-result", "read_file"]
+          }
+        },
+        {
+          "seq": 4,
+          "id": "e-assistant-2",
+          "parentId": "e-tool-1",
+          "type": "assistant",
+          "role": "assistant",
+          "timestamp": "2026-08-05T10:10:30.000Z",
+          "text": "已完成搜索框和状态过滤，列表会按状态字段实时过滤。",
+          "payload": {
+            "content": "已完成搜索框和状态过滤，列表会按状态字段实时过滤。",
+            "tags": ["model-response"]
+          }
+        }
+      ],
+      "records": [
+        {
+          "seq": 3,
+          "id": "r-tool-1",
+          "lane": "run",
+          "runId": "demo-build",
+          "type": "tool_call",
+          "opKind": "read_file",
+          "timestamp": "2026-08-05T10:10:18.000Z",
+          "payload": {
+            "tool": "read_file",
+            "path": "src/pages/dashboard.tsx"
+          }
+        }
+      ],
+      "facts": [
+        {
+          "seq": 1,
+          "kind": "task-objective",
+          "key": "objective",
+          "value": "为仪表盘增加搜索过滤"
+        }
+      ]
+    },
+    {
+      "id": "demo-plan",
+      "createdAt": "2026-08-04T09:20:00.000Z",
+      "cwd": "/Users/allure/Desktop/call-code",
+      "parentSessionId": null,
+      "metadata": {
+        "mode": "plan",
+        "objective": "评估 GitHub Pages 静态发布方案"
+      },
+      "stats": {
+        "messageCount": 3,
+        "cachedTokens": 900,
+        "uncachedTokens": 640,
+        "totalTokens": 1540,
+        "costTotal": 0.02
+      },
+      "entries": [
+        {
+          "seq": 1,
+          "id": "e-user-p1",
+          "parentId": null,
+          "type": "user",
+          "role": "user",
+          "timestamp": "2026-08-04T09:20:00.000Z",
+          "text": "梳理 GitHub Pages 部署路径和需要提交的静态文件。",
+          "payload": {
+            "content": "梳理 GitHub Pages 部署路径和需要提交的静态文件。",
+            "tags": ["task-input"]
+          }
+        },
+        {
+          "seq": 2,
+          "id": "e-assistant-p1",
+          "parentId": "e-user-p1",
+          "type": "assistant",
+          "role": "assistant",
+          "timestamp": "2026-08-04T09:20:08.000Z",
+          "text": "可以使用 GitHub Actions 将 packages/client 发布到 Pages，数据由 pnpm export:web 生成并提交。",
+          "payload": {
+            "content": "可以使用 GitHub Actions 将 packages/client 发布到 Pages，数据由 pnpm export:web 生成并提交。",
+            "tags": ["model-response"]
+          }
+        },
+        {
+          "seq": 3,
+          "id": "e-assistant-p2",
+          "parentId": "e-assistant-p1",
+          "type": "assistant",
+          "role": "assistant",
+          "timestamp": "2026-08-04T09:20:16.000Z",
+          "text": "计划完成，确认后进入 BUILD 模式部署工作流。",
+          "payload": {
+            "content": "计划完成，确认后进入 BUILD 模式部署工作流。",
+            "tags": ["model-response"]
+          }
+        }
+      ],
+      "records": [],
+      "facts": [
+        {
+          "seq": 1,
+          "kind": "task-objective",
+          "key": "objective",
+          "value": "评估 GitHub Pages 静态发布方案"
+        }
+      ]
+    }
+  ]
+}
