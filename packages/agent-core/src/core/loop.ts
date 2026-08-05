@@ -14,20 +14,42 @@ import {
 } from '@protocol/parser';
 import { isToolCallAction } from '@protocol/action';
 import { executeToolCall } from '@tools/executor';
-import {
-  archiveShortMemory,
-  promoteStableFact,
-  writeShortMemory,
-} from '@agent-core/memory/memory-writer';
+import { promoteStableFact } from '@agent-core/memory/memory-writer';
 import { retrieveMemoryForTask } from '@agent-core/memory/memory-retriever';
+import {
+  appendTaskEntry,
+  appendTaskRecord,
+  ensureTaskSession,
+  getSharedSessionStoreOrNull,
+  readTaskHistory,
+  type SessionStoreLike,
+} from '@agent-core/session/session-repository';
 
 const contextBuilder = new ContextBuilder(8000);
+
+export interface RunLoopOptions {
+  /** 是否将会话历史写入 SQLite */
+  persist?: boolean;
+  /** 自定义 SessionStore，测试时可传入 :memory: 实例 */
+  sessionStore?: SessionStoreLike;
+}
 
 export const runLoop = async (
   task: TaskState,
   handlers: StreamHandlers = {},
+  options: RunLoopOptions = {},
 ): Promise<string> => {
   const history: ContextMessage[] = [];
+  const store = options.persist === true
+    ? (options.sessionStore ?? getSharedSessionStoreOrNull())
+    : null;
+
+  if (store) {
+    ensureTaskSession(task, store);
+    appendTaskEntry(task, { role: 'user', content: task.input, tags: ['task-input'] }, store);
+    history.push(...readTaskHistory(task, { limit: 100 }, store));
+  }
+
   let step = 0;
   const maxSteps = 10;
 
@@ -36,12 +58,11 @@ export const runLoop = async (
     try {
       handlers.onTrace?.(`第 ${step} 轮开始，正在请求模型...`);
 
-      const memory = retrieveMemoryForTask(task.input, task.id);
+      const memory = retrieveMemoryForTask(task.input);
       const runtimeContext = buildRuntimeContext(contextBuilder, {
         system: `${systemPrompt}\n${getModePrompt(task.mode)}\n${toolPrompt}`,
         history,
         task,
-        shortMemory: memory.shortSummary,
         longMemory: memory.longFacts,
         includeHistorySummary: step > 1,
       });
@@ -67,33 +88,49 @@ export const runLoop = async (
         role: 'assistant',
         content: res,
       });
-      writeShortMemory(task, 'assistant', res, ['model-response']);
+      if (store) {
+        appendTaskEntry(task, { role: 'assistant', content: res, tags: ['model-response'] }, store);
+      }
 
       const parsed = parseAgentResponse(res);
       if (parsed && isToolCallAction(parsed)) {
+        if (store) {
+          appendTaskRecord(task, {
+            type: 'tool_call',
+            opKind: parsed.tool,
+            payload: parsed,
+          }, store);
+        }
         const execution = await executeToolCall(task.mode, parsed);
         history.push({
           role: 'user',
           content: execution.content,
         });
-        writeShortMemory(task, 'tool', execution.content, ['tool-result', parsed.tool]);
+        if (store) {
+          appendTaskEntry(task, { role: 'tool', content: execution.content, tool: parsed.tool, tags: ['tool-result', parsed.tool] }, store);
+          appendTaskRecord(task, {
+            type: 'tool_result',
+            opKind: parsed.tool,
+            payload: {
+              tool: parsed.tool,
+              content: execution.content,
+            },
+          }, store);
+        }
         handlers.onTrace?.(execution.trace);
         continue;
       }
 
       if (!shouldContinueLoop(res)) {
-        archiveShortMemory(task);
         promoteStableFact(task, 'task-objective', task.objective, history);
         return extractFinalText(res);
       }
 
       handlers.onTrace?.(`第 ${step} 轮判断任务未完成，准备进入下一轮`);
     } catch (error) {
-      archiveShortMemory(task);
       return `执行出错: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
-  archiveShortMemory(task);
   return '已超出最大循环次数';
 };

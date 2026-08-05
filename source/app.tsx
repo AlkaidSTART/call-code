@@ -7,10 +7,18 @@ import TextInput from 'ink-text-input';
 import Spinner from 'ink-spinner';
 import { get_encoding } from 'tiktoken';
 import { memoryStore } from '@agent-core/memory/memory-store';
-import type { ShortMemoryItem } from '@agent-core/memory/memory-schema';
+import {
+  loadRecentFeed,
+  loadRecentHistory,
+  setSharedSessionStore,
+  type RecentHistoryItem,
+} from '@agent-core/session/session-repository';
+import { SessionStore } from '../packages/session-sqlite/src/index';
 import { resolveUserPath } from '@tools/pathUtils';
 
 const encoding = get_encoding('cl100k_base');
+
+setSharedSessionStore(new SessionStore());
 
 const brandLines = [
   '  ______ ___    __    __       ______ ____  ____  ______',
@@ -47,7 +55,7 @@ type ActivityItem =
       id: string;
       label: string;
       content: string;
-      role: ShortMemoryItem['role'];
+      role: RecentHistoryItem['role'];
     }
   | {
       type: 'page';
@@ -63,7 +71,7 @@ interface State {
   status: 'idle' | 'loading' | 'success' | 'error';
   currentInput: string;
   messages: Message[];
-  recentHistory: ShortMemoryItem[];
+  recentHistory: RecentHistoryItem[];
   relatedPages: RelatedPage[];
   activitySelection: number;
   error?: string;
@@ -81,7 +89,7 @@ const compactText = (text: string, maxLength = 96): string => {
   return `${normalized.slice(0, maxLength - 1)}...`;
 };
 
-const extractRelatedPages = (items: ShortMemoryItem[]): RelatedPage[] => {
+const extractRelatedPages = (items: Array<{ content: string }>): RelatedPage[] => {
   const pages = new Map<string, RelatedPage>();
 
   for (const item of items) {
@@ -106,14 +114,9 @@ const extractRelatedPages = (items: ShortMemoryItem[]): RelatedPage[] => {
 };
 
 const loadActivityPanel = () => {
-  const shortItems = memoryStore.listShort();
-
   return {
-    recentHistory: shortItems
-      .filter((item) => item.role === 'user' || item.role === 'assistant')
-      .slice(-8)
-      .reverse(),
-    relatedPages: extractRelatedPages(shortItems),
+    recentHistory: loadRecentHistory(8),
+    relatedPages: extractRelatedPages(loadRecentFeed(200)),
   };
 };
 
@@ -438,7 +441,6 @@ const App = () => {
           showCommandMessage(
             [
               'Memory 概览',
-              `短期记忆: ${snapshot.short.length}`,
               `长期记忆: ${snapshot.long.length}`,
             ].join('\n'),
           );

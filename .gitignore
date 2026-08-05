@@ -18,7 +18,8 @@ out
 .remix-serve-cache
 .remix-serve-node_modules
 .env/*
-.agent-memory/
+.agent-sessions/
+*.tsbuildinfo
 bundle.*
 docs/*
 pnpm-workspace.yaml

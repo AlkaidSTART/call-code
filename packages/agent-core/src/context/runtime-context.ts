@@ -11,7 +11,6 @@ export interface BuildRuntimeContextInput {
   system: string;
   history: ContextMessage[];
   task: TaskState;
-  shortMemory?: string;
   longMemory?: string[];
   includeHistorySummary?: boolean;
 }
@@ -35,13 +34,6 @@ export const buildRuntimeContext = (
     messages.push({
       role: 'system',
       content: `长期记忆:\n${input.longMemory.map((item) => `- ${item}`).join('\n')}`,
-    });
-  }
-
-  if (input.shortMemory) {
-    messages.push({
-      role: 'system',
-      content: `短期记忆:\n${input.shortMemory}`,
     });
   }
 
