@@ -75,12 +75,7 @@ vitest.config.ts             # Vitest 测试配置
 ```bash
 cp .env.example .env
 pnpm install
-```
-
-CLI 启动方式取决于项目实际的 `package.json` scripts；当前仓库中主要入口是 `source/app.tsx`。如果使用 `tsx`，可直接运行：
-
-```bash
-pnpm exec tsx source/app.tsx
+pnpm dev
 ```
 
 ## 环境变量
@@ -89,7 +84,7 @@ pnpm exec tsx source/app.tsx
 | --- | --- |
 | `OPENAI_API_KEY` | 必填，OpenAI 兼容 API 的 Key。 |
 | `OPENAI_API_BASE_URL` | 可选，自定义 OpenAI 兼容 base URL。 |
-| `OPENAI_MODEL` | 可选，模型名称，默认 `deepseek-v4-flash`。 |
+| `OPENAI_MODEL` | 必填，模型名称，无默认值；未配置时 CLI 会提示。 |
 | `AGENT_MEMORY_FILE` | 可选，记忆持久化文件路径，默认 `.agent-memory/memory.json`。 |
 | `AGENT_DESKTOP_DIR` | 可选，覆盖桌面目录路径，便于测试或自定义工作环境。 |
 
@@ -98,6 +93,9 @@ pnpm exec tsx source/app.tsx
 以下命令与当前 CI 保持一致：
 
 ```bash
+# 启动 CLI
+pnpm dev
+
 # 类型检查
 pnpm exec tsc -p tsconfig.json --noEmit
 

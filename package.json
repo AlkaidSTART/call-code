@@ -1,0 +1,30 @@
+{
+  "name": "call-code",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx source/app.tsx",
+    "start": "tsx source/app.tsx",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --reporter verbose",
+    "build:agent-core": "tsc -p packages/agent-core/tsconfig.json"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "ink": "^7.1.1",
+    "ink-spinner": "^5.0.0",
+    "ink-text-input": "^6.0.0",
+    "openai": "^6.34.0",
+    "react": "^19.2.8",
+    "tiktoken": "^1.0.20"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.18",
+    "prettier": "^3.4.2",
+    "tsx": "^4.23.7",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.4"
+  }
+}

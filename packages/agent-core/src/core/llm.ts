@@ -1,5 +1,8 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import { OpenAI } from 'openai';
+
+dotenv.config();
+dotenv.config({ path: '.env.local' });
 
 export interface Message {
   role: 'system' | 'user' | 'assistant';
@@ -19,9 +22,16 @@ const client = new OpenAI({
   baseURL: process.env.OPENAI_API_BASE_URL,
 });
 
-const llmModel = process.env.OPENAI_MODEL ?? 'deepseek-v4-flash';
+export const llmModel = process.env.OPENAI_MODEL ?? '';
+
+const missingModelMessage =
+  '你没有配置 OPENAI_MODEL，请在 .env 或 .env.local 中设置模型名称。';
 
 export async function callLLM(messages: Message[]) {
+  if (!llmModel) {
+    throw new Error(missingModelMessage);
+  }
+
   const res = await client.chat.completions.create({
     model: llmModel,
     messages,
@@ -38,6 +48,10 @@ export async function streamLLM(
   handlers.onStart?.();
 
   try {
+    if (!llmModel) {
+      throw new Error(missingModelMessage);
+    }
+
     const stream = await client.chat.completions.create({
       model: llmModel,
       messages,
