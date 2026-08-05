@@ -435,14 +435,11 @@ const App = () => {
 
         case '/memory': {
           const snapshot = memoryStore.snapshot();
-          const lastError = memoryStore.getLastError();
           showCommandMessage(
             [
               'Memory 概览',
               `短期记忆: ${snapshot.short.length}`,
               `长期记忆: ${snapshot.long.length}`,
-              `文件: ${memoryStore.getMemoryFile()}`,
-              `最近错误: ${lastError ?? '无'}`,
             ].join('\n'),
           );
           return true;

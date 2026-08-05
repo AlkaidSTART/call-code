@@ -13,7 +13,7 @@ call-code 是一个本地运行的终端编程 Agent（CLI coding agent），基
 - 双执行模式：`PLAN` 模式只允许生成计划和读取环境，`BUILD` 模式可以写入文件、执行命令并推进任务。
 - 本地工具集：内置 `get_environment`、`read_file`、`write_file`、`list_files`、`run_command` 五个工具。
 - 结构化响应协议：模型输出统一为 `tool_call` 或 `final` 的 JSON action，循环解析并继续执行。
-- 本地记忆：短期记忆按任务保存，长期记忆按主题沉淀，并持久化到 `.agent-memory/memory.json`。
+- 本地记忆：短期记忆按任务保存，长期记忆按主题沉淀，仅在进程内使用，不写入本地 JSON。
 - 上下文预算：运行时基于 token 估算对历史消息做裁剪，减少超出模型上下文的风险。
 
 ## 架构
@@ -30,7 +30,7 @@ agent-core                             核心层
 ├─ policy/     PLAN / BUILD 模式下的工具权限
 ├─ tools/      get_environment / read_file / write_file
 │              list_files / run_command
-├─ memory/     short / long 记忆，持久化到 .agent-memory
+├─ memory/     short / long 记忆（仅存内存，不落盘 JSON）
 └─ prompt/     系统提示词、工具说明与模式提示词
         │  OpenAI chat.completions 请求（支持流式）
         ▼
@@ -62,8 +62,8 @@ packages/
       prompt/                # 系统提示词、工具说明、模式提示词
       tools/                 # 环境、文件、命令等本地工具
       policy/                # PLAN/BUILD 模式下的工具权限
-test/                        # 本地单元测试（已加入 .gitignore）
-vitest.config.ts             # Vitest 测试配置
+tests/                        # 项目统一单元测试
+ vitest.config.ts             # Vitest 测试配置
 ```
 
 ## 快速开始
@@ -85,7 +85,6 @@ pnpm dev
 | `OPENAI_API_KEY` | 必填，OpenAI 兼容 API 的 Key。 |
 | `OPENAI_API_BASE_URL` | 可选，自定义 OpenAI 兼容 base URL。 |
 | `OPENAI_MODEL` | 必填，模型名称，无默认值；未配置时 CLI 会提示。 |
-| `AGENT_MEMORY_FILE` | 可选，记忆持久化文件路径，默认 `.agent-memory/memory.json`。 |
 | `AGENT_DESKTOP_DIR` | 可选，覆盖桌面目录路径，便于测试或自定义工作环境。 |
 
 ## 常用命令
@@ -108,7 +107,7 @@ pnpm run build:agent-core
 
 ## 测试说明
 
-测试文件统一放在项目根目录的 `test/` 下，不放在包内。`/test/` 已加入 `.gitignore`，这些测试作为本地验证文件使用。
+测试文件统一放在项目根目录的 `tests/` 目录下，根目录的 `vitest.config.ts` 会统一收集并运行。
 
 ## License
 
