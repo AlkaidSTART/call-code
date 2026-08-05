@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import fs from 'node:fs';
 import { render, Text, Box, useInput } from 'ink';
 import { agent } from '@core/agent';
+import { llmModel } from '@core/llm';
 import TextInput from 'ink-text-input';
 import Spinner from 'ink-spinner';
 import { get_encoding } from 'tiktoken';
@@ -455,6 +456,7 @@ const App = () => {
               `mode: ${state.mode}`,
               `phase: ${state.phase}`,
               `status: ${state.status}`,
+              `model: ${llmModel || '未配置'}`,
               `tokens: ${totalTokens}`,
               `最近历史: ${state.recentHistory.length}`,
               `相关页面: ${state.relatedPages.length}`,
@@ -570,6 +572,19 @@ const App = () => {
 
       const trimmed = text.trim();
       if (handleCommand(trimmed)) {
+        return;
+      }
+
+      if (!llmModel) {
+        setState((prev) => ({
+          ...prev,
+          view: 'chat',
+          currentInput: '',
+          status: 'error',
+          error:
+            '你没有配置 OPENAI_MODEL，请在 .env 或 .env.local 中设置模型名称。',
+          currentTrace: '',
+        }));
         return;
       }
 
@@ -872,6 +887,19 @@ const App = () => {
           marginBottom={1}
         >
           <Text color="red">Error: {state.error}</Text>
+        </Box>
+      )}
+
+      {!llmModel && (
+        <Box
+          borderStyle="round"
+          borderColor={colors.clay}
+          paddingX={1}
+          marginBottom={1}
+        >
+          <Text color="#F5C77A">
+            你没有配置 OPENAI_MODEL，请在 .env 或 .env.local 中设置模型名称。
+          </Text>
         </Box>
       )}
 

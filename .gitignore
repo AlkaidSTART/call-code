@@ -1,6 +1,4 @@
 node_modules
-package.json
-pnpm-lock.yaml
 yarn.lock
 .env
 .env.local
@@ -23,5 +21,5 @@ out
 .agent-memory/
 bundle.*
 docs/*
-Agent.md
 /test/
+pnpm-workspace.yaml
