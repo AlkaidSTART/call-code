@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { Theme, WebSession } from '../types';
 import { entryRole, formatTime, getSessionTitle } from '../utils';
+import logoUrl from '../../assets/call-code.png';
 
 interface SidebarProps {
   sessions: WebSession[];
@@ -39,16 +40,15 @@ export function Sidebar({
       {/* 顶栏：品牌 + 主题切换 */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5">
-          <div
-            className="grid h-7 w-7 place-items-center rounded-lg border text-[11px] font-bold tracking-wide"
+          <img
+            src={logoUrl}
+            alt="Call Code"
+            className="h-7 w-7 rounded-lg border object-contain"
             style={{
-              background: 'rgb(var(--chip-bg))',
               borderColor: 'rgb(var(--chip-border))',
-              color: 'var(--text-primary)',
+              background: 'rgb(var(--chip-bg))',
             }}
-          >
-            CC
-          </div>
+          />
           <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
             Call Code
           </span>
