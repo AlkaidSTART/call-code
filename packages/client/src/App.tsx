@@ -64,23 +64,27 @@ export default function App() {
 
   if (loadState === 'loading') {
     return (
-      <div className="grid min-h-screen place-items-center bg-[#eef3f7] text-slate-500 dark:bg-[#05070a] dark:text-slate-400">
-        正在读取会话
+      <div className="app-shell">
+        <div className="grid min-h-[60vh] place-items-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
+          正在读取会话
+        </div>
       </div>
     );
   }
 
   if (loadState === 'error' || !data) {
     return (
-      <div className="grid min-h-screen place-items-center bg-[#eef3f7] text-slate-500 dark:bg-[#05070a] dark:text-slate-400">
-        无法读取会话数据
+      <div className="app-shell">
+        <div className="grid min-h-[60vh] place-items-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
+          无法读取会话数据
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#eef3f7] p-4 text-slate-800 dark:bg-[#05070a] dark:text-slate-100">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(280px,340px)_1fr]">
+    <div className="app-shell">
+      <div className="app-grid">
         <Sidebar
           sessions={filteredSessions}
           activeId={activeId}
