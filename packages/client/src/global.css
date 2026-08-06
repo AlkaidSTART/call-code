@@ -10,88 +10,91 @@
     monospace;
 
   /* 基底背景 */
-  --bg-a: #f0f0f5;
-  --bg-b: #faf9fe;
+  --bg-a: #f3f4f7;
+  --bg-b: #fbfbfd;
 
-  /* 多巴胺光晕色（用于背景渐变） */
-  --glow-1: 167 139 250;   /* 薰衣草紫 */
-  --glow-2: 251 146 160;   /* 珊瑚粉 */
-  --glow-3: 52 211 153;    /* 薄荷绿 */
+  /* 中性光晕，仅保留极淡的层次感 */
+  --glow-1: 148 148 158;
+  --glow-2: 148 148 158;
+  --glow-3: 148 148 158;
 
   /* 毛玻璃面板 */
-  --panel-bg: 255 255 255 / 0.48;
-  --panel-border: 140 120 200 / 0.12;
-  --panel-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset,
-    0 1px 3px rgb(100 80 160 / 0.06),
-    0 20px 50px -16px rgb(120 100 180 / 0.12);
+  --panel-bg: 255 255 255 / 0.42;
+  --panel-border: 145 145 155 / 0.14;
+  --panel-shadow: 0 1px 0 rgb(255 255 255 / 0.75) inset,
+    0 1px 3px rgb(17 24 39 / 0.06),
+    0 20px 50px -16px rgb(17 24 39 / 0.1);
 
   /* 侧边栏选中态 */
-  --sidebar-active: 255 255 255 / 0.85;
-  --sidebar-active-shadow: 0 1px 3px rgb(100 80 160 / 0.08),
-    0 8px 24px -6px rgb(120 100 180 / 0.14);
-  --sidebar-hover: 255 255 255 / 0.4;
+  --sidebar-active: 255 255 255 / 0.88;
+  --sidebar-active-shadow: 0 1px 3px rgb(17 24 39 / 0.07),
+    0 8px 24px -6px rgb(17 24 39 / 0.12);
+  --sidebar-hover: 255 255 255 / 0.45;
 
   /* 标签/芯片 */
-  --chip-bg: 255 255 255 / 0.5;
-  --chip-border: 140 120 200 / 0.1;
+  --chip-bg: 255 255 255 / 0.46;
+  --chip-border: 145 145 155 / 0.12;
 
   /* 文字 */
-  --accent: #2e1065;
-  --accent-soft: rgb(88 28 135 / 0.08);
-  --text-primary: #1e1b4b;
-  --text-secondary: #6b7280;
-  --text-tertiary: #9ca3af;
+  --accent: #111827;
+  --accent-soft: rgb(17 24 39 / 0.07);
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-tertiary: #8e8e93;
 
-  /* 多巴胺角色色 */
-  --role-user: #8b5cf6;
-  --role-assistant: #ec4899;
-  --role-tool: #f59e0b;
-  --role-system: #6b7280;
+  /* 中性角色色 */
+  --role-user: #71717a;
+  --role-assistant: #52525b;
+  --role-tool: #3f3f46;
+  --role-system: #a1a1aa;
 
-  /* 多巴胺强调渐变 */
-  --gradient-brand: linear-gradient(135deg, #8b5cf6, #ec4899);
-  --gradient-warm: linear-gradient(135deg, #f59e0b, #ef4444);
-  --gradient-cool: linear-gradient(135deg, #06b6d4, #8b5cf6);
+  /* 分段控件选中态 */
+  --segment-active: 255 255 255 / 0.92;
+  --segment-active-text: #18181b;
+  --segment-active-shadow: 0 1px 3px rgb(17 24 39 / 0.08),
+    0 4px 12px -4px rgb(17 24 39 / 0.08);
 }
 
 :root.dark {
   color-scheme: dark;
 
-  --bg-a: #09080f;
-  --bg-b: #0e0d18;
+  --bg-a: #0a0a0c;
+  --bg-b: #111114;
 
-  --glow-1: 139 92 246;
-  --glow-2: 236 72 153;
-  --glow-3: 16 185 129;
+  --glow-1: 138 138 146;
+  --glow-2: 138 138 146;
+  --glow-3: 138 138 146;
 
-  --panel-bg: 16 14 28 / 0.55;
-  --panel-border: 139 92 246 / 0.12;
-  --panel-shadow: 0 1px 0 rgb(139 92 246 / 0.06) inset,
-    0 1px 3px rgb(0 0 0 / 0.5),
-    0 40px 80px -20px rgb(0 0 0 / 0.6);
+  --panel-bg: 18 18 22 / 0.52;
+  --panel-border: 255 255 255 / 0.1;
+  --panel-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset,
+    0 1px 3px rgb(0 0 0 / 0.45),
+    0 40px 80px -20px rgb(0 0 0 / 0.55);
 
-  --sidebar-active: 24 20 44 / 0.9;
-  --sidebar-active-shadow: 0 1px 0 rgb(139 92 246 / 0.08) inset,
+  --sidebar-active: 255 255 255 / 0.12;
+  --sidebar-active-shadow: 0 1px 0 rgb(255 255 255 / 0.05) inset,
     0 8px 28px -6px rgb(0 0 0 / 0.6);
-  --sidebar-hover: 139 92 246 / 0.06;
+  --sidebar-hover: 255 255 255 / 0.07;
 
-  --chip-bg: 139 92 246 / 0.06;
-  --chip-border: 139 92 246 / 0.1;
+  --chip-bg: 255 255 255 / 0.06;
+  --chip-border: 255 255 255 / 0.1;
 
-  --accent: #e9d5ff;
-  --accent-soft: rgb(167 139 250 / 0.12);
-  --text-primary: #f3e8ff;
-  --text-secondary: #a78bfa;
-  --text-tertiary: #6d5d8f;
+  --accent: #f4f4f5;
+  --accent-soft: rgb(244 244 245 / 0.1);
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #6f6f76;
 
-  --role-user: #a78bfa;
-  --role-assistant: #f472b6;
-  --role-tool: #fbbf24;
-  --role-system: #6d5d8f;
+  --role-user: #d4d4d8;
+  --role-assistant: #a1a1aa;
+  --role-tool: #71717a;
+  --role-system: #52525b;
 
-  --gradient-brand: linear-gradient(135deg, #a78bfa, #f472b6);
-  --gradient-warm: linear-gradient(135deg, #fbbf24, #f472b6);
-  --gradient-cool: linear-gradient(135deg, #22d3ee, #a78bfa);
+  --segment-active: 255 255 255 / 0.12;
+  --segment-active-text: #fafafa;
+  --segment-active-shadow: 0 1px 0 rgb(255 255 255 / 0.05) inset,
+    0 1px 3px rgb(0 0 0 / 0.45),
+    0 4px 14px -6px rgb(0 0 0 / 0.5);
 }
 
 html {
@@ -112,24 +115,9 @@ body {
   scrollbar-color: rgb(var(--glow-1) / 0.2) transparent;
 }
 
-/* 多巴胺多色光晕背景 */
+/* 中性背景，让毛玻璃面板保持透明层次 */
 body {
   background:
-    radial-gradient(
-      900px 500px at 5% -8%,
-      rgb(var(--glow-1) / 0.25),
-      transparent 55%
-    ),
-    radial-gradient(
-      700px 400px at 95% 5%,
-      rgb(var(--glow-2) / 0.18),
-      transparent 50%
-    ),
-    radial-gradient(
-      600px 400px at 50% 100%,
-      rgb(var(--glow-3) / 0.12),
-      transparent 55%
-    ),
     linear-gradient(180deg, var(--bg-a), var(--bg-b));
   background-attachment: fixed;
 }
@@ -232,13 +220,9 @@ body {
 }
 
 .segmented button[aria-pressed="true"] {
-  background: var(--gradient-brand);
-  color: #fff;
-  box-shadow: 0 2px 8px rgb(var(--glow-1) / 0.3);
-}
-
-.dark .segmented button[aria-pressed="true"] {
-  box-shadow: 0 2px 12px rgb(var(--glow-1) / 0.4);
+  background: rgb(var(--segment-active));
+  color: var(--segment-active-text);
+  box-shadow: var(--segment-active-shadow);
 }
 
 /* 等宽字体 */
@@ -263,10 +247,10 @@ body {
 
 .role-dot--user { background: var(--role-user); box-shadow: 0 0 6px rgb(var(--glow-1) / 0.4); }
 .role-dot--assistant { background: var(--role-assistant); box-shadow: 0 0 6px rgb(var(--glow-2) / 0.4); }
-.role-dot--tool { background: var(--role-tool); box-shadow: 0 0 6px 0 rgb(245 158 11 / 0.35); }
+.role-dot--tool { background: var(--role-tool); box-shadow: 0 0 6px 0 rgb(var(--glow-3) / 0.35); }
 .role-dot--system { background: var(--role-system); }
 
-/* 消息气泡 — 用户消息有微弱彩色左边框 */
+/* 消息气泡 */
 .msg-bubble {
   border-radius: 12px;
   border: 1px solid rgb(var(--chip-border));
@@ -284,14 +268,6 @@ body {
 
 .msg-bubble--tool {
   border-left: 2px solid var(--role-tool);
-}
-
-/* Logo 渐变 */
-.logo-gradient {
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 /* 搜索框聚焦高亮 */

@@ -21,7 +21,7 @@ export function MessageItem({ entry }: MessageItemProps) {
 
   return (
     <article className="flex gap-3">
-      {/* 角色指示点 — 带多巴胺发光 */}
+      {/* 角色指示点 */}
       <div className="pt-1.5">
         <span className={meta.dotClass} aria-hidden="true" />
       </div>

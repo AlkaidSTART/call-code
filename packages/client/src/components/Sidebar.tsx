@@ -40,8 +40,12 @@ export function Sidebar({
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5">
           <div
-            className="grid h-7 w-7 place-items-center rounded-lg text-[11px] font-bold tracking-wide text-white"
-            style={{ background: 'var(--gradient-brand)' }}
+            className="grid h-7 w-7 place-items-center rounded-lg border text-[11px] font-bold tracking-wide"
+            style={{
+              background: 'rgb(var(--chip-bg))',
+              borderColor: 'rgb(var(--chip-border))',
+              color: 'var(--text-primary)',
+            }}
           >
             CC
           </div>
@@ -150,11 +154,11 @@ export function Sidebar({
                   }
                 }}
               >
-                {/* 激活指示器 — 用多巴胺渐变小竖条替代圆点 */}
+                {/* 激活指示器 */}
                 <span
                   className="mt-1 h-4 w-1 shrink-0 rounded-full transition-opacity"
                   style={{
-                    background: active ? 'var(--gradient-brand)' : 'transparent',
+                    background: active ? 'var(--text-primary)' : 'transparent',
                     opacity: active ? 1 : 0,
                   }}
                   aria-hidden="true"
