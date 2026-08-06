@@ -50,14 +50,17 @@ function FactGrid({ facts }: { facts: WebFact[] }) {
       </div>
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {facts.slice(0, 12).map((fact, index) => (
-          <div
-            key={`${fact.seq}-${index}`}
-            className="msg-bubble px-3 py-2.5"
-          >
-            <div className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+          <div key={`${fact.seq}-${index}`} className="msg-bubble px-3 py-2.5">
+            <div
+              className="text-[11px]"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               {fact.kind}
             </div>
-            <div className="mt-0.5 truncate text-[13px]" style={{ color: 'var(--text-primary)' }}>
+            <div
+              className="mt-0.5 truncate text-[13px]"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {fact.value || fact.key || String(fact.seq)}
             </div>
           </div>
@@ -96,14 +99,20 @@ function RecordList({ records }: { records: WebRecord[] }) {
           .reverse()
           .map((record) => (
             <div key={record.id} className="msg-bubble px-3 py-2.5">
-              <div className="flex items-center justify-between gap-2 text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+              <div
+                className="flex items-center justify-between gap-2 text-[11px]"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
                 <span className="truncate">
                   {record.type}
                   {record.opKind ? ` / ${record.opKind}` : ''}
                 </span>
                 <span className="shrink-0">{formatTime(record.timestamp)}</span>
               </div>
-              <div className="mt-1.5 max-h-40 overflow-auto whitespace-pre-wrap break-words mono" style={{ color: 'var(--text-secondary)' }}>
+              <div
+                className="mt-1.5 max-h-40 overflow-auto whitespace-pre-wrap break-words mono"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {payloadText(record.payload)}
               </div>
             </div>
@@ -117,12 +126,15 @@ export function MainPanel({ session, filter, onFilterChange }: MainPanelProps) {
   const entries = session ? filterEntries(session.entries, filter) : [];
 
   return (
-    <main className="glass-panel lg:h-[calc(100vh-40px)] min-h-0">
+    <main className="main-panel">
       {/* 标题栏 */}
       <header className="flex flex-col gap-3 px-6 pt-5 pb-4">
-        <h1 className="truncate text-[15px] font-semibold leading-snug" style={{ color: 'var(--text-primary)' }}>
-          {session ? getSessionTitle(session) : 'Call Code'}
-        </h1>
+        <h2
+          className="truncate text-[15px] font-semibold leading-snug"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {session ? getSessionTitle(session) : '暂无会话'}
+        </h2>
         {session ? <StatRow session={session} /> : null}
       </header>
 
@@ -150,11 +162,17 @@ export function MainPanel({ session, filter, onFilterChange }: MainPanelProps) {
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
         <div className="mx-auto max-w-[760px]">
           {!session ? (
-            <div className="grid min-h-[200px] place-items-center text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
+            <div
+              className="grid min-h-[200px] place-items-center text-[13px]"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               暂无会话数据
             </div>
           ) : entries.length === 0 ? (
-            <div className="grid min-h-[200px] place-items-center text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
+            <div
+              className="grid min-h-[200px] place-items-center text-[13px]"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               没有匹配的消息
             </div>
           ) : (
@@ -163,7 +181,9 @@ export function MainPanel({ session, filter, onFilterChange }: MainPanelProps) {
                 <MessageItem key={entry.id} entry={entry} />
               ))}
               {session.facts ? <FactGrid facts={session.facts} /> : null}
-              {session.records ? <RecordList records={session.records} /> : null}
+              {session.records ? (
+                <RecordList records={session.records} />
+              ) : null}
             </div>
           )}
         </div>

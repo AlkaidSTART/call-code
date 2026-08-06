@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { HeaderBar } from './components/HeaderBar';
 import { Sidebar } from './components/Sidebar';
 import { MainPanel } from './components/MainPanel';
 import { loadWebExport } from './data';
@@ -14,7 +15,9 @@ const initialTheme = (): Theme => {
 
 export default function App() {
   const [data, setData] = useState<WebExport | null>(null);
-  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
+    'loading',
+  );
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -29,9 +32,12 @@ export default function App() {
       }
 
       setData(result);
-      const requestedId = new URLSearchParams(window.location.search).get('session');
+      const requestedId = new URLSearchParams(window.location.search).get(
+        'session',
+      );
       setActiveId(
-        requestedId && result?.sessions.some((session) => session.id === requestedId)
+        requestedId &&
+          result?.sessions.some((session) => session.id === requestedId)
           ? requestedId
           : (result?.sessions[0]?.id ?? null),
       );
@@ -65,7 +71,10 @@ export default function App() {
   if (loadState === 'loading') {
     return (
       <div className="app-shell">
-        <div className="grid min-h-[60vh] place-items-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
+        <div
+          className="grid min-h-[60vh] place-items-center text-sm"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
           正在读取会话
         </div>
       </div>
@@ -75,7 +84,10 @@ export default function App() {
   if (loadState === 'error' || !data) {
     return (
       <div className="app-shell">
-        <div className="grid min-h-[60vh] place-items-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
+        <div
+          className="grid min-h-[60vh] place-items-center text-sm"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
           无法读取会话数据
         </div>
       </div>
@@ -84,17 +96,26 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <div className="app-grid">
-        <Sidebar
+      <div className="app-frame">
+        <HeaderBar
           sessions={filteredSessions}
-          activeId={activeId}
-          query={query}
           theme={theme}
-          onSelect={setActiveId}
-          onQueryChange={setQuery}
           onThemeChange={setTheme}
         />
-        <MainPanel session={activeSession} filter={filter} onFilterChange={setFilter} />
+        <div className="app-workspace">
+          <Sidebar
+            sessions={filteredSessions}
+            activeId={activeId}
+            query={query}
+            onSelect={setActiveId}
+            onQueryChange={setQuery}
+          />
+          <MainPanel
+            session={activeSession}
+            filter={filter}
+            onFilterChange={setFilter}
+          />
+        </div>
       </div>
     </div>
   );
