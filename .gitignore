@@ -19,6 +19,8 @@ out
 .remix-serve-node_modules
 .env/*
 .agent-sessions/
+.pnpm-store/
+packages/client/dist/
 *.tsbuildinfo
 bundle.*
 docs/*

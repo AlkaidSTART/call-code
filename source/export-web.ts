@@ -4,7 +4,7 @@ import { DEFAULT_DB_PATH, SessionStore } from '../packages/session-sqlite/src/in
 import { writeWebExport } from '@web/export';
 
 const defaultOutput = fileURLToPath(
-  new URL('../packages/client/data.json', import.meta.url),
+  new URL('../packages/client/public/data.json', import.meta.url),
 );
 const outputPath = process.argv[2] ? resolve(process.argv[2]) : defaultOutput;
 const store = new SessionStore({

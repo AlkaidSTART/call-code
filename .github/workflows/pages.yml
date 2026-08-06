@@ -24,13 +24,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build client
+        run: pnpm build:client
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Upload Packages Client
         uses: actions/upload-pages-artifact@v3
         with:
-          path: packages/client
+          path: packages/client/dist
 
       - name: Deploy to GitHub Pages
         id: deployment

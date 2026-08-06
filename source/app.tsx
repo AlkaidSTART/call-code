@@ -471,7 +471,7 @@ const App = () => {
           try {
             const outputPath =
               process.env.CALL_CODE_WEB_DATA ??
-              resolve(process.cwd(), 'packages/client/data.json');
+              resolve(process.cwd(), 'packages/client/public/data.json');
             const data = writeWebExport(getSharedSessionStore(), outputPath);
             showCommandMessage(
               `已导出 ${data.sessions.length} 个会话到 ${outputPath}`,

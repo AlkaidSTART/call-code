@@ -7,9 +7,13 @@
     "dev": "tsx source/app.tsx",
     "start": "tsx source/app.tsx",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:client": "tsc -p packages/client/tsconfig.json --noEmit",
     "test": "vitest run --reporter verbose",
     "build:agent-core": "tsc -p packages/agent-core/tsconfig.json",
-    "export:web": "tsx source/export-web.ts"
+    "export:web": "tsx source/export-web.ts",
+    "dev:client": "vite --config packages/client/vite.config.ts",
+    "build:client": "vite build --config packages/client/vite.config.ts",
+    "preview:client": "vite preview --config packages/client/vite.config.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
@@ -18,14 +22,20 @@
     "ink-text-input": "^6.0.0",
     "openai": "^6.34.0",
     "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "tiktoken": "^1.0.20"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
     "prettier": "^3.4.2",
+    "tailwindcss": "^4.3.3",
     "tsx": "^4.23.7",
     "typescript": "^6.0.3",
+    "vite": "^8.2.0",
     "vitest": "^3.2.4"
   }
 }
