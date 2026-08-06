@@ -1,135 +1,137 @@
-import { useMemo } from 'react';
-import type { Theme, WebSession } from '../types';
-import { entryRole, formatTime, getSessionMode, getSessionTitle } from '../utils';
+import type { WebSession } from '../types';
+import { entryRole, formatTime, getSessionTitle } from '../utils';
 
 interface SidebarProps {
   sessions: WebSession[];
   activeId: string | null;
   query: string;
-  theme: Theme;
   onSelect: (id: string) => void;
   onQueryChange: (query: string) => void;
-  onThemeChange: (theme: Theme) => void;
 }
-
-const glassPanel =
-  'flex max-h-[46vh] min-h-0 flex-col overflow-hidden rounded-lg border border-black/10 bg-white/70 shadow-[0_18px_50px_rgba(15,23,42,0.12)] backdrop-blur-2xl lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:max-h-none dark:border-white/10 dark:bg-[#0d1116]/75 dark:shadow-[0_18px_60px_rgba(0,0,0,0.42)]';
 
 export function Sidebar({
   sessions,
   activeId,
   query,
-  theme,
   onSelect,
   onQueryChange,
-  onThemeChange,
 }: SidebarProps) {
-  const stats = useMemo(() => {
-    const messages = sessions.reduce((sum, session) => sum + session.entries.length, 0);
-    const tools = sessions.reduce(
-      (sum, session) =>
-        sum + session.entries.filter((entry) => entryRole(entry) === 'tool').length,
-      0,
-    );
-    return { sessions: sessions.length, messages, tools };
-  }, [sessions]);
-
-  const statDefs = [
-    ['会话', stats.sessions],
-    ['消息', stats.messages],
-    ['工具', stats.tools],
-  ] as const;
-
   return (
-    <aside className={glassPanel}>
-      <div className="border-b border-black/10 p-4 dark:border-white/10">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 font-bold">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-600 font-extrabold text-teal-950 dark:bg-cyan-400 dark:text-cyan-950">
-              CC
-            </span>
-            <span className="text-slate-700 dark:text-slate-200">Call Code</span>
-          </div>
-
-          <div className="flex rounded-lg border border-black/10 bg-white/40 p-0.5 dark:border-white/10 dark:bg-white/5">
-            {(['light', 'dark'] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => onThemeChange(value)}
-                className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
-                  theme === value
-                    ? 'bg-white text-slate-900 shadow dark:bg-slate-100 dark:text-slate-900'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100'
-                }`}
-              >
-                {value === 'light' ? '毛玻璃' : '高级黑'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-3.5 flex h-9 items-center gap-2 rounded-lg border border-black/10 bg-white/40 px-2.5 dark:border-white/10 dark:bg-white/5">
-          <span className="text-slate-400 dark:text-slate-500">⌕</span>
+    <aside className="sidebar-panel max-h-[50vh] lg:max-h-none">
+      <header
+        className="border-b px-3 py-3"
+        style={{ borderColor: 'rgb(var(--panel-border))' }}
+      >
+        <div
+          className="search-box flex h-8 min-w-0 items-center gap-2 rounded-lg border px-2.5"
+          style={{
+            borderColor: 'rgb(var(--chip-border))',
+            background: 'rgb(var(--chip-bg))',
+          }}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ color: 'var(--text-tertiary)' }}
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
           <input
             type="search"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder="搜索会话"
             aria-label="搜索会话"
-            className="h-full w-full min-w-0 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="h-full w-full min-w-0 bg-transparent text-[12px] outline-none"
+            style={{ color: 'var(--text-primary)' }}
           />
         </div>
+      </header>
 
-        <div className="mt-3.5 grid grid-cols-3 gap-2">
-          {statDefs.map(([label, value]) => (
-            <div
-              key={label}
-              className="rounded-lg border border-black/10 bg-white/40 p-2 dark:border-white/10 dark:bg-white/5"
-            >
-              <div className="text-base font-bold text-slate-800 dark:text-slate-100">
-                {value}
-              </div>
-              <div className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
-                {label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto p-2">
-        {sessions.length === 0 ? (
-          <div className="grid min-h-40 place-items-center text-sm text-slate-400 dark:text-slate-500">
+      {/* 会话列表 */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-2 pt-3 pb-3">
+        {sessions.length === 0 && (
+          <div
+            className="grid min-h-[120px] place-items-center text-[12px]"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
             暂无会话
           </div>
-        ) : (
-          sessions.map((session) => {
+        )}
+
+        <div className="flex flex-col gap-0.5">
+          {sessions.map((session) => {
             const active = session.id === activeId;
             return (
               <button
                 key={session.id}
                 type="button"
                 onClick={() => onSelect(session.id)}
-                className={`mb-1.5 block w-full rounded-lg border p-3 text-left transition ${
+                aria-current={active ? 'true' : undefined}
+                className="group relative flex items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-all duration-200"
+                style={
                   active
-                    ? 'border-black/15 bg-white/90 shadow-[0_8px_24px_rgba(15,23,42,0.08)] dark:border-white/15 dark:bg-slate-800/80'
-                    : 'border-transparent hover:bg-white/60 dark:hover:bg-white/5'
-                }`}
+                    ? {
+                        background: 'rgb(var(--sidebar-active))',
+                        boxShadow: 'var(--sidebar-active-shadow)',
+                      }
+                    : undefined
+                }
+                onMouseEnter={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.background =
+                      'rgb(var(--sidebar-hover))';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.background = '';
+                  }
+                }}
               >
-                <div className="line-clamp-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  {getSessionTitle(session)}
-                </div>
-                <div className="mt-2 flex items-center justify-between gap-2 text-xs text-slate-400 dark:text-slate-500">
-                  <span>
-                    {getSessionMode(session).toUpperCase()} · {session.entries.length} 条
-                  </span>
-                  <span>{formatTime(session.createdAt)}</span>
+                {/* 激活指示器 */}
+                <span
+                  className="mt-1 h-4 w-1 shrink-0 rounded-full transition-opacity"
+                  style={{
+                    background: active ? 'var(--text-primary)' : 'transparent',
+                    opacity: active ? 1 : 0,
+                  }}
+                  aria-hidden="true"
+                />
+                <div className="min-w-0 flex-1">
+                  <div
+                    className="line-clamp-2 text-[13px] font-medium leading-snug"
+                    style={{
+                      color: active
+                        ? 'var(--text-primary)'
+                        : 'var(--text-secondary)',
+                    }}
+                  >
+                    {getSessionTitle(session)}
+                  </div>
+                  <div
+                    className="mt-1 flex items-center gap-1.5 text-[11px]"
+                    style={{ color: 'var(--text-tertiary)' }}
+                  >
+                    <span>{session.entries.length} 条</span>
+                    <span style={{ opacity: 0.4 }}>·</span>
+                    <span className="truncate">
+                      {formatTime(session.createdAt)}
+                    </span>
+                  </div>
                 </div>
               </button>
             );
-          })
-        )}
+          })}
+        </div>
       </div>
     </aside>
   );

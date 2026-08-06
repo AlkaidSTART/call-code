@@ -1,13 +1,14 @@
-name: CI
+name: Deploy to gh-pages
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: [dev]
+
+permissions:
+  contents: write
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,20 +28,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Typecheck session store
-        run: pnpm exec tsc -p packages/session-sqlite/tsconfig.json --noEmit
-
-      - name: Typecheck client
-        run: pnpm typecheck:client
-
-      - name: Run unit tests
-        run: pnpm test
-
-      - name: Build agent-core
-        run: pnpm build:agent-core
-
       - name: Build client
         run: pnpm build:client
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: packages/client/dist
+          publish_branch: gh-pages
+          force_orphan: true
