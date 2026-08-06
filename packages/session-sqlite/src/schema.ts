@@ -1,5 +1,3 @@
-// SQLite 会话历史存储的完整建表语句。
-// 注释统一使用中文，方便后续维护。
 export const SCHEMA_SQL = `
 -- 会话主表：记录一次会话的基本信息和元数据
 CREATE TABLE IF NOT EXISTS sessions (
