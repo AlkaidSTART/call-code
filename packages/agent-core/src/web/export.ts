@@ -4,7 +4,7 @@ import type {
   EntryLike,
   SessionStoreLike,
   SessionStatsLike,
-} from '../session/session-repository';
+} from '../harness/session/session-repository';
 
 /** GitHub Pages 客户端读取的会话快照格式。 */
 export interface WebEntry {

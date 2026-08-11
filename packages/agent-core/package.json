@@ -1,5 +1,5 @@
 {
-  "name": "@call-code/session-sqlite",
+  "name": "@call-code/agent-core",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,13 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-  "engines": {
-    "node": ">=22.5.0"
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "openai": "^6.34.0",
+    "tesseract.js": "^7.0.0",
+    "tiktoken": "^1.0.20"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }
