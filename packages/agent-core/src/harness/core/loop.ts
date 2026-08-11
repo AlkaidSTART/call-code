@@ -1,7 +1,7 @@
 import { streamLLM } from '@agent-core/harness/core/llm';
-import { ContextBuilder } from '@agent-core/context/context-builder';
-import { buildRuntimeContext } from '@agent-core/context/runtime-context';
-import type { ContextMessage } from '@agent-core/context/context-types';
+import { ContextBuilder } from '@agent-core/harness/context/context-builder';
+import { buildRuntimeContext } from '@agent-core/harness/context/runtime-context';
+import type { ContextMessage } from '@agent-core/harness/context/context-types';
 import { systemPrompt } from '@agent-core/harness/prompt/system';
 import { toolPrompt } from '@agent-core/harness/prompt/tool';
 import { getModePrompt } from '@agent-core/harness/prompt/modes';

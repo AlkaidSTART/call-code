@@ -11,7 +11,7 @@ import { SessionStore } from '../packages/session-sqlite/src/index';
 import {
   closeSharedSessionStore,
   setSharedSessionStore,
-} from '@agent-core/session/session-repository';
+} from '@agent-core/harness/session/session-repository';
 
 describe('runLoop SQLite 持久化', () => {
   let store: SessionStore;
