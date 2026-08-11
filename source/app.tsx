@@ -2,22 +2,22 @@ import React, { useState, useCallback, useMemo } from 'react';
 import fs from 'node:fs';
 import { resolve } from 'node:path';
 import { render, Text, Box, useInput } from 'ink';
-import { agent } from '@core/agent';
-import { llmModel } from '@core/llm';
+import { agent } from '@agent-core/harness/core/agent';
+import { llmModel } from '@agent-core/harness/core/llm';
 import TextInput from 'ink-text-input';
 import Spinner from 'ink-spinner';
 import { get_encoding } from 'tiktoken';
-import { memoryStore } from '@agent-core/memory/memory-store';
+import { memoryStore } from '@agent-core/harness/context/memory/memory-store';
 import {
   getSharedSessionStore,
   loadRecentFeed,
   loadRecentHistory,
   setSharedSessionStore,
   type RecentHistoryItem,
-} from '@agent-core/session/session-repository';
+} from '@agent-core/harness/session/session-repository';
 import { writeWebExport } from '@web/export';
 import { SessionStore } from '../packages/session-sqlite/src/index';
-import { resolveUserPath } from '@tools/pathUtils';
+import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
 
 const encoding = get_encoding('cl100k_base');
 
