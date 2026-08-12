@@ -6,8 +6,8 @@ const toolPermissionByName = (toolName: string, mode: AgentMode): boolean => {
   if (mode === 'plan') {
     return false;
   }
-  if (toolName === 'run_command') {
-    return policy.allowRunCommand;
+  if (toolName === 'bash') {
+    return policy.allowBash;
   }
   if (toolName === 'write_file') {
     return policy.allowWriteFile;

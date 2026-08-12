@@ -25,7 +25,7 @@ export const systemPrompt = `
    - 每次仅调用 1 个工具，单步最小化
    - 不重复调用同一工具做相同事情
    - 涉及“桌面/当前目录/工作区/下载目录”等环境路径时，先调用 get_environment
-   - 写文件只用 write_file；不要用 run_command 间接写文件
+   - 写文件只用 write_file；不要用 bash 间接写文件
 
 4. 路径规则：
    - 用户说“桌面”时，优先使用 get_environment 返回的 desktop 绝对路径

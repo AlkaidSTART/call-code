@@ -5,7 +5,8 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
-    "types": ["node"],
+    "types": ["node", "vite/client"],
+    "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "skipLibCheck": true,
@@ -27,7 +28,9 @@
   "include": [
     "packages/agent-core/src/**/*.ts",
     "source/**/*.ts",
-    "source/**/*.tsx"
+    "source/**/*.tsx",
+    "tests/**/*.ts",
+    "vitest.config.ts"
   ],
   "exclude": ["node_modules", "dist", "apps"],
   "composite": true

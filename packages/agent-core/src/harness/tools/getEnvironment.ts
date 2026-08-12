@@ -19,7 +19,7 @@ export const getEnvironmentTool = {
     type: 'object',
     properties: {},
   },
-  run: async () => {
+  run: async (_input: unknown = {}) => {
     const locations = getKnownLocations();
 
     return {

@@ -1,17 +1,17 @@
 import type { AgentMode } from '@agent-core/harness/core/state';
 
 export interface ModePolicy {
-  readonly allowRunCommand: boolean;
+  readonly allowBash: boolean;
   readonly allowWriteFile: boolean;
 }
 
 export const modePolicies: Record<AgentMode, ModePolicy> = {
   plan: {
-    allowRunCommand: false,
+    allowBash: false,
     allowWriteFile: false,
   },
   build: {
-    allowRunCommand: true,
+    allowBash: true,
     allowWriteFile: true,
   },
 };

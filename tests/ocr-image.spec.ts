@@ -14,6 +14,7 @@ vi.mock('tesseract.js', () => ({
 }));
 
 import { ocrImageTool } from '@tools/ocr';
+import { executeToolCall } from '@tools/executor';
 
 let tempDir: string | undefined;
 
@@ -84,6 +85,41 @@ describe('ocr_image tool', () => {
       undefined,
       expect.objectContaining({ logger: expect.any(Function) }),
     );
+  });
+
+  it('executor dispatches ocr_image through the registered tool list', async () => {
+    tempDir = await mkdtemp(path.join(os.tmpdir(), 'agent-ocr-'));
+    const imagePath = path.join(tempDir, 'executor.png');
+    await writeFile(imagePath, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+
+    const terminate = vi.fn().mockResolvedValue(undefined);
+    const recognize = vi.fn().mockResolvedValue({
+      data: {
+        text: 'Executor OCR',
+        confidence: 88,
+      },
+    });
+    createWorker.mockResolvedValue({ recognize, terminate });
+
+    const execution = await executeToolCall('build', {
+      type: 'tool_call',
+      tool: 'ocr_image',
+      arguments: {
+        path: imagePath,
+        lang: 'eng',
+      },
+      message: 'recognize image',
+    });
+
+    expect(JSON.parse(execution.content)).toMatchObject({
+      ok: true,
+      tool: 'ocr_image',
+      result: {
+        text: 'Executor OCR',
+        confidence: 88,
+      },
+    });
+    expect(terminate).toHaveBeenCalled();
   });
 
   it('rejects a missing path before starting OCR', async () => {

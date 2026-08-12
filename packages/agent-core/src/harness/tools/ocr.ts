@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import Tesseract from 'tesseract.js';
-import { resolveUserPath } from '@tools/pathUtils';
+import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
 
 const DEFAULT_LANG = 'eng';
 

@@ -1,18 +1,18 @@
-import { exec } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
-export const runCommandTool = {
-  name: 'run_command',
-  description: 'Run a command',
+export const bashTool = {
+  name: 'bash',
+  description: 'Run a command with Bash',
   parameters: {
     type: 'object',
     properties: {
       command: {
         type: 'string',
-        description: 'The command to run',
+        description: 'The Bash command to run',
       },
       cwd: {
         type: 'string',
@@ -22,17 +22,20 @@ export const runCommandTool = {
     },
     required: ['command'],
   },
-  run: async (input: any) => {
-    const { command, cwd } = input;
-    if (!command || typeof command !== 'string') {
+  run: async (input: unknown) => {
+    const value = input as { command?: unknown; cwd?: unknown };
+    const { command, cwd } = value;
+    if (typeof command !== 'string' || !command.trim()) {
       throw new Error('Invalid command');
     }
+
     const resolvedCwd =
       typeof cwd === 'string' && cwd.trim() ? resolveUserPath(cwd) : undefined;
-    const { stdout, stderr } = await execAsync(command, {
+    const { stdout, stderr } = await execFileAsync('bash', ['-lc', command], {
       maxBuffer: 10 * 1024 * 1024,
       cwd: resolvedCwd,
     });
+
     return {
       command,
       cwd: resolvedCwd || process.cwd(),
