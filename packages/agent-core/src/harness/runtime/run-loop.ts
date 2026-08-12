@@ -1,33 +1,27 @@
-import { callLLM, streamLLM, type StreamHandlers } from './llm';
-import { ContextBuilder } from '../session/context/context-builder';
-import { buildRuntimeContext } from '../session/context/runtime-context';
-import type { ContextMessage } from '../session/context/context-types';
+import { callLLM, streamLLM, type StreamHandlers } from '../core/llm';
+import { ContextBuilder } from '../context/context-builder';
+import { buildRuntimeContext } from '../context/runtime-context';
+import type { ContextMessage } from '../context/context-types';
 import { systemPrompt } from '../prompt/system';
 import { toolPrompt } from '../prompt/tool';
 import { getModePrompt } from '../prompt/modes';
-import type { TaskState } from './state';
+import type { TaskState } from '../core/state';
 import {
   extractFinalText,
   parseAgentResponse,
   shouldContinueLoop,
 } from '../protocol/parser';
 import { isToolCallAction } from '../protocol/action';
-import { executeToolCall } from '../session/tools/executor';
-import { promoteStableFact } from '../session/memory/memory-writer';
-import { retrieveMemoryForTask } from '../session/memory/memory-retriever';
-import {
-  appendTaskEntry,
-  appendTaskRecord,
-  ensureTaskSession,
-  getSharedSessionStoreOrNull,
-  readTaskHistory,
-  type SessionStoreLike,
-} from '../session/sessionInfo/session-repository';
+import { promoteStableFact } from '../memory/memory-writer';
+import { retrieveMemoryForTask } from '../memory/memory-retriever';
+import { getSharedSessionStoreOrNull } from '../session/store-registry';
+import type { SessionStoreLike } from '../session/store-types';
+import { createSessionRuntime } from './session-runtime';
+import { runToolCall } from './tool-runtime';
 import {
   DEFAULT_COMPACTION_SETTINGS,
   compact,
   createSummaryMessage,
-  persistCompactionEntry,
   prepareMessagesToCompact,
   shouldCompact,
   type CompactionSettings,
@@ -48,12 +42,12 @@ export interface RunLoopOptions {
   summarize?: SummarizeFn;
 }
 
+/** 编排 Agent 主循环，会话持久化与工具执行分别委托给 session-runtime 与 tool-runtime。 */
 export const runLoop = async (
   task: TaskState,
   handlers: StreamHandlers = {},
   options: RunLoopOptions = {},
 ): Promise<string> => {
-  const history: ContextMessage[] = [];
   const store = options.persist === true
     ? (options.sessionStore ?? getSharedSessionStoreOrNull())
     : null;
@@ -67,11 +61,9 @@ export const runLoop = async (
     : null;
   const summarize: SummarizeFn = options.summarize ?? (async (messages) => callLLM(messages));
 
-  if (store) {
-    ensureTaskSession(task, store);
-    appendTaskEntry(task, { role: 'user', content: task.input, tags: ['task-input'] }, store);
-    history.push(...readTaskHistory(task, { limit: 100 }, store));
-  }
+  // 会话恢复、条目与记录追加、压缩持久化统一交给 session-runtime。
+  const session = createSessionRuntime(task, store);
+  const history: ContextMessage[] = [...session.history];
 
   const maybeCompact = async (historyToCompact: ContextMessage[]): Promise<void> => {
     if (!compactionSettings) {
@@ -96,9 +88,7 @@ export const runLoop = async (
 
     historyToCompact.length = 0;
     historyToCompact.push(createSummaryMessage(result.summary), ...result.retainedTail);
-    if (store) {
-      persistCompactionEntry(task.id, result, store);
-    }
+    session.persistCompaction(result);
     handlers.onTrace?.(`上下文已压缩到摘要，保留最近 ${result.retainedTail.length} 条消息`);
   };
 
@@ -137,39 +127,13 @@ export const runLoop = async (
       if (!res) {
         return '无法获取 LLM 回复';
       }
-      history.push({
-        role: 'assistant',
-        content: res,
-      });
-      if (store) {
-        appendTaskEntry(task, { role: 'assistant', content: res, tags: ['model-response'] }, store);
-      }
+      history.push({ role: 'assistant', content: res });
+      session.appendAssistant(res);
 
       const parsed = parseAgentResponse(res);
       if (parsed && isToolCallAction(parsed)) {
-        if (store) {
-          appendTaskRecord(task, {
-            type: 'tool_call',
-            opKind: parsed.tool,
-            payload: parsed,
-          }, store);
-        }
-        const execution = await executeToolCall(task.mode, parsed);
-        history.push({
-          role: 'user',
-          content: execution.content,
-        });
-        if (store) {
-          appendTaskEntry(task, { role: 'tool', content: execution.content, tool: parsed.tool, tags: ['tool-result', parsed.tool] }, store);
-          appendTaskRecord(task, {
-            type: 'tool_result',
-            opKind: parsed.tool,
-            payload: {
-              tool: parsed.tool,
-              content: execution.content,
-            },
-          }, store);
-        }
+        const execution = await runToolCall(task, parsed, session);
+        history.push({ role: 'user', content: execution.content });
         handlers.onTrace?.(execution.trace);
         continue;
       }

@@ -1,5 +1,5 @@
-import type { ContextMessage } from '../session/context/context-types';
-import type { EntryLike, SessionStoreLike } from '../session/sessionInfo/session-repository';
+import type { ContextMessage } from '../context/context-types';
+import type { EntryLike, SessionStoreLike } from '../session/store-types';
 import {
   computeFileLists,
   createFileOps,
@@ -392,4 +392,3 @@ export const compactionEntryToMessage = (entry: EntryLike): ContextMessage | nul
   }
   return createSummaryMessage(payload.summary);
 };
-

@@ -5,7 +5,7 @@ vi.mock('@core/llm', () => ({
   streamLLM: vi.fn(),
 }));
 
-import { runLoop } from '@core/loop';
+import { runLoop } from '@agent-core/harness/runtime/run-loop';
 import { streamLLM } from '@core/llm';
 import { createTaskState } from '@core/state';
 

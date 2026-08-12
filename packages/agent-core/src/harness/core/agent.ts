@@ -1,4 +1,4 @@
-import { runLoop } from '@agent-core/harness/core/loop';
+import { runLoop } from '@agent-core/harness/runtime/run-loop';
 import type { StreamHandlers } from '@agent-core/harness/core/llm';
 import { createTaskState, type AgentMode } from '@agent-core/harness/core/state';
 

@@ -4,14 +4,14 @@ vi.mock('@core/llm', () => ({
   streamLLM: vi.fn(),
 }));
 
-import { runLoop } from '@core/loop';
+import { runLoop } from '@agent-core/harness/runtime/run-loop';
 import { streamLLM } from '@core/llm';
 import { createTaskState } from '@core/state';
 import { SessionStore } from '../packages/session-sqlite/src/index';
 import {
   closeSharedSessionStore,
   setSharedSessionStore,
-} from '@agent-core/harness/session/sessionInfo/session-repository';
+} from '@agent-core/harness/session';
 
 describe('runLoop SQLite 持久化', () => {
   let store: SessionStore;

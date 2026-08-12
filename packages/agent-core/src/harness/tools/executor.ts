@@ -1,5 +1,5 @@
 import { tools } from './';
-import { enforceToolPermission } from '../policy/guard';
+import { enforceToolPermission } from './policy/guard';
 import type { AgentMode } from '@agent-core/harness/core/state';
 import type { ToolCallAction } from '@agent-core/harness/protocol/action';
 import { createToolResultObservation } from '@agent-core/harness/protocol/observation';

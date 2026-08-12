@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SessionStore } from '../packages/session-sqlite/src/index';
-import type { ContextMessage } from '@agent-core/harness/session/context/context-types';
+import type { ContextMessage } from '@agent-core/harness/context/context-types';
 import {
   compact,
   createSummaryMessage,
