@@ -4,7 +4,7 @@
 
 ## 项目概览
 
-- 技术栈：TypeScript + React/Ink 终端 CLI，包管理器是 pnpm。
+- 技术栈：TypeScript + React/Ink 终端 CLI，包管理器是 bun。
 - 入口：`source/app.tsx` 是 CLI 应用；核心逻辑在 `packages/agent-core`。
 - 会话历史存储：`packages/session-sqlite`，基于 Node 内置 `node:sqlite`。
 - 测试：统一放在根目录 `tests/`，使用 Vitest，命名 `*.spec.ts` 或 `*.test.ts`。
@@ -34,12 +34,12 @@
 5. 修改会话存储相关代码时，至少覆盖会话创建、条目追加、泳道/分支、记录、统计和租约。
 6. 修改完成后必须运行完整测试：
    ```bash
-   pnpm test
+   bun run test
    ```
 7. 提交前必须通过类型检查：
    ```bash
-   pnpm typecheck
-   pnpm exec tsc -p packages/session-sqlite/tsconfig.json --noEmit
+   bun run typecheck
+   bun x tsc -p packages/session-sqlite/tsconfig.json --noEmit
    ```
 8. 如测试失败，先修复问题再继续，不允许跳过或注释测试。
 

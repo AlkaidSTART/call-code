@@ -18,7 +18,7 @@
       "@tools/*": ["./packages/agent-core/src/harness/tools/*"],
       "@config/*": ["./packages/agent-core/src/config/*"],
       "@types/*": ["./packages/agent-core/src/types/*"],
-      "@utils/*": ["./packages/agent-core/src/utils/*"],
+      "@utils/*": ["./packages/agent-core/src/harness/utils/*"],
       "@web/*": ["./packages/agent-core/src/web/*"],
       "@prompt/*": ["./packages/agent-core/src/harness/prompt/*"],
       "@policy/*": ["./packages/agent-core/src/harness/policy/*"],
