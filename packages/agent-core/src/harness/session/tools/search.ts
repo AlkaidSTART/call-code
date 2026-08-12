@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
+import { resolveUserPath } from './pathUtils';
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_MAX_RESULTS = 100;

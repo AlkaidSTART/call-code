@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
+import { resolveUserPath } from './pathUtils';
 
 export const readFileTool = {
   name: 'read_file',

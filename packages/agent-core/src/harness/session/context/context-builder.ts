@@ -1,5 +1,5 @@
 import { get_encoding, type Tiktoken } from 'tiktoken';
-import type { ContextMessage } from '@agent-core/harness/context/context-types';
+import type { ContextMessage } from './context-types';
 
 export class ContextBuilder {
   private readonly encoder: Tiktoken;

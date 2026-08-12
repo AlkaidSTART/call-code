@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type {
   LongMemoryItem,
   MemorySnapshot,
-} from '@agent-core/harness/context/memory/memory-schema';
+} from './memory-schema';
 
 export class MemoryStore {
   private readonly longMemory: LongMemoryItem[] = [];

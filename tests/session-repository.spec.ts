@@ -10,7 +10,7 @@ import {
   loadRecentHistory,
   readTaskHistory,
   setSharedSessionStore,
-} from '@agent-core/harness/session/session-repository';
+} from '@agent-core/harness/session/sessionInfo/session-repository';
 
 describe('SessionRepository', () => {
   let store: SessionStore;

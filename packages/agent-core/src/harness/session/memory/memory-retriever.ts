@@ -1,4 +1,4 @@
-import { memoryStore } from '@agent-core/harness/context/memory/memory-store';
+import { memoryStore } from './memory-store';
 
 export interface RetrievedMemory {
   longFacts: string[];

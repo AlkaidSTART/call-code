@@ -1,21 +1,20 @@
-import { streamLLM } from '@agent-core/harness/core/llm';
-import { ContextBuilder } from '@agent-core/harness/context/context-builder';
-import { buildRuntimeContext } from '@agent-core/harness/context/runtime-context';
-import type { ContextMessage } from '@agent-core/harness/context/context-types';
-import { systemPrompt } from '@agent-core/harness/prompt/system';
-import { toolPrompt } from '@agent-core/harness/prompt/tool';
-import { getModePrompt } from '@agent-core/harness/prompt/modes';
-import type { StreamHandlers } from '@agent-core/harness/core/llm';
-import type { TaskState } from '@agent-core/harness/core/state';
+import { callLLM, streamLLM, type StreamHandlers } from './llm';
+import { ContextBuilder } from '../session/context/context-builder';
+import { buildRuntimeContext } from '../session/context/runtime-context';
+import type { ContextMessage } from '../session/context/context-types';
+import { systemPrompt } from '../prompt/system';
+import { toolPrompt } from '../prompt/tool';
+import { getModePrompt } from '../prompt/modes';
+import type { TaskState } from './state';
 import {
   extractFinalText,
   parseAgentResponse,
   shouldContinueLoop,
-} from '@agent-core/harness/protocol/parser';
-import { isToolCallAction } from '@agent-core/harness/protocol/action';
-import { executeToolCall } from '@agent-core/harness/tools/executor';
-import { promoteStableFact } from '@agent-core/harness/context/memory/memory-writer';
-import { retrieveMemoryForTask } from '@agent-core/harness/context/memory/memory-retriever';
+} from '../protocol/parser';
+import { isToolCallAction } from '../protocol/action';
+import { executeToolCall } from '../session/tools/executor';
+import { promoteStableFact } from '../session/memory/memory-writer';
+import { retrieveMemoryForTask } from '../session/memory/memory-retriever';
 import {
   appendTaskEntry,
   appendTaskRecord,
@@ -23,7 +22,18 @@ import {
   getSharedSessionStoreOrNull,
   readTaskHistory,
   type SessionStoreLike,
-} from '@agent-core/harness/session/session-repository';
+} from '../session/sessionInfo/session-repository';
+import {
+  DEFAULT_COMPACTION_SETTINGS,
+  compact,
+  createSummaryMessage,
+  persistCompactionEntry,
+  prepareMessagesToCompact,
+  shouldCompact,
+  type CompactionSettings,
+  type SummarizeFn,
+} from '../compaction/compaction';
+import { estimateContextTokens } from '../compaction/utils';
 
 const contextBuilder = new ContextBuilder(8000);
 
@@ -32,6 +42,10 @@ export interface RunLoopOptions {
   persist?: boolean;
   /** 自定义 SessionStore，测试时可传入 :memory: 实例 */
   sessionStore?: SessionStoreLike;
+  /** 是否启用上下文压缩，可传 false 关闭，或传自定义阈值 */
+  compaction?: boolean | CompactionSettings;
+  /** 测试或自托管 LLM 时注入摘要生成函数 */
+  summarize?: SummarizeFn;
 }
 
 export const runLoop = async (
@@ -43,12 +57,50 @@ export const runLoop = async (
   const store = options.persist === true
     ? (options.sessionStore ?? getSharedSessionStoreOrNull())
     : null;
+  const compactionEnabled =
+    options.compaction !== false &&
+    (store !== null || options.compaction === true || typeof options.compaction === 'object');
+  const compactionSettings: CompactionSettings | null = compactionEnabled
+    ? typeof options.compaction === 'object'
+      ? options.compaction
+      : DEFAULT_COMPACTION_SETTINGS
+    : null;
+  const summarize: SummarizeFn = options.summarize ?? (async (messages) => callLLM(messages));
 
   if (store) {
     ensureTaskSession(task, store);
     appendTaskEntry(task, { role: 'user', content: task.input, tags: ['task-input'] }, store);
     history.push(...readTaskHistory(task, { limit: 100 }, store));
   }
+
+  const maybeCompact = async (historyToCompact: ContextMessage[]): Promise<void> => {
+    if (!compactionSettings) {
+      return;
+    }
+    const contextWindow =
+      compactionSettings.contextWindow ??
+      DEFAULT_COMPACTION_SETTINGS.contextWindow ??
+      8000;
+    if (!shouldCompact(estimateContextTokens(historyToCompact), contextWindow, compactionSettings)) {
+      return;
+    }
+
+    const preparation = prepareMessagesToCompact(historyToCompact, compactionSettings);
+    if (!preparation) {
+      return;
+    }
+    const result = await compact(preparation, { summarize });
+    if (!result) {
+      return;
+    }
+
+    historyToCompact.length = 0;
+    historyToCompact.push(createSummaryMessage(result.summary), ...result.retainedTail);
+    if (store) {
+      persistCompactionEntry(task.id, result, store);
+    }
+    handlers.onTrace?.(`上下文已压缩到摘要，保留最近 ${result.retainedTail.length} 条消息`);
+  };
 
   let step = 0;
   const maxSteps = 10;
@@ -57,6 +109,7 @@ export const runLoop = async (
     step++;
     try {
       handlers.onTrace?.(`第 ${step} 轮开始，正在请求模型...`);
+      await maybeCompact(history);
 
       const memory = retrieveMemoryForTask(task.input);
       const runtimeContext = buildRuntimeContext(contextBuilder, {

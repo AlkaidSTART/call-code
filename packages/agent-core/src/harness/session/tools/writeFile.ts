@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import pathModule from 'node:path';
-import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
+import { resolveUserPath } from './pathUtils';
 
 export const writeFileTool = {
   name: 'write_file',
