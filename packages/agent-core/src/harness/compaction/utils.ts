@@ -1,5 +1,5 @@
-import type { ContextMessage } from '../session/context/context-types';
-import type { EntryLike } from '../session/sessionInfo/session-repository';
+import type { ContextMessage } from '../context/context-types';
+import type { EntryLike } from '../session/store-types';
 
 /** 摘要阶段累积的文件读写信息，后续追加到摘要里让模型保留文件上下文。 */
 export interface FileOperations {

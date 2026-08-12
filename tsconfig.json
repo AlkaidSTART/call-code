@@ -19,9 +19,9 @@
       "@utils/*": ["./packages/agent-core/src/harness/utils/*"],
       "@web/*": ["./packages/agent-core/src/web/*"],
       "@prompt/*": ["./packages/agent-core/src/harness/prompt/*"],
-      "@tools": ["./packages/agent-core/src/harness/session/tools/index.ts"],
-      "@tools/*": ["./packages/agent-core/src/harness/session/tools/*"],
-      "@policy/*": ["./packages/agent-core/src/harness/session/policy/*"],
+      "@tools": ["./packages/agent-core/src/harness/tools/index.ts"],
+      "@tools/*": ["./packages/agent-core/src/harness/tools/*"],
+      "@policy/*": ["./packages/agent-core/src/harness/tools/policy/*"],
       "@protocol/*": ["./packages/agent-core/src/harness/protocol/*"]
     }
   },

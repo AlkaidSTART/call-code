@@ -1,5 +1,5 @@
-import type { ContextMessage } from '../session/context/context-types';
-import type { EntryLike, SessionStoreLike } from '../session/sessionInfo/session-repository';
+import type { ContextMessage } from '../context/context-types';
+import type { EntryLike, SessionStoreLike } from '../session/store-types';
 import type { SummarizeFn } from './compaction';
 import {
   computeFileLists,
@@ -279,4 +279,3 @@ export const branchSummaryEntryToMessage = (entry: EntryLike): ContextMessage | 
   }
   return { role: 'user', content: `[分支摘要]\n${payload.summary}` };
 };
-

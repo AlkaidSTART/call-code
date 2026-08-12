@@ -7,17 +7,17 @@ import { llmModel } from '@agent-core/harness/core/llm';
 import TextInput from 'ink-text-input';
 import Spinner from 'ink-spinner';
 import { get_encoding } from 'tiktoken';
-import { memoryStore } from '@agent-core/harness/session/memory/memory-store';
+import { memoryStore } from '@agent-core/harness/memory/memory-store';
 import {
   getSharedSessionStore,
   loadRecentFeed,
   loadRecentHistory,
   setSharedSessionStore,
   type RecentHistoryItem,
-} from '@agent-core/harness/session/sessionInfo/session-repository';
+} from '@agent-core/harness/session';
 import { writeWebExport } from '@web/export';
 import { SessionStore } from '../packages/session-sqlite/src/index';
-import { resolveUserPath } from '@agent-core/harness/session/tools/pathUtils';
+import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
 
 const encoding = get_encoding('cl100k_base');
 
