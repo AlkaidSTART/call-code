@@ -11,5 +11,8 @@
   },
   "engines": {
     "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "sqlite-vec": "^0.1.9"
   }
 }
