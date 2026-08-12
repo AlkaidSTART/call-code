@@ -1,6 +1,6 @@
 import type { TaskState } from '@core/state';
-import type { ContextMessage } from '@agent-core/harness/context/context-types';
-import { memoryStore } from '@agent-core/harness/context/memory/memory-store';
+import type { ContextMessage } from '@agent-core/harness/session/context/context-types';
+import { memoryStore } from '@agent-core/harness/session/memory/memory-store';
 
 const countStableMentions = (messages: ContextMessage[], text: string): number =>
   messages.reduce((count, item) => {

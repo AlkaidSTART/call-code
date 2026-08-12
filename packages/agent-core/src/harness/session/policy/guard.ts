@@ -1,13 +1,13 @@
 import type { AgentMode } from '@agent-core/harness/core/state';
-import { modePolicies } from '@agent-core/harness/policy/modes';
+import { modePolicies } from './modes';
 
 const toolPermissionByName = (toolName: string, mode: AgentMode): boolean => {
   const policy = modePolicies[mode];
   if (mode === 'plan') {
     return false;
   }
-  if (toolName === 'run_command') {
-    return policy.allowRunCommand;
+  if (toolName === 'bash') {
+    return policy.allowBash;
   }
   if (toolName === 'write_file') {
     return policy.allowWriteFile;

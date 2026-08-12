@@ -1,6 +1,6 @@
 import { access } from 'node:fs/promises';
 import process from 'node:process';
-import { getKnownLocations } from '@agent-core/harness/tools/pathUtils';
+import { getKnownLocations } from './pathUtils';
 
 const exists = async (path: string) => {
   try {
@@ -19,7 +19,7 @@ export const getEnvironmentTool = {
     type: 'object',
     properties: {},
   },
-  run: async () => {
+  run: async (_input: unknown = {}) => {
     const locations = getKnownLocations();
 
     return {

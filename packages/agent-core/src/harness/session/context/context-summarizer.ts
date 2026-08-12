@@ -1,4 +1,4 @@
-import type { ContextMessage } from '@agent-core/harness/context/context-types';
+import type { ContextMessage } from './context-types';
 
 export interface HistorySummary {
   summary: string;

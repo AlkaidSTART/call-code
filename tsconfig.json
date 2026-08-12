@@ -5,7 +5,8 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
-    "types": ["node"],
+    "types": ["node", "vite/client"],
+    "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "skipLibCheck": true,
@@ -13,21 +14,23 @@
     "paths": {
       "@agent-core/*": ["./packages/agent-core/src/*"],
       "@core/*": ["./packages/agent-core/src/harness/core/*"],
-      "@tools": ["./packages/agent-core/src/harness/tools/index.ts"],
-      "@tools/*": ["./packages/agent-core/src/harness/tools/*"],
       "@config/*": ["./packages/agent-core/src/config/*"],
       "@types/*": ["./packages/agent-core/src/types/*"],
-      "@utils/*": ["./packages/agent-core/src/utils/*"],
+      "@utils/*": ["./packages/agent-core/src/harness/utils/*"],
       "@web/*": ["./packages/agent-core/src/web/*"],
       "@prompt/*": ["./packages/agent-core/src/harness/prompt/*"],
-      "@policy/*": ["./packages/agent-core/src/harness/policy/*"],
+      "@tools": ["./packages/agent-core/src/harness/session/tools/index.ts"],
+      "@tools/*": ["./packages/agent-core/src/harness/session/tools/*"],
+      "@policy/*": ["./packages/agent-core/src/harness/session/policy/*"],
       "@protocol/*": ["./packages/agent-core/src/harness/protocol/*"]
     }
   },
   "include": [
     "packages/agent-core/src/**/*.ts",
     "source/**/*.ts",
-    "source/**/*.tsx"
+    "source/**/*.tsx",
+    "tests/**/*.ts",
+    "vitest.config.ts"
   ],
   "exclude": ["node_modules", "dist", "apps"],
   "composite": true
