@@ -46,6 +46,8 @@ OpenAI-compatible LLM                  模型层
         └── 循环执行，直到任务完成
 ```
 
+完整的交互式架构图见 [docs/call-code-architecture.html](docs/call-code-architecture.html)，支持明暗主题切换、搜索、关系高亮与节点聚焦，可直接在浏览器打开。
+
 运行时的核心流程：
 
 1. CLI 接收自然语言任务，交给 agent 构建上下文并调用 LLM。
