@@ -12,6 +12,9 @@
     "skipLibCheck": true,
 
     "paths": {
+      "@server": ["./packages/server/src/index.ts"],
+      "@server/*": ["./packages/server/src/*"],
+      "@agent-core": ["./packages/agent-core/src/index.ts"],
       "@agent-core/*": ["./packages/agent-core/src/*"],
       "@core/*": ["./packages/agent-core/src/harness/core/*"],
       "@config/*": ["./packages/agent-core/src/config/*"],
@@ -27,6 +30,7 @@
   },
   "include": [
     "packages/agent-core/src/**/*.ts",
+    "packages/server/src/**/*.ts",
     "source/**/*.ts",
     "source/**/*.tsx",
     "tests/**/*.ts",
