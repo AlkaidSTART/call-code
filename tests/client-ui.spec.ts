@@ -3,6 +3,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HeaderBar } from "../packages/client/src/components/HeaderBar";
 import { MainPanel } from "../packages/client/src/components/MainPanel";
+import { Sidebar } from "../packages/client/src/components/Sidebar";
 import type { WebSession } from "../packages/client/src/types";
 
 vi.mock("../packages/client/assets/call-code.png", () => ({
@@ -131,5 +132,26 @@ describe("client MainPanel", () => {
     );
 
     expect(html).toContain("正在执行工具调用...");
+  });
+});
+
+describe("client Sidebar", () => {
+  it("每个会话都渲染删除入口", () => {
+    const sessions = [makeSession(), makeSession({ id: "s2", entries: [] })];
+    const html = renderToStaticMarkup(
+      React.createElement(Sidebar, {
+        sessions,
+        activeId: "s1",
+        query: "",
+        onSelect: () => undefined,
+        onQueryChange: () => undefined,
+        onDeleteSession: () => undefined,
+      }),
+    );
+
+    expect(html.match(/aria-label="删除会话/g)).toHaveLength(2);
+    expect(html).toContain('title="删除会话"');
+    expect(html).toContain('aria-label="删除会话 hello world"');
+    expect(html).toContain('aria-label="删除会话 s2"');
   });
 });

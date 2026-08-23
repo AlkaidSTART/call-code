@@ -104,6 +104,13 @@ export default function App() {
     connectionRef.current?.deleteMessages(sessionId, [entryId]);
   };
 
+  const handleDeleteSession = (sessionId: string) => {
+    if (!window.confirm("删除整个会话？此操作无法撤销。")) {
+      return;
+    }
+    connectionRef.current?.deleteMessages(sessionId);
+  };
+
   const sessions = useMemo(() => data?.sessions ?? [], [data]);
   const filteredSessions = useMemo(
     () => filterSessions(sessions, query),
@@ -134,6 +141,7 @@ export default function App() {
             query={query}
             onSelect={setActiveId}
             onQueryChange={setQuery}
+            onDeleteSession={handleDeleteSession}
           />
           <MainPanel
             session={activeSession}
