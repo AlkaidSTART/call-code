@@ -24,6 +24,5 @@ packages/client/dist/
 *.tsbuildinfo
 bundle.*
 docs/*
-!docs/call-code-architecture.html
-!docs/call-code-architecture.png
+!docs/index.html
 .DS_Store                     # macOS

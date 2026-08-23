@@ -49,13 +49,7 @@ OpenAI-compatible LLM                  模型层
         └── 循环执行，直到任务完成
 ```
 
-整体架构（图）如下：
-
-<p align="center">
-  <img src="docs/call-code-architecture.png" alt="call-code 架构图" width="100%" />
-</p>
-
-交互式版本见 [docs/call-code-architecture.html](docs/call-code-architecture.html)，可明暗主题切换、搜索、关系高亮与节点聚焦，直接在浏览器打开。`docs/` 目录会由 GitHub Actions 发布到 `gh-pages` 分支。
+整体架构见交互式版本 [docs/index.html](docs/index.html)，可明暗主题切换、搜索、关系高亮与节点聚焦，直接在浏览器打开。`docs/index.html` 会由 GitHub Actions 发布到 `gh-pages` 分支。
 
 运行时核心流程：
 
