@@ -173,7 +173,7 @@ const commandHelp = [
   '/pages - 打开相关页面选择',
   '/memory - 查看 memory 概览',
   '/status - 查看当前 CLI 状态',
-  '/export - 导出会话数据到 GitHub Pages 客户端',
+  '/export - 导出会话数据到 JSON 文件',
   '/mode - 查看当前模式和阶段',
   '/plan - 切换到 PLAN 模式',
   '/build - 切换到 BUILD 模式',

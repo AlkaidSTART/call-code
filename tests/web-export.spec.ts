@@ -23,7 +23,7 @@ describe('WebExport', () => {
     }
   });
 
-  it('构建 GitHub Pages 客户端可读的会话快照', () => {
+  it('构建 Web 客户端可读的会话快照', () => {
     const store = createStore();
     store.createSession({ cwd: '/tmp/project', id: 's-web' });
     store.appendEntry('s-web', {
