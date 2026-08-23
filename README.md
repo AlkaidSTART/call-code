@@ -20,7 +20,7 @@ call-code 是一个本地运行的终端编程 Agent（CLI coding agent），基
 - 本地记忆：短期记忆按任务保存，长期记忆按主题沉淀，仅在进程内使用，不写入本地 JSON。
 - 上下文预算：运行时基于 token 估算对历史消息做裁剪，减少超出模型上下文的风险。
 - 会话持久化：基于 Node 内置 `node:sqlite` 保存会话、条目、泳道、分支、记录、统计、事实和租约，默认写入 `.agent-sessions/sessions.db`。
-- 会话展示端：`packages/client` 提供 React + Vite 静态页面，可把会话数据导出为 JSON 后部署到 GitHub Pages。
+- 会话客户端：`packages/client` 提供 React + Vite 会话界面，静态展示已停止，后续用于实时对话展示。
 
 ## 架构
 
@@ -55,7 +55,7 @@ OpenAI-compatible LLM                  模型层
   <img src="docs/call-code-architecture.png" alt="call-code 架构图" width="100%" />
 </p>
 
-交互式版本见 [docs/call-code-architecture.html](docs/call-code-architecture.html)，可明暗主题切换、搜索、关系高亮与节点聚焦，直接在浏览器打开。
+交互式版本见 [docs/call-code-architecture.html](docs/call-code-architecture.html)，可明暗主题切换、搜索、关系高亮与节点聚焦，直接在浏览器打开。`docs/` 目录会由 GitHub Actions 发布到 `gh-pages` 分支。
 
 运行时核心流程：
 
@@ -86,8 +86,8 @@ packages/
         utils/               # shell 与文本截断等工具
       types/                 # 领域类型
       utils/                 # JSON、日志工具
-      web/                   # GitHub Pages 客户端数据导出
-  client/                    # TypeScript + React 会话历史界面，可部署到 GitHub Pages
+      web/                   # 会话数据导出
+  client/                    # TypeScript + React 会话界面客户端
   session-sqlite/            # 基于 node:sqlite 的会话历史与运行状态存储
 tests/                        # 项目统一单元测试
  vitest.config.ts             # Vitest 测试配置
@@ -136,7 +136,7 @@ bun dev
 /pages     打开相关页面选择
 /memory    查看 memory 概览
 /status    查看当前 CLI 状态
-/export    导出会话数据到 GitHub Pages 客户端
+/export    导出会话数据到 JSON 文件
 /mode      查看当前模式和阶段
 /plan      切换到 PLAN 模式
 /build     切换到 BUILD 模式
@@ -170,10 +170,10 @@ bun run test
 # 构建 agent-core
 bun run build:agent-core
 
-# 导出会话历史到 packages/client/public/data.json
+# 导出会话数据到 packages/client/public/data.json
 bun run export:web
 
-# 构建 GitHub Pages 客户端
+# 构建会话客户端（本地预览用）
 bun run build:client
 ```
 

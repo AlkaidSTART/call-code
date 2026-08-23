@@ -6,7 +6,7 @@ import type {
   SessionStatsLike,
 } from '../harness/session/store-types';
 
-/** GitHub Pages 客户端读取的会话快照格式。 */
+/** Web 客户端读取的会话快照格式。 */
 export interface WebEntry {
   seq: number;
   id: string;
@@ -120,7 +120,7 @@ const toWebEntry = (entry: EntryLike): WebEntry => {
 };
 
 /**
- * 把会话存储导出为静态客户端可用的 JSON 结构。
+ * 把会话存储导出为 Web 客户端可用的 JSON 结构。
  * records 和 facts 是可选能力，存储未实现时自动省略。
  */
 export const buildWebExport = (
@@ -164,7 +164,7 @@ export const buildWebExport = (
   };
 };
 
-/** 把会话快照写入 packages/client 可读取的静态 JSON 文件。 */
+/** 把会话快照写入 packages/client 可读取的 JSON 文件。 */
 export const writeWebExport = (
   store: WebStore,
   outputPath: string,
