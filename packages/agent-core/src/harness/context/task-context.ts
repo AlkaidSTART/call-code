@@ -1,4 +1,4 @@
-import type { TaskState } from '@agent-core/harness/core/state';
+import type { TaskState } from '../core/state.js';
 
 export interface TaskContext {
   id: string;

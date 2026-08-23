@@ -1,6 +1,6 @@
 import { access } from 'node:fs/promises';
 import process from 'node:process';
-import { getKnownLocations } from './pathUtils';
+import { getKnownLocations } from './pathUtils.js';
 
 const exists = async (path: string) => {
   try {

@@ -1,23 +1,23 @@
-import { callLLM, streamLLM, type StreamHandlers } from '../core/llm';
-import { ContextBuilder } from '../context/context-builder';
-import { buildRuntimeContext } from '../context/runtime-context';
-import type { ContextMessage } from '../context/context-types';
-import { systemPrompt } from '../prompt/system';
-import { toolPrompt } from '../prompt/tool';
-import { getModePrompt } from '../prompt/modes';
-import type { TaskState } from '../core/state';
+import { callLLM, streamLLM, type StreamHandlers } from '../core/llm.js';
+import { ContextBuilder } from '../context/context-builder.js';
+import { buildRuntimeContext } from '../context/runtime-context.js';
+import type { ContextMessage } from '../context/context-types.js';
+import { systemPrompt } from '../prompt/system.js';
+import { toolPrompt } from '../prompt/tool.js';
+import { getModePrompt } from '../prompt/modes.js';
+import type { TaskState } from '../core/state.js';
 import {
   extractFinalText,
   parseAgentResponse,
   shouldContinueLoop,
-} from '../protocol/parser';
-import { isToolCallAction } from '../protocol/action';
-import { promoteStableFact } from '../memory/memory-writer';
-import { retrieveMemoryForTask } from '../memory/memory-retriever';
-import { getSharedSessionStoreOrNull } from '../session/store-registry';
-import type { SessionStoreLike } from '../session/store-types';
-import { createSessionRuntime } from './session-runtime';
-import { runToolCall } from './tool-runtime';
+} from '../protocol/parser.js';
+import { isToolCallAction } from '../protocol/action.js';
+import { promoteStableFact } from '../memory/memory-writer.js';
+import { retrieveMemoryForTask } from '../memory/memory-retriever.js';
+import { getSharedSessionStoreOrNull } from '../session/store-registry.js';
+import type { SessionStoreLike } from '../session/store-types.js';
+import { createSessionRuntime } from './session-runtime.js';
+import { runToolCall } from './tool-runtime.js';
 import {
   DEFAULT_COMPACTION_SETTINGS,
   compact,
@@ -26,8 +26,8 @@ import {
   shouldCompact,
   type CompactionSettings,
   type SummarizeFn,
-} from '../compaction/compaction';
-import { estimateContextTokens } from '../compaction/utils';
+} from '../compaction/compaction.js';
+import { estimateContextTokens } from '../compaction/utils.js';
 
 const contextBuilder = new ContextBuilder(8000);
 

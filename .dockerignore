@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+.agent-sessions
+.env
+.env.local
+.env.*
+node_modules
+**/node_modules
+packages/*/dist
+*.tsbuildinfo
+bundle.*
+docs
+tests
+.DS_Store

@@ -16,7 +16,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@call-code/server/client": ["../server/src/client.ts"],
+      "@call-code/server": ["../server/src/index.ts"]
+    }
   },
   "include": ["src", "vite.config.ts"]
 }

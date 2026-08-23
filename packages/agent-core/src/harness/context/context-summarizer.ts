@@ -1,4 +1,4 @@
-import type { ContextMessage } from './context-types';
+import type { ContextMessage } from './context-types.js';
 
 export interface HistorySummary {
   summary: string;

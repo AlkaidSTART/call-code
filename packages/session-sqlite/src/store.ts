@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { SCHEMA_SQL } from './schema';
+import { SCHEMA_SQL } from './schema.js';
 import type {
   BranchEntry,
   BranchTip,
@@ -18,7 +18,7 @@ import type {
   RecordInput,
   Session,
   SessionStats,
-} from './types';
+} from './types.js';
 
 /** 默认数据库文件路径，可用环境变量 SESSION_DB_PATH 覆盖 */
 export const DEFAULT_DB_PATH = '.agent-sessions/sessions.db';

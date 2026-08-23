@@ -1,4 +1,4 @@
-import type { SessionStoreLike } from './store-types';
+import type { SessionStoreLike } from './store-types.js';
 
 let sharedStore: SessionStoreLike | null = null;
 

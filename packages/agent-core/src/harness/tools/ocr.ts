@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import Tesseract from 'tesseract.js';
-import { resolveUserPath } from './pathUtils';
+import { resolveUserPath } from './pathUtils.js';
 
 const DEFAULT_LANG = 'eng';
 

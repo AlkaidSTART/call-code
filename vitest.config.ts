@@ -12,6 +12,11 @@ export default defineConfig({
     exclude: ['**/dist/**', '**/node_modules/**', 'apps/**'],
     reporters: 'default',
     alias: [
+      { find: /^@call-code\/agent-core$/, replacement: path.resolve(__dirname, './packages/agent-core/src/index.ts') },
+      { find: /^@call-code\/agent-core\//, replacement: path.resolve(__dirname, './packages/agent-core/src') + '/' },
+      { find: /^@call-code\/session-sqlite$/, replacement: path.resolve(__dirname, './packages/session-sqlite/src/index.ts') },
+      { find: /^@call-code\/server\/client$/, replacement: path.resolve(__dirname, './packages/server/src/client.ts') },
+      { find: /^@call-code\/server$/, replacement: path.resolve(__dirname, './packages/server/src/index.ts') },
       { find: '@agent-core', replacement: path.resolve(__dirname, './packages/agent-core/src') },
       { find: '@core', replacement: path.resolve(__dirname, './packages/agent-core/src/harness/core') },
       { find: '@config', replacement: path.resolve(__dirname, './packages/agent-core/src/config') },

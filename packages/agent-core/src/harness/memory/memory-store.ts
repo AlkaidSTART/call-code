@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type {
   LongMemoryItem,
   MemorySnapshot,
-} from './memory-schema';
+} from './memory-schema.js';
 
 export class MemoryStore {
   private readonly longMemory: LongMemoryItem[] = [];

@@ -13,9 +13,11 @@
     "dotenv": "^17.4.2",
     "openai": "^6.34.0",
     "tesseract.js": "^7.0.0",
-    "tiktoken": "^1.0.20"
+    "tiktoken": "^1.0.20",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
+    "@types/ws": "^8.18.1",
     "typescript": "^6.0.3"
   }
 }

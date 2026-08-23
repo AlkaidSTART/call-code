@@ -1,10 +1,10 @@
-import { getEnvironmentTool } from './getEnvironment';
-import { bashTool } from './bash';
-import { ocrImageTool } from './ocr';
-import { gitDiffTool } from './gitDiff';
-import { readFileTool } from './readFile';
-import { searchTool } from './search';
-import { writeFileTool } from './writeFile';
+import { getEnvironmentTool } from './getEnvironment.js';
+import { bashTool } from './bash.js';
+import { ocrImageTool } from './ocr.js';
+import { gitDiffTool } from './gitDiff.js';
+import { readFileTool } from './readFile.js';
+import { searchTool } from './search.js';
+import { writeFileTool } from './writeFile.js';
 export {
   bashTool,
   getEnvironmentTool,

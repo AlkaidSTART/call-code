@@ -26,3 +26,9 @@ bundle.*
 docs/*
 !docs/index.html
 .DS_Store                     # macOS
+.agent-sessions/*
+packages/client/dist/*
+packages/server/dist/*
+packages/agent-core/dist/*
+sessions.db
+packages/session-sqlite/dist/*

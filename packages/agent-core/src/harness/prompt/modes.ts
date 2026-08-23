@@ -1,4 +1,4 @@
-import type { AgentMode } from '@agent-core/harness/core/state';
+import type { AgentMode } from '../core/state.js';
 
 const modeSystemPrompts: Record<AgentMode, string> = {
   plan: `

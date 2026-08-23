@@ -1,5 +1,5 @@
-import type { ContextMessage } from '../context/context-types';
-import type { EntryLike, SessionStoreLike } from '../session/store-types';
+import type { ContextMessage } from '../context/context-types.js';
+import type { EntryLike, SessionStoreLike } from '../session/store-types.js';
 import {
   computeFileLists,
   createFileOps,
@@ -9,7 +9,7 @@ import {
   formatFileOperations,
   serializeConversation,
   type FileOperations,
-} from './utils';
+} from './utils.js';
 
 export interface CompactionSettings {
   enabled: boolean;

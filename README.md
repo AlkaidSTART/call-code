@@ -20,7 +20,7 @@ call-code 是一个本地运行的终端编程 Agent（CLI coding agent），基
 - 本地记忆：短期记忆按任务保存，长期记忆按主题沉淀，仅在进程内使用，不写入本地 JSON。
 - 上下文预算：运行时基于 token 估算对历史消息做裁剪，减少超出模型上下文的风险。
 - 会话持久化：基于 Node 内置 `node:sqlite` 保存会话、条目、泳道、分支、记录、统计、事实和租约，默认写入 `.agent-sessions/sessions.db`。
-- 会话客户端：`packages/client` 提供 React + Vite 会话界面，静态展示已停止，后续用于实时对话展示。
+- 会话客户端：`packages/client` 提供 React + Vite 会话界面，通过 WebSocket 实时展示会话数据。
 
 ## 架构
 
@@ -63,6 +63,7 @@ OpenAI-compatible LLM                  模型层
 ```text
 source/
   app.tsx                    # Ink CLI 入口与交互界面
+  web-server.ts              # Web 会话面板服务入口
 packages/
   agent-core/                # 核心 agent、上下文、记忆、工具与协议实现
     src/
@@ -80,8 +81,8 @@ packages/
         utils/               # shell 与文本截断等工具
       types/                 # 领域类型
       utils/                 # JSON、日志工具
-      web/                   # 会话数据导出
-  client/                    # TypeScript + React 会话界面客户端
+      web/                   # 会话导出与 WebSocket 服务
+  client/                    # TypeScript + React 会话界面客户端（WebSocket 数据）
   session-sqlite/            # 基于 node:sqlite 的会话历史与运行状态存储
 tests/                        # 项目统一单元测试
  vitest.config.ts             # Vitest 测试配置
@@ -121,6 +122,7 @@ bun dev
 | `AGENT_DESKTOP_DIR`   | 可选，覆盖桌面目录路径，便于测试或自定义工作环境。                           |
 | `SESSION_DB_PATH`     | 可选，SQLite 会话库文件路径，默认 `.agent-sessions/sessions.db`。            |
 | `CALL_CODE_WEB_DATA`  | 可选，CLI 内 `/export` 的输出路径，默认 `packages/client/public/data.json`。 |
+| `CALL_CODE_WEB_PORT`  | 可选，Web 会话面板监听端口，默认 4173。                                      |
 
 ## CLI 命令与快捷键
 
@@ -169,7 +171,39 @@ bun run export:web
 
 # 构建会话客户端（本地预览用）
 bun run build:client
+
+# 启动 Web 会话面板（静态托管客户端 + WebSocket 数据服务）
+bun run web:serve
 ```
+
+## Web 会话面板
+
+Web 会话面板由 `source/web-server.ts` 启动：它读取 `SESSION_DB_PATH` 指向的会话库，静态托管 `packages/client/dist`，并在 `/ws` 提供 `sessions.list` / `sessions.snapshot` 消息。客户端默认连接同源 `/ws`，并周期性刷新会话快照；也可以用 `?ws=<url>` 覆盖服务地址，用 `?session=<id>` 直达某个会话。
+
+```bash
+bun run build:client
+bun run web:serve
+```
+
+然后打开 `http://127.0.0.1:4173`。开发模式下先启动 `web:serve`，再运行 `bun run dev:client`，Vite 会把 `/ws` 代理到会话服务。
+
+## Docker 镜像
+
+构建镜像：
+
+```bash
+docker build -t call-code .
+```
+
+以当前目录作为工作区运行，容器内工作目录固定为 `/workspace`，会话库会写入 `/workspace/.agent-sessions`：
+
+```bash
+docker run --rm -it \
+  -v "$PWD":/workspace \
+  call-code
+```
+
+API 配置优先从挂载目录下的 `.env.local` 读取，也可以用 `-e OPENAI_API_KEY=... -e OPENAI_MODEL=...` 传入。
 
 ## 测试说明
 

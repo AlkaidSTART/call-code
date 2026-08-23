@@ -1,11 +1,11 @@
-import type { TaskState } from '@agent-core/harness/core/state';
-import { createTaskContext } from './task-context';
-import { summarizeHistory } from './context-summarizer';
-import { ContextBuilder } from './context-builder';
+import type { TaskState } from '../core/state.js';
+import { createTaskContext } from './task-context.js';
+import { summarizeHistory } from './context-summarizer.js';
+import { ContextBuilder } from './context-builder.js';
 import type {
   ContextMessage,
   RuntimeContext,
-} from './context-types';
+} from './context-types.js';
 
 export interface BuildRuntimeContextInput {
   system: string;

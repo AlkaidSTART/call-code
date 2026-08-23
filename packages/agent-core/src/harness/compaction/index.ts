@@ -1,3 +1,3 @@
-export * from './branch-summarization';
-export * from './compaction';
-export * from './utils';
+export * from './branch-summarization.js';
+export * from './compaction.js';
+export * from './utils.js';

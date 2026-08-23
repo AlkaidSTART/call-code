@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { resolveUserPath } from './pathUtils';
+import { resolveUserPath } from './pathUtils.js';
 
 export const readFileTool = {
   name: 'read_file',

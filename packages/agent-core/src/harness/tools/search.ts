@@ -3,7 +3,7 @@ import type { Dirent } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { resolveUserPath } from './pathUtils';
+import { resolveUserPath } from './pathUtils.js';
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_MAX_RESULTS = 100;

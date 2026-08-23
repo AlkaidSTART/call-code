@@ -1,8 +1,8 @@
-import { tools } from './';
-import { enforceToolPermission } from './policy/guard';
-import type { AgentMode } from '@agent-core/harness/core/state';
-import type { ToolCallAction } from '@agent-core/harness/protocol/action';
-import { createToolResultObservation } from '@agent-core/harness/protocol/observation';
+import { tools } from './index.js';
+import { enforceToolPermission } from './policy/guard.js';
+import type { AgentMode } from '../core/state.js';
+import type { ToolCallAction } from '../protocol/action.js';
+import { createToolResultObservation } from '../protocol/observation.js';
 
 export interface ToolExecutionResult {
   content: string;
