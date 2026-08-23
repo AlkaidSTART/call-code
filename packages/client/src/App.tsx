@@ -1,43 +1,48 @@
-import { useEffect, useMemo, useState } from 'react';
-import { HeaderBar } from './components/HeaderBar';
-import { Sidebar } from './components/Sidebar';
-import { MainPanel } from './components/MainPanel';
-import { connectLiveExport } from './ws';
-import type { Filter, Theme, WebExport } from './types';
-import { filterSessions } from './utils';
-import { ParticleField } from './components/ParticleField';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { HeaderBar } from "./components/HeaderBar";
+import { Sidebar } from "./components/Sidebar";
+import { MainPanel } from "./components/MainPanel";
+import { connectLiveExport, type LiveExportConnection } from "./ws";
+import type { AgentMode, ChatStatusMessage, Filter, Theme, WebExport } from "./types";
+import { filterSessions } from "./utils";
+import { ParticleField } from "./components/ParticleField";
 
-const THEME_KEY = 'call-code-theme';
+const THEME_KEY = "call-code-theme";
 
 const initialTheme = (): Theme => {
   const stored = localStorage.getItem(THEME_KEY);
-  return stored === 'light' ? 'light' : 'dark';
+  return stored === "light" ? "light" : "dark";
 };
 
 export default function App() {
   const [data, setData] = useState<WebExport | null>(null);
-  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
-    'loading',
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">(
+    "loading",
   );
+  const [chatStatus, setChatStatus] = useState<ChatStatusMessage>({
+    status: "idle",
+  });
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const connectionRef = useRef<LiveExportConnection | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    const connection = connectLiveExport({
+    const conn = connectLiveExport({
       onSnapshot: (result) => {
         if (cancelled) {
           return;
         }
 
         setData(result);
-        setLoadState('ready');
+        setLoadState("ready");
         setActiveId((current) => {
           const requestedId = new URLSearchParams(window.location.search).get(
-            'session',
+            "session",
           );
           const candidates = [
             requestedId,
@@ -54,27 +59,43 @@ export default function App() {
           );
         });
       },
+      onChatStatus: (statusMsg) => {
+        if (cancelled) {
+          return;
+        }
+        setChatStatus(statusMsg);
+      },
     });
 
-    connection.ready.then((result) => {
+    connectionRef.current = conn;
+
+    conn.ready.then((result) => {
       if (cancelled) {
         return;
       }
-      setLoadState(result ? 'ready' : 'error');
+      setLoadState(result ? "ready" : "error");
     });
 
     return () => {
       cancelled = true;
-      connection.close();
+      conn.close();
+      connectionRef.current = null;
     };
   }, []);
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
+    root.classList.toggle("dark", theme === "dark");
     root.dataset.theme = theme;
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
+
+  const handleSendMessage = (payload: { input: string; mode: AgentMode }) => {
+    if (!connectionRef.current) {
+      return false;
+    }
+    return connectionRef.current.sendMessage(payload);
+  };
 
   const sessions = useMemo(() => data?.sessions ?? [], [data]);
   const filteredSessions = useMemo(
@@ -111,6 +132,8 @@ export default function App() {
             session={activeSession}
             filter={filter}
             onFilterChange={setFilter}
+            chatStatus={chatStatus}
+            onSendMessage={handleSendMessage}
           />
         </div>
       </div>

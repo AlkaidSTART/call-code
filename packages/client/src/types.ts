@@ -1,8 +1,10 @@
-export type Theme = 'light' | 'dark';
+export type AgentMode = "plan" | "build";
 
-export type EntryRole = 'user' | 'assistant' | 'tool' | 'system';
+export type Theme = "light" | "dark";
 
-export type Filter = 'all' | EntryRole;
+export type EntryRole = "user" | "assistant" | "tool" | "system";
+
+export type Filter = "all" | EntryRole;
 
 export interface WebEntry {
   seq: number;
@@ -59,4 +61,10 @@ export interface WebExport {
   schemaVersion: 1;
   exportedAt: string;
   sessions: WebSession[];
+}
+
+export interface ChatStatusMessage {
+  status: "idle" | "running" | "success" | "error";
+  trace?: string;
+  message?: string;
 }

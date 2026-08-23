@@ -1,17 +1,18 @@
-import { describe, expect, it, vi } from 'vitest';
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { HeaderBar } from '../packages/client/src/components/HeaderBar';
-import type { WebSession } from '../packages/client/src/types';
+import { describe, expect, it, vi } from "vitest";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { HeaderBar } from "../packages/client/src/components/HeaderBar";
+import { MainPanel } from "../packages/client/src/components/MainPanel";
+import type { WebSession } from "../packages/client/src/types";
 
-vi.mock('../packages/client/assets/call-code.png', () => ({
-  default: 'call-code.png',
+vi.mock("../packages/client/assets/call-code.png", () => ({
+  default: "call-code.png",
 }));
 
 const makeSession = (overrides: Partial<WebSession> = {}): WebSession => ({
-  id: 's1',
-  createdAt: '2026-08-05T00:00:00.000Z',
-  cwd: '/tmp/project',
+  id: "s1",
+  createdAt: "2026-08-05T00:00:00.000Z",
+  cwd: "/tmp/project",
   parentSessionId: null,
   metadata: {},
   stats: {
@@ -24,21 +25,22 @@ const makeSession = (overrides: Partial<WebSession> = {}): WebSession => ({
   entries: [
     {
       seq: 1,
-      id: 'e1',
+      id: "e1",
       parentId: null,
-      type: 'user',
-      role: 'user',
-      timestamp: '2026-08-05T00:00:00.000Z',
-      payload: {},
+      type: "user",
+      role: "user",
+      timestamp: "2026-08-05T00:00:00.000Z",
+      text: "hello world",
+      payload: { role: "user", content: "hello world" },
     },
     {
       seq: 2,
-      id: 'e2',
+      id: "e2",
       parentId: null,
-      type: 'tool',
-      role: 'tool',
-      timestamp: '2026-08-05T00:00:00.000Z',
-      tool: 'read_file',
+      type: "tool",
+      role: "tool",
+      timestamp: "2026-08-05T00:00:00.000Z",
+      tool: "read_file",
       payload: {},
     },
   ],
@@ -47,52 +49,85 @@ const makeSession = (overrides: Partial<WebSession> = {}): WebSession => ({
   ...overrides,
 });
 
-describe('client HeaderBar', () => {
-  it('顶部栏展示产品名、会话统计和主题切换', () => {
+describe("client HeaderBar", () => {
+  it("顶部栏展示产品名、会话统计和主题切换", () => {
     const html = renderToStaticMarkup(
       React.createElement(HeaderBar, {
         sessions: [makeSession()],
-        theme: 'dark',
+        theme: "dark",
         onThemeChange: () => undefined,
       }),
     );
 
-    expect(html).toContain('Call Code');
-    expect(html).toContain('1 个会话');
-    expect(html).toContain('2 条消息');
-    expect(html).toContain('1 次工具');
-    expect(html).toContain('浅色');
-    expect(html).toContain('深色');
+    expect(html).toContain("Call Code");
+    expect(html).toContain("1 个会话");
+    expect(html).toContain("2 条消息");
+    expect(html).toContain("1 次工具");
+    expect(html).toContain("浅色");
+    expect(html).toContain("深色");
   });
 
-  it('统计按多个会话累加', () => {
-    const second = makeSession({ id: 's2' });
+  it("统计按多个会话累加", () => {
+    const second = makeSession({ id: "s2" });
     const html = renderToStaticMarkup(
       React.createElement(HeaderBar, {
         sessions: [makeSession(), second],
-        theme: 'light',
+        theme: "light",
         onThemeChange: () => undefined,
       }),
     );
 
-    expect(html).toContain('2 个会话');
-    expect(html).toContain('4 条消息');
-    expect(html).toContain('2 次工具');
-    expect(html).toContain('浅色');
+    expect(html).toContain("2 个会话");
+    expect(html).toContain("4 条消息");
+    expect(html).toContain("2 次工具");
+    expect(html).toContain("浅色");
   });
 
-  it('服务未连接时仍显示完整界面状态', () => {
+  it("服务未连接时仍显示完整界面状态", () => {
     const html = renderToStaticMarkup(
       React.createElement(HeaderBar, {
         sessions: [],
-        theme: 'light',
-        connectionState: 'error',
+        theme: "light",
+        connectionState: "error",
         onThemeChange: () => undefined,
       }),
     );
 
-    expect(html).toContain('Call Code');
-    expect(html).toContain('等待会话服务');
-    expect(html).toContain('浅色');
+    expect(html).toContain("Call Code");
+    expect(html).toContain("等待会话服务");
+    expect(html).toContain("浅色");
+  });
+});
+
+describe("client MainPanel", () => {
+  it("渲染输入框、模式选择与发送按钮", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(MainPanel, {
+        session: makeSession(),
+        filter: "all",
+        onFilterChange: () => undefined,
+        chatStatus: { status: "idle" },
+        onSendMessage: () => true,
+      }),
+    );
+
+    expect(html).toContain("BUILD");
+    expect(html).toContain("PLAN");
+    expect(html).toContain("发送");
+    expect(html).toContain("hello world");
+  });
+
+  it("展示任务运行中的 trace 状态", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(MainPanel, {
+        session: makeSession(),
+        filter: "all",
+        onFilterChange: () => undefined,
+        chatStatus: { status: "running", trace: "正在执行工具调用..." },
+        onSendMessage: () => true,
+      }),
+    );
+
+    expect(html).toContain("正在执行工具调用...");
   });
 });
