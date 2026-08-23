@@ -49,12 +49,15 @@ describe('runLoop SQLite 持久化', () => {
     const res = await runLoop(task, {}, { persist: true });
 
     expect(res).toBe('done');
-    expect(store.getEntries(task.id).map((entry) => entry.type)).toEqual([
+    const entries = store.getEntries(task.id);
+    expect(entries.map((entry) => entry.type)).toEqual([
       'user',
       'assistant',
       'tool',
       'assistant',
     ]);
+    expect(entries[1].payload).toMatchObject({ content: 'inspect environment' });
+    expect(entries[3].payload).toMatchObject({ content: 'done' });
     expect(store.getRecords(task.id).map((record) => record.type)).toEqual([
       'tool_call',
       'tool_result',

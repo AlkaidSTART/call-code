@@ -126,6 +126,21 @@ export class SessionStore {
     takeLease: ReturnType<DatabaseSync['prepare']>;
     getLease: ReturnType<DatabaseSync['prepare']>;
     deleteLease: ReturnType<DatabaseSync['prepare']>;
+    deleteEntryById: ReturnType<DatabaseSync['prepare']>;
+    deleteBranchEntryById: ReturnType<DatabaseSync['prepare']>;
+    deleteLaneMovesByLeaf: ReturnType<DatabaseSync['prepare']>;
+    deleteBranchTipByTip: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionEntries: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionBranchEntries: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionLaneMoves: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionBranchTips: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionFacts: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionLanes: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionRecords: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionStats: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionSequences: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionLeases: ReturnType<DatabaseSync['prepare']>;
+    deleteSessionRow: ReturnType<DatabaseSync['prepare']>;
   };
 
   constructor(config: SessionStoreConfig = {}) {
@@ -299,6 +314,51 @@ export class SessionStore {
       `),
       deleteLease: db.prepare(`
         DELETE FROM leases WHERE session_id = :sessionId AND owner_id = :ownerId
+      `),
+      deleteEntryById: db.prepare(`
+        DELETE FROM entries WHERE session_id = :sessionId AND id = :id
+      `),
+      deleteBranchEntryById: db.prepare(`
+        DELETE FROM branch_entries WHERE session_id = :sessionId AND entry_id = :id
+      `),
+      deleteLaneMovesByLeaf: db.prepare(`
+        DELETE FROM lane_moves WHERE session_id = :sessionId AND leaf_id = :id
+      `),
+      deleteBranchTipByTip: db.prepare(`
+        DELETE FROM branch_tips WHERE session_id = :sessionId AND tip_id = :tipId
+      `),
+      deleteSessionEntries: db.prepare(`
+        DELETE FROM entries WHERE session_id = :sessionId
+      `),
+      deleteSessionBranchEntries: db.prepare(`
+        DELETE FROM branch_entries WHERE session_id = :sessionId
+      `),
+      deleteSessionLaneMoves: db.prepare(`
+        DELETE FROM lane_moves WHERE session_id = :sessionId
+      `),
+      deleteSessionBranchTips: db.prepare(`
+        DELETE FROM branch_tips WHERE session_id = :sessionId
+      `),
+      deleteSessionFacts: db.prepare(`
+        DELETE FROM facts WHERE session_id = :sessionId
+      `),
+      deleteSessionLanes: db.prepare(`
+        DELETE FROM lanes WHERE session_id = :sessionId
+      `),
+      deleteSessionRecords: db.prepare(`
+        DELETE FROM records WHERE session_id = :sessionId
+      `),
+      deleteSessionStats: db.prepare(`
+        DELETE FROM session_stats WHERE session_id = :sessionId
+      `),
+      deleteSessionSequences: db.prepare(`
+        DELETE FROM session_sequences WHERE session_id = :sessionId
+      `),
+      deleteSessionLeases: db.prepare(`
+        DELETE FROM leases WHERE session_id = :sessionId
+      `),
+      deleteSessionRow: db.prepare(`
+        DELETE FROM sessions WHERE id = :sessionId
       `),
     };
   }
@@ -550,6 +610,120 @@ export class SessionStore {
     });
     // 上面的事务必然执行成功并赋值
     return result!;
+  }
+
+  /**
+   * 删除会话内指定的消息及所有后代条目，并同步清理泳道、分支指针和统计。
+   */
+  deleteEntries(sessionId: string, entryIds: string[]): number {
+    const entries = this.getEntries(sessionId, { limit: 100000 });
+    if (entries.length === 0 || entryIds.length === 0) {
+      return 0;
+    }
+
+    const byId = new Map(entries.map((entry) => [entry.id, entry]));
+    const toDelete = new Set(entryIds.filter((id) => byId.has(id)));
+    if (toDelete.size === 0) {
+      return 0;
+    }
+
+    // 同分支下的后代随父条目一起删除；其他分支保持独立，避免误删分叉消息
+    const entryBranch = new Map<string, string>();
+    for (const tip of this.listBranchTips(sessionId)) {
+      for (const item of this.getBranchEntries(sessionId, tip.branchId)) {
+        entryBranch.set(item.entryId, tip.branchId);
+      }
+    }
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+      for (const entry of entries) {
+        if (
+          entry.parentId &&
+          toDelete.has(entry.parentId) &&
+          !toDelete.has(entry.id) &&
+          entryBranch.get(entry.id) === entryBranch.get(entry.parentId)
+        ) {
+          toDelete.add(entry.id);
+          expanded = true;
+        }
+      }
+    }
+
+    this.transaction(() => {
+      for (const tip of this.listBranchTips(sessionId)) {
+        if (!toDelete.has(tip.tipId)) {
+          continue;
+        }
+        const replacement = this.findRemainingAncestor(byId, toDelete, tip.tipId);
+        if (replacement) {
+          this.statements.updateBranchTip.run({
+            ':sessionId': sessionId,
+            ':branchId': tip.branchId,
+            ':tipId': replacement,
+          });
+        } else {
+          this.statements.deleteBranchTipByTip.run({
+            ':sessionId': sessionId,
+            ':tipId': tip.tipId,
+          });
+        }
+      }
+
+      for (const lane of this.listLanes(sessionId)) {
+        if (!lane.leafId || !toDelete.has(lane.leafId)) {
+          continue;
+        }
+        this.statements.updateLane.run({
+          ':sessionId': sessionId,
+          ':lane': lane.lane,
+          ':leafId': this.findRemainingAncestor(byId, toDelete, lane.leafId),
+        });
+      }
+
+      for (const id of toDelete) {
+        this.statements.deleteBranchEntryById.run({ ':sessionId': sessionId, ':id': id });
+        this.statements.deleteLaneMovesByLeaf.run({ ':sessionId': sessionId, ':id': id });
+        this.statements.deleteEntryById.run({ ':sessionId': sessionId, ':id': id });
+      }
+
+      const stats = this.getStats(sessionId);
+      this.statements.upsertStats.run({
+        ':sessionId': sessionId,
+        ':messageCount': Math.max(0, stats.messageCount - toDelete.size),
+        ':cachedTokens': stats.cachedTokens,
+        ':uncachedTokens': stats.uncachedTokens,
+        ':totalTokens': stats.totalTokens,
+        ':costTotal': stats.costTotal,
+      });
+    });
+
+    return toDelete.size;
+  }
+
+  /**
+   * 删除整个会话及其关联的条目、记录、泳道、事实、统计和租约。
+   */
+  deleteSession(sessionId: string): boolean {
+    if (!this.getSession(sessionId)) {
+      return false;
+    }
+
+    this.transaction(() => {
+      this.statements.deleteSessionBranchTips.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionLaneMoves.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionFacts.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionBranchEntries.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionRecords.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionLanes.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionEntries.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionStats.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionSequences.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionLeases.run({ ':sessionId': sessionId });
+      this.statements.deleteSessionRow.run({ ':sessionId': sessionId });
+    });
+
+    return true;
   }
 
   /**
@@ -806,6 +980,22 @@ export class SessionStore {
     const seq = Number(row.next_seq);
     this.statements.bumpSequence.run({ ':sessionId': sessionId });
     return seq;
+  }
+
+  /** 查找删除集合外最近的祖先条目，找不到时返回 null */
+  private findRemainingAncestor(
+    byId: Map<string, Entry>,
+    toDelete: Set<string>,
+    id: string,
+  ): string | null {
+    let parentId = byId.get(id)?.parentId ?? null;
+    while (parentId) {
+      if (!toDelete.has(parentId)) {
+        return parentId;
+      }
+      parentId = byId.get(parentId)?.parentId ?? null;
+    }
+    return null;
   }
 
   /** 根据父条目推导它所属的分支，找不到时返回 null */

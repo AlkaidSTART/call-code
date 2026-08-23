@@ -69,7 +69,31 @@ describe('client utils', () => {
 
     expect(getSessionTitle(userSession)).toBe('用户任务');
     expect(getSessionTitle(objectiveSession)).toBe('目标文本');
-    expect(getSessionTitle(idSession)).toBe('s3');
+    expect(getSessionTitle(idSession)).toBe('新会话');
+  });
+
+  it('会话标题取用户输入前 20 个字并折叠空白', () => {
+    const longUserSession = makeSession({
+      entries: [
+        makeEntry({
+          type: 'user',
+          role: 'user',
+          payload: { content: '请帮我重构这个项目的权限模块并且补充完整测试' },
+        }),
+      ],
+    });
+    const multilineSession = makeSession({
+      entries: [
+        makeEntry({
+          type: 'user',
+          role: 'user',
+          payload: { content: '第一行\n  第二行' },
+        }),
+      ],
+    });
+
+    expect(getSessionTitle(longUserSession)).toBe('请帮我重构这个项目的权限模块并且补充完整');
+    expect(getSessionTitle(multilineSession)).toBe('第一行 第二行');
   });
 
   it('会话搜索覆盖 id、目录、消息内容和工具名', () => {

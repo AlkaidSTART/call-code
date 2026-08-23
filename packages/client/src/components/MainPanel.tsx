@@ -9,6 +9,7 @@ interface MainPanelProps {
   onFilterChange: (filter: Filter) => void;
   chatStatus: ChatStatusMessage;
   onSendMessage: (payload: { input: string; mode: AgentMode }) => boolean;
+  onDeleteEntry: (sessionId: string, entryId: string) => void;
 }
 
 const filters: Array<{ value: Filter; label: string }> = [
@@ -131,6 +132,7 @@ export function MainPanel({
   onFilterChange,
   chatStatus,
   onSendMessage,
+  onDeleteEntry,
 }: MainPanelProps) {
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<AgentMode>("build");
@@ -227,7 +229,11 @@ export function MainPanel({
           ) : (
             <div className="flex flex-col gap-4">
               {entries.map((entry) => (
-                <MessageItem key={entry.id} entry={entry} />
+                <MessageItem
+                  key={entry.id}
+                  entry={entry}
+                  onDelete={() => onDeleteEntry(session.id, entry.id)}
+                />
               ))}
               {session.facts ? <FactGrid facts={session.facts} /> : null}
               {session.records ? (

@@ -145,6 +145,25 @@ export const parseChatStatusMessage = (
   };
 };
 
+/** 从服务端消息中提取新建会话 ID，结构非法时返回 null。 */
+export const parseCreatedSessionMessage = (
+  value: unknown,
+): string | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const message = value as { type?: unknown; sessionId?: unknown };
+  if (
+    message.type !== 'sessions.created' ||
+    typeof message.sessionId !== 'string' ||
+    !message.sessionId.trim()
+  ) {
+    return null;
+  }
+  return message.sessionId.trim();
+};
+
 const resolveWsUrl = (override?: string): string => {
   if (override) {
     return override;
@@ -170,7 +189,13 @@ export interface LiveExportOptions {
 
 export interface LiveExportConnection {
   ready: Promise<WebExport | null>;
-  sendMessage: (payload: { input: string; mode?: AgentMode }) => boolean;
+  sendMessage: (payload: {
+    input: string;
+    mode?: AgentMode;
+    sessionId?: string;
+  }) => boolean;
+  createSession: () => Promise<string | null>;
+  deleteMessages: (sessionId: string, entryIds?: string[]) => boolean;
   refresh: () => void;
   close(): void;
 }
@@ -197,6 +222,7 @@ export const connectLiveExport = (
   let retryTimer: ReturnType<typeof setTimeout> | null = null;
   let attempt = 0;
   let readySettled = false;
+  let createResolver: ((sessionId: string | null) => void) | null = null;
   let resolveReady: (value: WebExport | null) => void = () => undefined;
 
   const ready = new Promise<WebExport | null>((resolve) => {
@@ -228,6 +254,10 @@ export const connectLiveExport = (
 
   const teardownSocket = () => {
     clearTimers();
+    if (createResolver) {
+      createResolver(null);
+      createResolver = null;
+    }
     if (!socket) {
       return;
     }
@@ -312,6 +342,13 @@ export const connectLiveExport = (
         return;
       }
 
+      const createdSessionId = parseCreatedSessionMessage(parsed);
+      if (createdSessionId) {
+        createResolver?.(createdSessionId);
+        createResolver = null;
+        return;
+      }
+
       const data = parseSnapshotMessage(parsed);
       if (!data) {
         return;
@@ -351,6 +388,34 @@ export const connectLiveExport = (
           type: 'chat.send',
           input: payload.input,
           mode: payload.mode ?? 'build',
+          ...(payload.sessionId ? { sessionId: payload.sessionId } : {}),
+        }),
+      );
+      return true;
+    },
+    createSession() {
+      if (
+        createResolver ||
+        !socket ||
+        socket.readyState !== WebSocket.OPEN
+      ) {
+        return Promise.resolve(null);
+      }
+      const current = socket;
+      return new Promise<string | null>((resolve) => {
+        createResolver = resolve;
+        current.send(JSON.stringify({ type: 'sessions.create' }));
+      });
+    },
+    deleteMessages(sessionId, entryIds) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
+      socket.send(
+        JSON.stringify({
+          type: 'sessions.delete',
+          sessionId,
+          ...(entryIds && entryIds.length > 0 ? { entryIds } : {}),
         }),
       );
       return true;

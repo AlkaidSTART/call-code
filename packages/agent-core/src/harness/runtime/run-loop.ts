@@ -127,10 +127,11 @@ export const runLoop = async (
       if (!res) {
         return '无法获取 LLM 回复';
       }
-      history.push({ role: 'assistant', content: res });
-      session.appendAssistant(res);
-
       const parsed = parseAgentResponse(res);
+      history.push({ role: 'assistant', content: res });
+      // 会话里保存人类可读的 message，避免 WebUI 展示原始协议 JSON
+      session.appendAssistant(parsed ? parsed.message : extractFinalText(res));
+
       if (parsed && isToolCallAction(parsed)) {
         const execution = await runToolCall(task, parsed, session);
         history.push({ role: 'user', content: execution.content });

@@ -134,4 +134,88 @@ describe('SessionStore', () => {
     expect(store.releaseLease('s5', 'owner-a')).toBe(true);
     expect(store.getLease('s5')).toBeNull();
   });
+
+  it('删除消息时同步清理后代、泳道、分支指针和统计', () => {
+    const store = createStore();
+    store.createSession({ cwd: '/tmp/project', id: 's-del' });
+    store.appendEntry('s-del', { id: 'e1', type: 'user', payload: { content: 'q' } });
+    store.appendEntry('s-del', {
+      id: 'e2',
+      parentId: 'e1',
+      type: 'assistant',
+      payload: { content: 'a' },
+    });
+    store.appendEntry('s-del', {
+      id: 'e3',
+      parentId: 'e2',
+      type: 'tool',
+      payload: { content: 't' },
+    });
+    store.appendEntry('s-del', {
+      id: 'e4',
+      parentId: 'e1',
+      type: 'assistant',
+      payload: { content: 'b' },
+      branchId: 'feature',
+    });
+    store.updateStats('s-del', {
+      messageCount: 4,
+      cachedTokens: 0,
+      uncachedTokens: 0,
+      totalTokens: 0,
+      costTotal: 0,
+    });
+
+    const deleted = store.deleteEntries('s-del', ['e1']);
+
+    expect(deleted).toBe(3);
+    expect(store.getEntries('s-del').map((entry) => entry.id)).toEqual(['e4']);
+    expect(store.getStats('s-del').messageCount).toBe(1);
+    expect(store.getLane('s-del', DEFAULT_LANE)?.leafId).toBe('e4');
+    expect(store.listBranchTips('s-del').map((tip) => tip.branchId)).toEqual([
+      'feature',
+    ]);
+    expect(store.getBranchEntries('s-del', 'feature').map((item) => item.entryId)).toEqual([
+      'e4',
+    ]);
+    expect(store.deleteEntries('s-del', ['missing'])).toBe(0);
+  });
+
+  it('删除整个会话时清理全部关联数据', () => {
+    const store = createStore();
+    store.createSession({ cwd: '/tmp/project', id: 's-del-session' });
+    store.appendEntry('s-del-session', {
+      id: 'e1',
+      type: 'user',
+      payload: { content: 'q' },
+    });
+    store.appendRecord('s-del-session', {
+      id: 'r1',
+      lane: 'run',
+      runId: 'run-1',
+      type: 'tool_call',
+      payload: { tool: 'read_file' },
+    });
+    store.addFact('s-del-session', { kind: 'task-objective', value: 'demo' });
+    store.updateStats('s-del-session', {
+      messageCount: 1,
+      cachedTokens: 0,
+      uncachedTokens: 0,
+      totalTokens: 0,
+      costTotal: 0,
+    });
+    store.acquireLease('s-del-session', 'owner-a', 60_000);
+
+    expect(store.deleteSession('s-del-session')).toBe(true);
+    expect(store.deleteSession('missing-session')).toBe(false);
+    expect(store.getSession('s-del-session')).toBeNull();
+    expect(store.listSessions()).toHaveLength(0);
+    expect(store.getEntries('s-del-session')).toEqual([]);
+    expect(store.getRecords('s-del-session')).toEqual([]);
+    expect(store.listFacts('s-del-session')).toEqual([]);
+    expect(store.getLane('s-del-session', DEFAULT_LANE)).toBeNull();
+    expect(store.listBranchTips('s-del-session')).toEqual([]);
+    expect(store.getStats('s-del-session').messageCount).toBe(0);
+    expect(store.getLease('s-del-session')).toBeNull();
+  });
 });

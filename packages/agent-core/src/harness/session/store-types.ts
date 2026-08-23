@@ -48,6 +48,8 @@ export interface SessionStoreLike {
     options: { limit?: number },
   ): EntryLike[];
   listSessions(options: { limit?: number }): SessionLike[];
+  deleteEntries(sessionId: string, entryIds: string[]): number;
+  deleteSession(sessionId: string): boolean;
 }
 
 /** 会话基本信息的最小形状 */

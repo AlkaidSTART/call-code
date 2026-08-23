@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { randomUUID } from "node:crypto";
 import { WebSocket, WebSocketServer } from "ws";
 import { runLoop } from "../harness/runtime/run-loop.js";
 import { createTaskState } from "../harness/core/state.js";
@@ -170,6 +171,35 @@ export const startWebServer = async (
         return;
       }
 
+      if (message.type === "sessions.create") {
+        const session = store.createSession({
+          id: randomUUID(),
+          cwd: process.cwd(),
+        });
+        sendJson(socket, {
+          type: "sessions.created",
+          sessionId: session.id,
+        });
+        broadcast(wss, {
+          type: "sessions.snapshot",
+          data: buildWebExport(store),
+        });
+        return;
+      }
+
+      if (message.type === "sessions.delete") {
+        if (message.entryIds && message.entryIds.length > 0) {
+          store.deleteEntries(message.sessionId, message.entryIds);
+        } else {
+          store.deleteSession(message.sessionId);
+        }
+        broadcast(wss, {
+          type: "sessions.snapshot",
+          data: buildWebExport(store),
+        });
+        return;
+      }
+
       if (message.type === "chat.send") {
         if (isRunning) {
           sendJson(socket, {
@@ -189,6 +219,7 @@ export const startWebServer = async (
 
         try {
           const task = createTaskState(message.input, {
+            id: message.sessionId,
             mode: message.mode ?? "build",
             objective: message.objective,
             constraints: message.constraints,

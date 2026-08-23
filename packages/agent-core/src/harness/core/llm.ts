@@ -17,10 +17,17 @@ export interface StreamHandlers {
   onTrace?: (message: string) => void;
 }
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_API_BASE_URL,
-});
+let client: OpenAI | null = null;
+
+function getClient(): OpenAI {
+  if (!client) {
+    client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      baseURL: process.env.OPENAI_API_BASE_URL,
+    });
+  }
+  return client;
+}
 
 export const llmModel = process.env.OPENAI_MODEL ?? '';
 
@@ -32,7 +39,7 @@ export async function callLLM(messages: Message[]) {
     throw new Error(missingModelMessage);
   }
 
-  const res = await client.chat.completions.create({
+  const res = await getClient().chat.completions.create({
     model: llmModel,
     messages,
     temperature: 0,
@@ -52,7 +59,7 @@ export async function streamLLM(
       throw new Error(missingModelMessage);
     }
 
-    const stream = await client.chat.completions.create({
+    const stream = await getClient().chat.completions.create({
       model: llmModel,
       messages,
       temperature: 0,

@@ -2,6 +2,7 @@ export {
   connectLiveExport,
   isWebExport,
   parseChatStatusMessage,
+  parseCreatedSessionMessage,
   parseSnapshotMessage,
 } from '@call-code/server/client';
 export type {

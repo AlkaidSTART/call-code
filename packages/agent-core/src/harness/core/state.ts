@@ -13,6 +13,8 @@ export interface TaskState {
 }
 
 export interface CreateTaskStateOptions {
+  /** 复用已有会话时传入会话 ID，未传时生成新会话 ID */
+  id?: string;
   mode?: AgentMode;
   objective?: string;
   constraints?: string[];
@@ -36,7 +38,7 @@ export const createTaskState = (
   const trimmedInput = input.trim();
 
   return {
-    id: randomUUID(),
+    id: options.id?.trim() || randomUUID(),
     input,
     mode: options.mode ?? 'build',
     objective: options.objective?.trim() || trimmedInput || '完成用户请求',

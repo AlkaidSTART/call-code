@@ -3,6 +3,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HeaderBar } from "../packages/client/src/components/HeaderBar";
 import { MainPanel } from "../packages/client/src/components/MainPanel";
+import { Sidebar } from "../packages/client/src/components/Sidebar";
+import { ConfirmDialog } from "../packages/client/src/components/ConfirmDialog";
 import type { WebSession } from "../packages/client/src/types";
 
 vi.mock("../packages/client/assets/call-code.png", () => ({
@@ -106,6 +108,7 @@ describe("client MainPanel", () => {
         session: makeSession(),
         filter: "all",
         onFilterChange: () => undefined,
+        onDeleteEntry: () => undefined,
         chatStatus: { status: "idle" },
         onSendMessage: () => true,
       }),
@@ -123,11 +126,86 @@ describe("client MainPanel", () => {
         session: makeSession(),
         filter: "all",
         onFilterChange: () => undefined,
+        onDeleteEntry: () => undefined,
         chatStatus: { status: "running", trace: "正在执行工具调用..." },
         onSendMessage: () => true,
       }),
     );
 
     expect(html).toContain("正在执行工具调用...");
+  });
+});
+
+describe("client Sidebar", () => {
+  it("每个会话都渲染删除入口", () => {
+    const sessions = [makeSession(), makeSession({ id: "s2", entries: [] })];
+    const html = renderToStaticMarkup(
+      React.createElement(Sidebar, {
+        sessions,
+        activeId: "s1",
+        query: "",
+        onSelect: () => undefined,
+        onQueryChange: () => undefined,
+        onDeleteSession: () => undefined,
+        onNewTopic: () => undefined,
+      }),
+    );
+
+    expect(html).toContain("开启新话题");
+    expect(html.match(/aria-label="删除会话/g)).toHaveLength(2);
+    expect(html).toContain('title="删除会话"');
+    expect(html).toContain('aria-label="删除会话 hello world"');
+    expect(html).toContain('aria-label="删除会话 新会话"');
+  });
+
+  it("顶部提供开启新话题入口", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(Sidebar, {
+        sessions: [makeSession()],
+        activeId: "s1",
+        query: "",
+        onSelect: () => undefined,
+        onQueryChange: () => undefined,
+        onDeleteSession: () => undefined,
+        onNewTopic: () => undefined,
+      }),
+    );
+
+    expect(html).toContain("开启新话题");
+    expect(html).toContain('type="button"');
+  });
+});
+
+describe("client ConfirmDialog", () => {
+  it("渲染删除确认标题、说明和操作按钮", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(ConfirmDialog, {
+        open: true,
+        title: "删除会话",
+        description: "删除整个会话？此操作无法撤销。",
+        onConfirm: () => undefined,
+        onCancel: () => undefined,
+      }),
+    );
+
+    expect(html).toContain('role="alertdialog"');
+    expect(html).toContain("删除会话");
+    expect(html).toContain("删除整个会话？此操作无法撤销。");
+    expect(html).toContain("取消");
+    expect(html).toContain("删除");
+  });
+
+  it("未打开时不渲染对话框", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(ConfirmDialog, {
+        open: false,
+        title: "删除会话",
+        description: "删除整个会话？此操作无法撤销。",
+        onConfirm: () => undefined,
+        onCancel: () => undefined,
+      }),
+    );
+
+    expect(html).toBe("");
   });
 });
