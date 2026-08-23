@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { HeaderBar } from './components/HeaderBar';
 import { Sidebar } from './components/Sidebar';
 import { MainPanel } from './components/MainPanel';
-import { loadWebExport } from './data';
+import { connectLiveExport } from './ws';
 import type { Filter, Theme, WebExport } from './types';
 import { filterSessions } from './utils';
 
@@ -26,26 +26,45 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
 
-    loadWebExport().then((result) => {
+    const connection = connectLiveExport({
+      onSnapshot: (result) => {
+        if (cancelled) {
+          return;
+        }
+
+        setData(result);
+        setLoadState('ready');
+        setActiveId((current) => {
+          const requestedId = new URLSearchParams(window.location.search).get(
+            'session',
+          );
+          const candidates = [
+            requestedId,
+            current,
+            result.sessions[0]?.id ?? null,
+          ];
+          return (
+            candidates.find(
+              (id) =>
+                id !== null &&
+                id !== undefined &&
+                result.sessions.some((session) => session.id === id),
+            ) ?? null
+          );
+        });
+      },
+    });
+
+    connection.ready.then((result) => {
       if (cancelled) {
         return;
       }
-
-      setData(result);
-      const requestedId = new URLSearchParams(window.location.search).get(
-        'session',
-      );
-      setActiveId(
-        requestedId &&
-          result?.sessions.some((session) => session.id === requestedId)
-          ? requestedId
-          : (result?.sessions[0]?.id ?? null),
-      );
       setLoadState(result ? 'ready' : 'error');
     });
 
     return () => {
       cancelled = true;
+      connection.close();
     };
   }, []);
 

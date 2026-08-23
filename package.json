@@ -17,7 +17,8 @@
     "export:web": "tsx tests/export-web.ts",
     "dev:client": "bun run --cwd packages/client dev",
     "build:client": "bun run --cwd packages/client build",
-    "preview:client": "bun run --cwd packages/client preview"
+    "preview:client": "bun run --cwd packages/client preview",
+    "web:serve": "tsx source/web-server.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",

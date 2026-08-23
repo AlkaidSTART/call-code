@@ -61,7 +61,7 @@ export interface WebExport {
 }
 
 /** export.ts 需要的存储最小接口，兼容 SessionStoreLike 及 SQLite 扩展方法。 */
-type WebStore = SessionStoreLike & {
+export type WebStore = SessionStoreLike & {
   getRecords?: (sessionId: string, options?: { limit?: number; offset?: number }) => WebRecord[];
   listFacts?: (sessionId: string) => WebFact[];
 };
