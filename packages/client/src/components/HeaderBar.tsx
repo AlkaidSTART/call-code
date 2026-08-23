@@ -6,9 +6,15 @@ interface HeaderBarProps {
   sessions: WebSession[];
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
+  connectionState?: 'loading' | 'ready' | 'error';
 }
 
-export function HeaderBar({ sessions, theme, onThemeChange }: HeaderBarProps) {
+export function HeaderBar({
+  sessions,
+  theme,
+  onThemeChange,
+  connectionState = 'ready',
+}: HeaderBarProps) {
   const count = sessions.reduce(
     (acc, session) => {
       acc.messages += session.entries.length;
@@ -46,6 +52,14 @@ export function HeaderBar({ sessions, theme, onThemeChange }: HeaderBarProps) {
           >
             {sessions.length} 个会话 · {count.messages} 条消息 · {count.tools}{' '}
             次工具
+          </div>
+          <div className={`connection-state connection-state--${connectionState}`}>
+            <span aria-hidden="true" />
+            {connectionState === 'loading'
+              ? '连接会话服务'
+              : connectionState === 'error'
+                ? '等待会话服务'
+                : '实时同步'}
           </div>
         </div>
       </div>

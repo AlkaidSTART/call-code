@@ -92,32 +92,6 @@ export default function App() {
     [filteredSessions, activeId],
   );
 
-  if (loadState === 'loading') {
-    return (
-      <div className="app-shell">
-        <div
-          className="grid min-h-[60vh] place-items-center text-sm"
-          style={{ color: 'var(--text-tertiary)' }}
-        >
-          正在读取会话
-        </div>
-      </div>
-    );
-  }
-
-  if (loadState === 'error' || !data) {
-    return (
-      <div className="app-shell">
-        <div
-          className="grid min-h-[60vh] place-items-center text-sm"
-          style={{ color: 'var(--text-tertiary)' }}
-        >
-          无法读取会话数据
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="app-shell">
       <ParticleField />
@@ -126,6 +100,7 @@ export default function App() {
           sessions={filteredSessions}
           theme={theme}
           onThemeChange={setTheme}
+          connectionState={loadState}
         />
         <div className="app-workspace">
           <Sidebar

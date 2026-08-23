@@ -167,7 +167,7 @@ body {
 
 .particle {
   position: absolute;
-  color: rgb(var(--glow-1) / 0.2);
+  color: rgb(255 255 255 / 0.42);
   font-family: var(--font-mono);
   font-size: 10px;
   animation: drift 16s ease-in-out infinite;
@@ -233,6 +233,37 @@ body {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.08em;
+}
+
+.connection-state {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.connection-state > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--role-assistant);
+  box-shadow: 0 0 0 3px rgb(var(--glow-1) / 0.08);
+}
+
+.connection-state--loading > span {
+  background: #c28d45;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.connection-state--error > span {
+  background: #b66d58;
+}
+
+@keyframes pulse {
+  50% { opacity: 0.35; transform: scale(0.75); }
 }
 
 @media (min-width: 1024px) {

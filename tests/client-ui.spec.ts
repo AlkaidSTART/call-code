@@ -81,4 +81,19 @@ describe('client HeaderBar', () => {
     expect(html).toContain('2 次工具');
     expect(html).toContain('毛玻璃');
   });
+
+  it('服务未连接时仍显示完整界面状态', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(HeaderBar, {
+        sessions: [],
+        theme: 'frosted',
+        connectionState: 'error',
+        onThemeChange: () => undefined,
+      }),
+    );
+
+    expect(html).toContain('Call Code');
+    expect(html).toContain('等待会话服务');
+    expect(html).toContain('杏色毛玻璃');
+  });
 });
