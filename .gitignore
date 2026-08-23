@@ -1,6 +1,5 @@
 node_modules
-package.json
-pnpm-lock.yaml
+.DS_Store
 yarn.lock
 .env
 .env.local
@@ -20,8 +19,10 @@ out
 .remix-serve-cache
 .remix-serve-node_modules
 .env/*
-.agent-memory/
+.agent-sessions/
+packages/client/dist/
+*.tsbuildinfo
 bundle.*
 docs/*
-Agent.md
-/test/
+!docs/call-code-architecture.html
+!docs/call-code-architecture.png

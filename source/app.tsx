@@ -1,15 +1,27 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import fs from 'node:fs';
+import { resolve } from 'node:path';
 import { render, Text, Box, useInput } from 'ink';
-import { agent } from '@core/agent';
+import { agent } from '@agent-core/harness/core/agent';
+import { llmModel } from '@agent-core/harness/core/llm';
 import TextInput from 'ink-text-input';
 import Spinner from 'ink-spinner';
 import { get_encoding } from 'tiktoken';
-import { memoryStore } from '@agent-core/memory/memory-store';
-import type { ShortMemoryItem } from '@agent-core/memory/memory-schema';
-import { resolveUserPath } from '@tools/pathUtils';
+import { memoryStore } from '@agent-core/harness/memory/memory-store';
+import {
+  getSharedSessionStore,
+  loadRecentFeed,
+  loadRecentHistory,
+  setSharedSessionStore,
+  type RecentHistoryItem,
+} from '@agent-core/harness/session';
+import { writeWebExport } from '@web/export';
+import { SessionStore } from '../packages/session-sqlite/src/index';
+import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
 
 const encoding = get_encoding('cl100k_base');
+
+setSharedSessionStore(new SessionStore());
 
 const brandLines = [
   '  ______ ___    __    __       ______ ____  ____  ______',
@@ -46,7 +58,7 @@ type ActivityItem =
       id: string;
       label: string;
       content: string;
-      role: ShortMemoryItem['role'];
+      role: RecentHistoryItem['role'];
     }
   | {
       type: 'page';
@@ -62,7 +74,7 @@ interface State {
   status: 'idle' | 'loading' | 'success' | 'error';
   currentInput: string;
   messages: Message[];
-  recentHistory: ShortMemoryItem[];
+  recentHistory: RecentHistoryItem[];
   relatedPages: RelatedPage[];
   activitySelection: number;
   error?: string;
@@ -80,7 +92,7 @@ const compactText = (text: string, maxLength = 96): string => {
   return `${normalized.slice(0, maxLength - 1)}...`;
 };
 
-const extractRelatedPages = (items: ShortMemoryItem[]): RelatedPage[] => {
+const extractRelatedPages = (items: Array<{ content: string }>): RelatedPage[] => {
   const pages = new Map<string, RelatedPage>();
 
   for (const item of items) {
@@ -105,14 +117,9 @@ const extractRelatedPages = (items: ShortMemoryItem[]): RelatedPage[] => {
 };
 
 const loadActivityPanel = () => {
-  const shortItems = memoryStore.listShort();
-
   return {
-    recentHistory: shortItems
-      .filter((item) => item.role === 'user' || item.role === 'assistant')
-      .slice(-8)
-      .reverse(),
-    relatedPages: extractRelatedPages(shortItems),
+    recentHistory: loadRecentHistory(8),
+    relatedPages: extractRelatedPages(loadRecentFeed(200)),
   };
 };
 
@@ -166,6 +173,7 @@ const commandHelp = [
   '/pages - 打开相关页面选择',
   '/memory - 查看 memory 概览',
   '/status - 查看当前 CLI 状态',
+  '/export - 导出会话数据到 GitHub Pages 客户端',
   '/mode - 查看当前模式和阶段',
   '/plan - 切换到 PLAN 模式',
   '/build - 切换到 BUILD 模式',
@@ -434,14 +442,10 @@ const App = () => {
 
         case '/memory': {
           const snapshot = memoryStore.snapshot();
-          const lastError = memoryStore.getLastError();
           showCommandMessage(
             [
               'Memory 概览',
-              `短期记忆: ${snapshot.short.length}`,
               `长期记忆: ${snapshot.long.length}`,
-              `文件: ${memoryStore.getMemoryFile()}`,
-              `最近错误: ${lastError ?? '无'}`,
             ].join('\n'),
           );
           return true;
@@ -455,12 +459,30 @@ const App = () => {
               `mode: ${state.mode}`,
               `phase: ${state.phase}`,
               `status: ${state.status}`,
+              `model: ${llmModel || '未配置'}`,
               `tokens: ${totalTokens}`,
               `最近历史: ${state.recentHistory.length}`,
               `相关页面: ${state.relatedPages.length}`,
             ].join('\n'),
           );
           return true;
+
+        case '/export': {
+          try {
+            const outputPath =
+              process.env.CALL_CODE_WEB_DATA ??
+              resolve(process.cwd(), 'packages/client/public/data.json');
+            const data = writeWebExport(getSharedSessionStore(), outputPath);
+            showCommandMessage(
+              `已导出 ${data.sessions.length} 个会话到 ${outputPath}`,
+            );
+          } catch (error) {
+            showCommandMessage(
+              `导出失败: ${error instanceof Error ? error.message : String(error)}`,
+            );
+          }
+          return true;
+        }
 
         case '/mode':
           showCommandMessage(
@@ -570,6 +592,19 @@ const App = () => {
 
       const trimmed = text.trim();
       if (handleCommand(trimmed)) {
+        return;
+      }
+
+      if (!llmModel) {
+        setState((prev) => ({
+          ...prev,
+          view: 'chat',
+          currentInput: '',
+          status: 'error',
+          error:
+            '你没有配置 OPENAI_MODEL，请在 .env 或 .env.local 中设置模型名称。',
+          currentTrace: '',
+        }));
         return;
       }
 
@@ -872,6 +907,19 @@ const App = () => {
           marginBottom={1}
         >
           <Text color="red">Error: {state.error}</Text>
+        </Box>
+      )}
+
+      {!llmModel && (
+        <Box
+          borderStyle="round"
+          borderColor={colors.clay}
+          paddingX={1}
+          marginBottom={1}
+        >
+          <Text color="#F5C77A">
+            你没有配置 OPENAI_MODEL，请在 .env 或 .env.local 中设置模型名称。
+          </Text>
         </Box>
       )}
 
