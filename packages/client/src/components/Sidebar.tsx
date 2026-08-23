@@ -141,7 +141,7 @@ export function Sidebar({
                   />
                   <div className="min-w-0 flex-1">
                     <div
-                      className="line-clamp-2 text-[13px] font-medium leading-snug"
+                      className="truncate text-[13px] font-medium leading-snug"
                       style={{
                         color: active
                           ? 'var(--text-primary)'

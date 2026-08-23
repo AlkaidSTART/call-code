@@ -23,21 +23,31 @@ export const entryText = (entry: WebEntry): string => {
   return '';
 };
 
+const SESSION_TITLE_MAX_CHARS = 20;
+
+const compactTitle = (value: string): string => {
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= SESSION_TITLE_MAX_CHARS) {
+    return normalized;
+  }
+  return normalized.slice(0, SESSION_TITLE_MAX_CHARS);
+};
+
 export const getSessionTitle = (session: WebSession): string => {
   const firstUser = session.entries.find((entry) => entryRole(entry) === 'user');
   if (firstUser) {
     const text = entryText(firstUser).trim();
     if (text) {
-      return text;
+      return compactTitle(text);
     }
   }
 
   const objective = session.metadata?.objective;
   if (typeof objective === 'string' && objective.trim()) {
-    return objective;
+    return compactTitle(objective);
   }
 
-  return session.id;
+  return '新会话';
 };
 
 export const getSessionMode = (session: WebSession): string => {

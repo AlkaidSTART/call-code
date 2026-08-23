@@ -15,12 +15,14 @@ WORKDIR /app
 COPY package.json bun.lock bunfig.toml tsconfig.json ./
 COPY packages/agent-core/package.json packages/agent-core/
 COPY packages/client/package.json packages/client/
+COPY packages/server/package.json packages/server/
 COPY packages/session-sqlite/package.json packages/session-sqlite/
 
 RUN bun install --frozen-lockfile
 
 COPY source source
 COPY packages/agent-core packages/agent-core
+COPY packages/server packages/server
 COPY packages/session-sqlite packages/session-sqlite
 
 # 默认把挂载的用户目录作为工作区，会话和工具执行都落在里面

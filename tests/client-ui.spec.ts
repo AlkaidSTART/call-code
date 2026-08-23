@@ -155,7 +155,7 @@ describe("client Sidebar", () => {
     expect(html.match(/aria-label="删除会话/g)).toHaveLength(2);
     expect(html).toContain('title="删除会话"');
     expect(html).toContain('aria-label="删除会话 hello world"');
-    expect(html).toContain('aria-label="删除会话 s2"');
+    expect(html).toContain('aria-label="删除会话 新会话"');
   });
 
   it("顶部提供开启新话题入口", () => {
