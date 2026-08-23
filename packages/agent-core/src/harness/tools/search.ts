@@ -352,3 +352,8 @@ const isNoMatchError = (
   error instanceof Error &&
   'code' in error &&
   (error as { code?: unknown }).code === 1;
+
+const isCommandMissing = (
+  error: unknown,
+): error is Error & { code?: string } =>
+  error instanceof Error && (error as { code?: unknown }).code === 'ENOENT';
