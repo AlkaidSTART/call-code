@@ -14,7 +14,7 @@ export const toolPrompt = `
    - path 支持：绝对路径、相对路径、~/...、Desktop/...、桌面/...、desktop:/...
 
 4. search(query: string, path?: string, glob?: string, caseSensitive?: boolean, fixedStrings?: boolean, maxResults?: number)
-   - 使用 ripgrep 搜索文件内容，返回包含文件名、行列号和匹配文本的结果
+   - 使用 ripgrep 搜索文件内容（未安装时自动回退到 Node 内置搜索），返回包含文件名、行列号和匹配文本的结果
    - path 可选，支持 ~/...、Desktop/...、桌面/...、desktop:/...
    - 默认智能区分大小写；fixedStrings 为 true 时按纯文本搜索
 
