@@ -171,6 +171,24 @@ bun run export:web
 bun run build:client
 ```
 
+## Docker 镜像
+
+构建镜像：
+
+```bash
+docker build -t call-code .
+```
+
+以当前目录作为工作区运行，容器内工作目录固定为 `/workspace`，会话库会写入 `/workspace/.agent-sessions`：
+
+```bash
+docker run --rm -it \
+  -v "$PWD":/workspace \
+  call-code
+```
+
+API 配置优先从挂载目录下的 `.env.local` 读取，也可以用 `-e OPENAI_API_KEY=... -e OPENAI_MODEL=...` 传入。
+
 ## 测试说明
 
 测试文件统一放在项目根目录的 `tests/` 目录下，根目录的 `vitest.config.ts` 会统一收集并运行。
