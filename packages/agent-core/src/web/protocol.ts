@@ -13,6 +13,7 @@ export type ChatSendPayload = {
 /** 客户端发给 WebSocket 服务的请求。 */
 export type WebSocketClientMessage =
   | { type: "sessions.list" }
+  | { type: "sessions.delete"; sessionId: string; entryIds?: string[] }
   | ChatSendPayload;
 
 /** 服务端发给客户端的响应。 */
@@ -39,6 +40,28 @@ export const parseClientMessage = (
     const message = value as { type?: unknown };
     if (message.type === "sessions.list") {
       return { type: "sessions.list" };
+    }
+
+    if (message.type === "sessions.delete") {
+      const rawSessionId = (message as { sessionId?: unknown }).sessionId;
+      if (typeof rawSessionId !== "string" || !rawSessionId.trim()) {
+        return null;
+      }
+      const rawEntryIds = (message as { entryIds?: unknown }).entryIds;
+      if (
+        rawEntryIds !== undefined &&
+        (!Array.isArray(rawEntryIds) ||
+          rawEntryIds.some(
+            (id) => typeof id !== "string" || !id.trim(),
+          ))
+      ) {
+        return null;
+      }
+      return {
+        type: "sessions.delete",
+        sessionId: rawSessionId.trim(),
+        entryIds: rawEntryIds?.map((id) => id.trim()),
+      };
     }
 
     if (message.type === "chat.send") {

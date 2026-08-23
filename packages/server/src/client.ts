@@ -171,6 +171,7 @@ export interface LiveExportOptions {
 export interface LiveExportConnection {
   ready: Promise<WebExport | null>;
   sendMessage: (payload: { input: string; mode?: AgentMode }) => boolean;
+  deleteMessages: (sessionId: string, entryIds?: string[]) => boolean;
   refresh: () => void;
   close(): void;
 }
@@ -351,6 +352,19 @@ export const connectLiveExport = (
           type: 'chat.send',
           input: payload.input,
           mode: payload.mode ?? 'build',
+        }),
+      );
+      return true;
+    },
+    deleteMessages(sessionId, entryIds) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
+      socket.send(
+        JSON.stringify({
+          type: 'sessions.delete',
+          sessionId,
+          ...(entryIds && entryIds.length > 0 ? { entryIds } : {}),
         }),
       );
       return true;

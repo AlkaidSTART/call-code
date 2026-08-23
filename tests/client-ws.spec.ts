@@ -80,4 +80,74 @@ describe('客户端 WebSocket 适配', () => {
 
     connection.close();
   });
+
+  it('deleteMessages 删除消息和会话后同步快照', async () => {
+    const { store, handle } = await createServer();
+    store.createSession({ cwd: '/tmp/project', id: 's-client-del' });
+    store.appendEntry('s-client-del', {
+      id: 'e1',
+      type: 'user',
+      payload: { role: 'user', content: 'ping' },
+    });
+    store.appendEntry('s-client-del', {
+      id: 'e2',
+      parentId: 'e1',
+      type: 'assistant',
+      payload: { role: 'assistant', content: 'pong' },
+    });
+    store.appendEntry('s-client-del', {
+      id: 'e3',
+      parentId: 'e2',
+      type: 'tool',
+      payload: { role: 'tool', content: 'ok' },
+    });
+    store.updateStats('s-client-del', {
+      messageCount: 3,
+      cachedTokens: 0,
+      uncachedTokens: 0,
+      totalTokens: 0,
+      costTotal: 0,
+    });
+
+    const snapshots: WebExport[] = [];
+    const connection = connectLiveExport({
+      url: `ws://127.0.0.1:${handle.port}/ws`,
+      timeoutMs: 3000,
+      refreshMs: 3000,
+      onSnapshot: (data) => snapshots.push(data),
+    });
+    const first = await connection.ready;
+    expect(first?.sessions[0].entries).toHaveLength(3);
+
+    connection.deleteMessages('s-client-del', ['e2']);
+
+    const deadline = Date.now() + 2000;
+    while (Date.now() < deadline) {
+      const latest = snapshots[snapshots.length - 1];
+      if (
+        latest?.sessions[0].entries.every((entry) => entry.id !== 'e2')
+      ) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+    expect(snapshots[snapshots.length - 1].sessions[0].entries.map((entry) => entry.id)).toEqual([
+      'e1',
+    ]);
+    expect(snapshots[snapshots.length - 1].sessions[0].stats.messageCount).toBe(1);
+
+    connection.deleteMessages('s-client-del');
+
+    const sessionDeadline = Date.now() + 2000;
+    while (Date.now() < sessionDeadline) {
+      const latest = snapshots[snapshots.length - 1];
+      if (latest?.sessions.length === 0) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+    expect(snapshots[snapshots.length - 1].sessions).toHaveLength(0);
+
+    connection.close();
+  });
 });

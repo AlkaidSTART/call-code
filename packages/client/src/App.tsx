@@ -97,6 +97,13 @@ export default function App() {
     return connectionRef.current.sendMessage(payload);
   };
 
+  const handleDeleteEntry = (sessionId: string, entryId: string) => {
+    if (!window.confirm("删除这条消息及其后续回复？")) {
+      return;
+    }
+    connectionRef.current?.deleteMessages(sessionId, [entryId]);
+  };
+
   const sessions = useMemo(() => data?.sessions ?? [], [data]);
   const filteredSessions = useMemo(
     () => filterSessions(sessions, query),
@@ -134,6 +141,7 @@ export default function App() {
             onFilterChange={setFilter}
             chatStatus={chatStatus}
             onSendMessage={handleSendMessage}
+            onDeleteEntry={handleDeleteEntry}
           />
         </div>
       </div>

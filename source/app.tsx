@@ -18,6 +18,13 @@ import {
 import { writeWebExport } from '@web/export';
 import { SessionStore } from '../packages/session-sqlite/src/index';
 import { resolveUserPath } from '@agent-core/harness/tools/pathUtils';
+import {
+  deleteMessagesCommand,
+  deleteSessionCommand,
+  formatSessionEntries,
+  formatSessionList,
+  sessionCommandUsage,
+} from './session-commands';
 
 const encoding = get_encoding('cl100k_base');
 
@@ -174,6 +181,10 @@ const commandHelp = [
   '/memory - 查看 memory 概览',
   '/status - 查看当前 CLI 状态',
   '/export - 导出会话数据到 JSON 文件',
+  '/sessions - 列出最近会话',
+  '/session <sessionId> - 查看会话消息',
+  '/delmsg <sessionId> <entryId> - 删除一条消息及其后续回复',
+  '/delsession <sessionId> - 删除整个会话',
   '/mode - 查看当前模式和阶段',
   '/plan - 切换到 PLAN 模式',
   '/build - 切换到 BUILD 模式',
@@ -188,7 +199,7 @@ const commandHelp = [
   'Ctrl+C 退出程序',
 ].join('\n');
 
-const readOnlyCommands = new Set(['/help', '/status']);
+const readOnlyCommands = new Set(['/help', '/status', '/sessions', '/session']);
 
 const App = () => {
   const initialActivity = loadActivityPanel();
@@ -481,6 +492,54 @@ const App = () => {
               `导出失败: ${error instanceof Error ? error.message : String(error)}`,
             );
           }
+          return true;
+        }
+
+        case '/sessions': {
+          showCommandMessage(formatSessionList(getSharedSessionStore()));
+          return true;
+        }
+
+        case '/session': {
+          const parts = rawCommand.trim().split(/\s+/);
+          if (parts.length < 2) {
+            showCommandMessage(sessionCommandUsage('session'));
+            return true;
+          }
+          showCommandMessage(
+            formatSessionEntries(getSharedSessionStore(), parts[1]),
+          );
+          return true;
+        }
+
+        case '/delmsg': {
+          const parts = rawCommand.trim().split(/\s+/);
+          if (parts.length < 3) {
+            showCommandMessage(sessionCommandUsage('delmsg'));
+            return true;
+          }
+          const deletedMessage = deleteMessagesCommand(
+            getSharedSessionStore(),
+            parts[1],
+            parts[2],
+          );
+          setState((prev) => ({ ...prev, ...refreshActivity() }));
+          showCommandMessage(deletedMessage);
+          return true;
+        }
+
+        case '/delsession': {
+          const parts = rawCommand.trim().split(/\s+/);
+          if (parts.length < 2) {
+            showCommandMessage(sessionCommandUsage('delsession'));
+            return true;
+          }
+          const deletedMessage = deleteSessionCommand(
+            getSharedSessionStore(),
+            parts[1],
+          );
+          setState((prev) => ({ ...prev, ...refreshActivity() }));
+          showCommandMessage(deletedMessage);
           return true;
         }
 

@@ -170,6 +170,19 @@ export const startWebServer = async (
         return;
       }
 
+      if (message.type === "sessions.delete") {
+        if (message.entryIds && message.entryIds.length > 0) {
+          store.deleteEntries(message.sessionId, message.entryIds);
+        } else {
+          store.deleteSession(message.sessionId);
+        }
+        broadcast(wss, {
+          type: "sessions.snapshot",
+          data: buildWebExport(store),
+        });
+        return;
+      }
+
       if (message.type === "chat.send") {
         if (isRunning) {
           sendJson(socket, {

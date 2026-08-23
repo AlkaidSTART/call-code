@@ -74,6 +74,44 @@ const requestSnapshot = (url: string): Promise<WebExport> =>
     });
   });
 
+const requestDelete = (
+  url: string,
+  sessionId: string,
+  entryIds?: string[],
+): Promise<WebExport> =>
+  new Promise((resolve, reject) => {
+    const socket = new WebSocket(url);
+    const timeout = setTimeout(() => {
+      socket.terminate();
+      reject(new Error("等待删除快照超时"));
+    }, 3000);
+
+    socket.on("open", () => {
+      socket.send(
+        JSON.stringify({
+          type: "sessions.delete",
+          sessionId,
+          ...(entryIds && entryIds.length > 0 ? { entryIds } : {}),
+        }),
+      );
+    });
+    socket.on("message", (raw) => {
+      const message = JSON.parse(String(raw)) as {
+        type?: string;
+        data?: WebExport;
+      };
+      if (message.type === "sessions.snapshot" && message.data) {
+        clearTimeout(timeout);
+        socket.close();
+        resolve(message.data);
+      }
+    });
+    socket.on("error", (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+  });
+
 describe("WebSocket 会话服务", () => {
   it("响应 sessions.list 并返回完整会话快照", async () => {
     const { store, handle } = await createServer();
@@ -152,6 +190,55 @@ describe("WebSocket 会话服务", () => {
     expect(statuses.length).toBeGreaterThanOrEqual(2);
     expect(snapshotReceived).not.toBeNull();
     expect((snapshotReceived as unknown as WebExport).sessions.length).toBeGreaterThan(0);
+  });
+
+  it("响应 sessions.delete 删除单条消息并回传快照", async () => {
+    const { store, handle } = await createServer();
+    store.createSession({ cwd: "/tmp/project", id: "s-del-ws" });
+    store.appendEntry("s-del-ws", {
+      id: "e1",
+      type: "user",
+      payload: { role: "user", content: "hello" },
+    });
+    store.appendEntry("s-del-ws", {
+      id: "e2",
+      parentId: "e1",
+      type: "assistant",
+      payload: { role: "assistant", content: "hi" },
+    });
+    store.updateStats("s-del-ws", {
+      messageCount: 2,
+      cachedTokens: 0,
+      uncachedTokens: 0,
+      totalTokens: 0,
+      costTotal: 0,
+    });
+
+    const data = await requestDelete(
+      `ws://127.0.0.1:${handle.port}/ws`,
+      "s-del-ws",
+      ["e2"],
+    );
+
+    expect(data.sessions[0].entries.map((entry) => entry.id)).toEqual(["e1"]);
+    expect(data.sessions[0].stats.messageCount).toBe(1);
+  });
+
+  it("响应 sessions.delete 删除整个会话", async () => {
+    const { store, handle } = await createServer();
+    store.createSession({ cwd: "/tmp/project", id: "s-del-session-ws" });
+    store.appendEntry("s-del-session-ws", {
+      id: "e1",
+      type: "user",
+      payload: { role: "user", content: "hello" },
+    });
+
+    const data = await requestDelete(
+      `ws://127.0.0.1:${handle.port}/ws`,
+      "s-del-session-ws",
+    );
+
+    expect(data.sessions).toHaveLength(0);
   });
 
   it("无法解析的消息返回 error 响应", async () => {
