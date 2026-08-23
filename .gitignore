@@ -26,3 +26,4 @@ bundle.*
 docs/*
 !docs/call-code-architecture.html
 !docs/call-code-architecture.png
+.DS_Store                     # macOS
