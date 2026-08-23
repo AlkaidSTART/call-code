@@ -41,18 +41,19 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center p-4"
+      className="confirm-overlay fixed inset-0 z-50 grid place-items-center p-4 sm:p-6"
       style={{
-        background: 'rgb(0 0 0 / 0.45)',
-        backdropFilter: 'blur(6px)',
+        background: 'rgb(0 0 0 / 0.5)',
+        backdropFilter: 'blur(8px)',
       }}
       onClick={onCancel}
     >
       <div
-        role="dialog"
+        role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
-        className="w-full max-w-[380px] rounded-xl border p-5"
+        aria-describedby="confirm-dialog-description"
+        className="confirm-dialog w-full max-w-[480px] rounded-[14px] border"
         style={{
           background: 'var(--panel-bg)',
           borderColor: 'var(--panel-border)',
@@ -60,15 +61,15 @@ export function ConfirmDialog({
         }}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-4 p-6 sm:p-7">
           <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-            style={{ background: 'rgb(220 38 38 / 0.12)', color: '#dc2626' }}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+            style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}
             aria-hidden="true"
           >
             <svg
-              width="16"
-              height="16"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -86,13 +87,14 @@ export function ConfirmDialog({
           <div className="min-w-0">
             <h3
               id="confirm-dialog-title"
-              className="text-[14px] font-semibold"
+              className="text-[17px] font-semibold leading-snug"
               style={{ color: 'var(--text-primary)' }}
             >
               {title}
             </h3>
             <p
-              className="mt-1 text-[12.5px] leading-relaxed"
+              id="confirm-dialog-description"
+              className="mt-1.5 text-[14px] leading-relaxed"
               style={{ color: 'var(--text-secondary)' }}
             >
               {description}
@@ -100,24 +102,22 @@ export function ConfirmDialog({
           </div>
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        <div
+          className="flex items-center justify-end gap-2.5 border-t px-6 py-4 sm:px-7"
+          style={{ borderColor: 'rgb(var(--panel-border))' }}
+        >
           <button
             ref={cancelRef}
             type="button"
             onClick={onCancel}
-            className="h-8 rounded-lg border px-3 text-[12px] font-medium transition-colors hover:text-[var(--text-primary)]"
-            style={{
-              borderColor: 'var(--chip-border)',
-              background: 'var(--chip-bg)',
-              color: 'var(--text-secondary)',
-            }}
+            className="dialog-cancel h-10 rounded-lg px-4 text-[13px] font-medium transition-colors"
           >
             取消
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="h-8 rounded-lg bg-red-600 px-3 text-[12px] font-medium text-white transition-colors hover:bg-red-500"
+            className="btn-danger h-10 rounded-lg px-4 text-[13px] font-medium transition-colors"
           >
             {confirmLabel}
           </button>

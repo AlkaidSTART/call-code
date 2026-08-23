@@ -169,7 +169,7 @@ describe("client ConfirmDialog", () => {
       }),
     );
 
-    expect(html).toContain('role="dialog"');
+    expect(html).toContain('role="alertdialog"');
     expect(html).toContain("删除会话");
     expect(html).toContain("删除整个会话？此操作无法撤销。");
     expect(html).toContain("取消");

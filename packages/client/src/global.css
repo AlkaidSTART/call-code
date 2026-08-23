@@ -27,6 +27,10 @@
   --segment-active: #ffffff;
   --segment-active-text: #111827;
   --segment-active-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+
+  --danger: #dc2626;
+  --danger-hover: #ef4444;
+  --danger-soft: rgb(220 38 38 / 0.12);
 }
 
 :root.dark,
@@ -286,4 +290,51 @@ body {
 
 .search-box:focus-within {
   border-color: var(--text-primary) !important;
+}
+
+.confirm-overlay {
+  animation: confirm-overlay-in 0.16s ease-out;
+}
+
+.confirm-dialog {
+  animation: confirm-dialog-in 0.18s ease-out;
+}
+
+.dialog-cancel {
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  color: var(--text-secondary);
+}
+
+.dialog-cancel:hover {
+  color: var(--text-primary);
+}
+
+.dialog-cancel:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: var(--danger-hover);
+}
+
+.btn-danger:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
+}
+
+@keyframes confirm-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes confirm-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
