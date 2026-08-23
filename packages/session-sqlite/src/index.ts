@@ -1,5 +1,5 @@
 // 会话 SQLite 存储的公开入口。
-export { SCHEMA_SQL } from './schema';
+export { SCHEMA_SQL } from './schema.js';
 export {
   DEFAULT_BRANCH,
   DEFAULT_DB_PATH,
@@ -9,7 +9,7 @@ export {
   type LeaseAcquireResult,
   type ListSessionsOptions,
   type SessionStoreConfig,
-} from './store';
+} from './store.js';
 export type {
   BranchEntry,
   BranchTip,
@@ -25,4 +25,4 @@ export type {
   RecordInput,
   Session,
   SessionStats,
-} from './types';
+} from './types.js';

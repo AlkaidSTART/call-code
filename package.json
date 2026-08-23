@@ -14,6 +14,8 @@
     "typecheck:client": "tsc -p packages/client/tsconfig.json --noEmit",
     "test": "vitest run --reporter verbose",
     "build:agent-core": "tsc -p packages/agent-core/tsconfig.json",
+    "build:session-sqlite": "tsc -p packages/session-sqlite/tsconfig.json",
+    "build:server": "bun run build:session-sqlite && bun run build:agent-core && bun run --cwd packages/server build",
     "export:web": "tsx tests/export-web.ts",
     "dev:client": "bun run --cwd packages/client dev",
     "build:client": "bun run --cwd packages/client build",

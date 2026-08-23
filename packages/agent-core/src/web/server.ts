@@ -3,10 +3,10 @@ import { readFile, stat } from "node:fs/promises";
 import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocket, WebSocketServer } from "ws";
-import { runLoop } from "../harness/runtime/run-loop";
-import { createTaskState } from "../harness/core/state";
-import { buildWebExport, type WebStore } from "./export";
-import { parseClientMessage, type WebSocketServerMessage } from "./protocol";
+import { runLoop } from "../harness/runtime/run-loop.js";
+import { createTaskState } from "../harness/core/state.js";
+import { buildWebExport, type WebStore } from "./export.js";
+import { parseClientMessage, type WebSocketServerMessage } from "./protocol.js";
 
 const DEFAULT_CLIENT_DIR = fileURLToPath(
   new URL("../../../client/dist", import.meta.url),

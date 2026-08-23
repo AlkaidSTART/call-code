@@ -1,4 +1,4 @@
-import { isAgentAction, isFinalAction, isToolCallAction, type AgentAction } from '@agent-core/harness/protocol/action';
+import { isAgentAction, isFinalAction, isToolCallAction, type AgentAction } from './action.js';
 
 export const parseAgentResponse = (response: string): AgentAction | null => {
   try {

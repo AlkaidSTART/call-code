@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import pathModule from 'node:path';
-import { resolveUserPath } from './pathUtils';
+import { resolveUserPath } from './pathUtils.js';
 
 export const writeFileTool = {
   name: 'write_file',

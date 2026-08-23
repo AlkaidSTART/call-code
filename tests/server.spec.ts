@@ -5,7 +5,7 @@ import {
   type ServerInstance,
   type WebExport,
   SessionStore,
-} from "../packages/server/src/index";
+} from "@call-code/server";
 
 vi.mock("../packages/agent-core/src/harness/runtime/run-loop", () => ({
   runLoop: vi.fn(async (task, handlers, options) => {
@@ -144,5 +144,22 @@ describe("Server SDK 与集成服务", () => {
     expect(statuses.length).toBeGreaterThanOrEqual(2);
     expect(snapshotReceived).not.toBeNull();
     expect((snapshotReceived as unknown as WebExport).sessions.length).toBeGreaterThan(0);
+  });
+
+  it("通过 Server SDK 的 runTask 直接驱动 Agent 并写入会话", async () => {
+    const { server } = await createTestServer();
+
+    const result = await server.runTask("SDK runTask 调用", {
+      mode: "build",
+      workspace: "/tmp/sdk-run",
+    });
+
+    expect(result).toBe("已处理完毕");
+    const data = server.snapshot();
+    expect(data.sessions).toHaveLength(1);
+    expect(data.sessions[0].cwd).toBe("/tmp/sdk-run");
+    expect(
+      data.sessions[0].entries.some((entry) => entry.text === "已处理完毕"),
+    ).toBe(true);
   });
 });

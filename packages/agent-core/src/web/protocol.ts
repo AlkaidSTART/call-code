@@ -1,5 +1,5 @@
-import type { AgentMode } from "../harness/core/state";
-import type { WebExport } from "./export";
+import type { AgentMode } from "../harness/core/state.js";
+import type { WebExport } from "./export.js";
 
 export type ChatSendPayload = {
   type: "chat.send";

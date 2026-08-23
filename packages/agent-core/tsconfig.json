@@ -7,7 +7,9 @@
     "moduleResolution": "bundler",
 
     "declaration": true,
-    "composite": true
+    "composite": true,
+    "noEmit": false,
+    "allowImportingTsExtensions": false
   },
   "include": ["src"]
 }

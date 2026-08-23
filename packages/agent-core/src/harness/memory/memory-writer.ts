@@ -1,6 +1,6 @@
-import type { TaskState } from '@core/state';
-import type { ContextMessage } from '../context/context-types';
-import { memoryStore } from './memory-store';
+import type { TaskState } from '../core/state.js';
+import type { ContextMessage } from '../context/context-types.js';
+import { memoryStore } from './memory-store.js';
 
 const countStableMentions = (messages: ContextMessage[], text: string): number =>
   messages.reduce((count, item) => {

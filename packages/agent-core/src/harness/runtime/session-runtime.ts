@@ -1,14 +1,14 @@
-import type { ContextMessage } from '../context/context-types';
-import { persistCompactionEntry, type CompactResult } from '../compaction/compaction';
-import type { TaskState } from '../core/state';
-import type { ToolCallAction } from '../protocol/action';
-import type { SessionStoreLike } from '../session/store-types';
-import { readTaskHistory } from '../session/history';
+import type { ContextMessage } from '../context/context-types.js';
+import { persistCompactionEntry, type CompactResult } from '../compaction/compaction.js';
+import type { TaskState } from '../core/state.js';
+import type { ToolCallAction } from '../protocol/action.js';
+import type { SessionStoreLike } from '../session/store-types.js';
+import { readTaskHistory } from '../session/history.js';
 import {
   appendTaskEntry,
   appendTaskRecord,
   ensureTaskSession,
-} from '../session/task-session';
+} from '../session/task-session.js';
 
 export interface SessionRuntime {
   history: ContextMessage[];

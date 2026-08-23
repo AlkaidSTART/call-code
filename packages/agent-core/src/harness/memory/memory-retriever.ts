@@ -1,4 +1,4 @@
-import { memoryStore } from './memory-store';
+import { memoryStore } from './memory-store.js';
 
 export interface RetrievedMemory {
   longFacts: string[];

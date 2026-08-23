@@ -4,7 +4,7 @@ import type {
   EntryLike,
   SessionStoreLike,
   SessionStatsLike,
-} from '../harness/session/store-types';
+} from '../harness/session/store-types.js';
 
 /** Web 客户端读取的会话快照格式。 */
 export interface WebEntry {

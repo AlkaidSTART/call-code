@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { SessionStore } from '../packages/session-sqlite/src/index';
-import type { WebExport } from '../packages/client/src/types';
+import type { WebExport } from '@call-code/server/client';
 import {
   connectLiveExport,
   parseSnapshotMessage,
-} from '../packages/client/src/ws';
+} from '@call-code/server/client';
 import {
   startWebServer,
   type WebServerHandle,

@@ -1,6 +1,6 @@
-import type { ContextMessage } from '../context/context-types';
-import type { EntryLike, SessionStoreLike } from './store-types';
-import { getSharedSessionStore } from './store-registry';
+import type { ContextMessage } from '../context/context-types.js';
+import type { EntryLike, SessionStoreLike } from './store-types.js';
+import { getSharedSessionStore } from './store-registry.js';
 
 const entryToContextMessage = (entry: EntryLike): ContextMessage | null => {
   const payload = entry.payload as { content?: unknown; role?: unknown } | null;

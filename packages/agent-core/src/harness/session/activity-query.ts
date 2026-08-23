@@ -1,5 +1,5 @@
-import type { EntryLike, SessionStoreLike } from './store-types';
-import { getSharedSessionStore } from './store-registry';
+import type { EntryLike, SessionStoreLike } from './store-types.js';
+import { getSharedSessionStore } from './store-registry.js';
 
 /**
  * 活动面板需要的历史条目。

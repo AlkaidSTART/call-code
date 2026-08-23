@@ -1,6 +1,6 @@
-import { runLoop } from '@agent-core/harness/runtime/run-loop';
-import type { StreamHandlers } from '@agent-core/harness/core/llm';
-import { createTaskState, type AgentMode } from '@agent-core/harness/core/state';
+import { runLoop } from '../runtime/run-loop.js';
+import type { StreamHandlers } from './llm.js';
+import { createTaskState, type AgentMode } from './state.js';
 
 export interface AgentOptions {
   mode?: AgentMode;

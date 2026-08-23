@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { truncateOutput, type TruncateOptions } from '@agent-core/harness/utils/truncate';
+import { truncateOutput, type TruncateOptions } from './truncate.js';
 const execFileAsync = promisify(execFile);
 
 export interface ExecShellOptions {

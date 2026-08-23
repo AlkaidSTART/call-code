@@ -1,13 +1,18 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "noEmit": true
+    "declaration": true,
+    "composite": true,
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "paths": {
+      "@call-code/agent-core": ["../agent-core/dist/index.d.ts"],
+      "@call-code/session-sqlite": ["../session-sqlite/dist/index.d.ts"]
+    }
   },
-  "include": [
-    "src",
-    "../agent-core/src",
-    "../session-sqlite/src"
-  ]
+  "include": ["src"]
 }

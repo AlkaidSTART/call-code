@@ -1,5 +1,5 @@
-export type { ToolCallAction, FinalAction, AgentAction } from '@agent-core/harness/protocol/action';
-export { isToolCallAction, isFinalAction, isAgentAction } from '@agent-core/harness/protocol/action';
-export type { ToolResultObservation } from '@agent-core/harness/protocol/observation';
-export { createToolResultObservation } from '@agent-core/harness/protocol/observation';
-export { parseAgentResponse, shouldContinueLoop, extractFinalText } from '@agent-core/harness/protocol/parser';
+export type { ToolCallAction, FinalAction, AgentAction } from './action.js';
+export { isToolCallAction, isFinalAction, isAgentAction } from './action.js';
+export type { ToolResultObservation } from './observation.js';
+export { createToolResultObservation } from './observation.js';
+export { parseAgentResponse, shouldContinueLoop, extractFinalText } from './parser.js';

@@ -1,11 +1,11 @@
-import type { TaskState } from '../core/state';
+import type { TaskState } from '../core/state.js';
 import type {
   EntryLike,
   RecordLike,
   SessionLike,
   SessionStoreLike,
-} from './store-types';
-import { getSharedSessionStore } from './store-registry';
+} from './store-types.js';
+import { getSharedSessionStore } from './store-registry.js';
 
 /** 默认泳道名称，与 session-sqlite store 保持一致 */
 export const DEFAULT_LANE = 'default';

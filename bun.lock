@@ -43,6 +43,7 @@
       "name": "@call-code/client",
       "version": "0.1.0",
       "dependencies": {
+        "@call-code/server": "workspace:*",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
       },
@@ -54,6 +55,20 @@
         "tailwindcss": "^4.3.3",
         "typescript": "^6.0.3",
         "vite": "^8.2.0",
+      },
+    },
+    "packages/server": {
+      "name": "@call-code/server",
+      "version": "0.1.0",
+      "dependencies": {
+        "@call-code/agent-core": "workspace:*",
+        "@call-code/session-sqlite": "workspace:*",
+        "ws": "^8.21.3",
+      },
+      "devDependencies": {
+        "@types/node": "^25.6.0",
+        "@types/ws": "^8.18.1",
+        "typescript": "^6.0.3",
       },
     },
     "packages/session-sqlite": {
@@ -74,6 +89,8 @@
     "@call-code/agent-core": ["@call-code/agent-core@workspace:packages/agent-core"],
 
     "@call-code/client": ["@call-code/client@workspace:packages/client"],
+
+    "@call-code/server": ["@call-code/server@workspace:packages/server"],
 
     "@call-code/session-sqlite": ["@call-code/session-sqlite@workspace:packages/session-sqlite"],
 

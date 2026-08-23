@@ -1,6 +1,6 @@
-import type { ContextMessage } from '../context/context-types';
-import type { EntryLike, SessionStoreLike } from '../session/store-types';
-import type { SummarizeFn } from './compaction';
+import type { ContextMessage } from '../context/context-types.js';
+import type { EntryLike, SessionStoreLike } from '../session/store-types.js';
+import type { SummarizeFn } from './compaction.js';
 import {
   computeFileLists,
   createFileOps,
@@ -9,7 +9,7 @@ import {
   formatFileOperations,
   serializeConversation,
   type FileOperations,
-} from './utils';
+} from './utils.js';
 
 export interface BranchSummaryEntryPayload {
   kind: 'branch_summary';

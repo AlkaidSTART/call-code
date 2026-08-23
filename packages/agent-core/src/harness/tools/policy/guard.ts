@@ -1,5 +1,5 @@
-import type { AgentMode } from '@agent-core/harness/core/state';
-import { modePolicies } from './modes';
+import type { AgentMode } from '../../core/state.js';
+import { modePolicies } from './modes.js';
 
 const toolPermissionByName = (toolName: string, mode: AgentMode): boolean => {
   const policy = modePolicies[mode];
