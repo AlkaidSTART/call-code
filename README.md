@@ -4,18 +4,18 @@
   <img src="packages/client/assets/call-code.png" alt="call-code 产品标识" width="240" />
 </p>
 
-![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
-![pnpm](https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white)
+![Bun](https://img.shields.io/badge/Bun-1.3.11-F69220?logo=bun&logoColor=white)
 ![MIT License](https://img.shields.io/badge/License-MIT-4B32C3)
 
-call-code 是一个本地运行的终端编程 Agent（CLI coding agent），基于 Node.js、TypeScript 和 Ink 构建。它可以在用户当前工作目录中接受自然语言任务，通过工具调用读取文件、写入文件、执行命令、查看环境信息，并结合本地短/长期记忆持续完成任务。
+call-code 是一个本地运行的终端编程 Agent（CLI coding agent），基于 Node.js、TypeScript、Bun 和 Ink 构建。它可以在用户当前工作目录中接受自然语言任务，通过工具调用读取文件、写入文件、执行命令、搜索代码、查看环境信息，并结合本地短/长期记忆持续完成任务。
 
 ## 功能特性
 
 - 终端交互界面：基于 Ink 的命令行界面，支持首页、对话、历史选择和相关页面预览。
 - 双执行模式：`PLAN` 模式只允许生成计划和读取环境，`BUILD` 模式可以写入文件、执行命令并推进任务。
-- 本地工具集：内置 `get_environment`、`read_file`、`write_file`、`bash`、`git_diff`、`ocr_image` 六个工具。
+- 本地工具集：内置 `get_environment`、`read_file`、`write_file`、`search`、`bash`、`git_diff`、`ocr_image` 七个工具。
 - 结构化响应协议：模型输出统一为 `tool_call` 或 `final` 的 JSON action，循环解析并继续执行。
 - 本地记忆：短期记忆按任务保存，长期记忆按主题沉淀，仅在进程内使用，不写入本地 JSON。
 - 上下文预算：运行时基于 token 估算对历史消息做裁剪，减少超出模型上下文的风险。
@@ -29,15 +29,18 @@ source/app.tsx                         CLI 层
    首页 / 对话 / 历史 / 相关页面预览
         │  用户输入、命令与活动面板操作
         ▼
-agent-core                             核心层
-├─ core/       agent 与 runLoop 主循环：规划 -> 执行 -> 观察
+agent-core/src/harness                核心层
+├─ core/       agent、LLM 客户端与任务状态
+├─ runtime/    runLoop 主循环、会话与工具运行时
 ├─ context/    构建上下文、历史摘要与 token 预算
+├─ compaction/ 上下文压缩与分支摘要
 ├─ protocol/   解析 tool_call / final JSON action
-├─ policy/     PLAN / BUILD 模式下的工具权限
-├─ tools/      get_environment / read_file / write_file
-│              bash / git_diff / ocr_image
-├─ memory/     short / long 记忆（仅存内存，不落盘 JSON）
-└─ prompt/     系统提示词、工具说明与模式提示词
+├─ prompt/     系统提示词、工具说明与模式提示词
+├─ tools/      七个本地工具，及 PLAN / BUILD 权限
+│  └─ policy/  模式权限守卫
+├─ session/    会话恢复、活动查询与任务会话
+├─ memory/     短期 / 长期记忆（仅存内存，不落盘 JSON）
+└─ utils/      shell 与文本截断等通用工具
         │  OpenAI chat.completions 请求（支持流式）
         ▼
 OpenAI-compatible LLM                  模型层
@@ -58,7 +61,7 @@ OpenAI-compatible LLM                  模型层
 
 1. CLI 接收自然语言任务，交给 agent 构建上下文并调用 LLM。
 2. 模型返回 `tool_call` 或 `final`，由 protocol 解析为结构化 action。
-3. policy 按 `PLAN` / `BUILD` 模式校验权限，允许后由对应工具执行。
+3. tools/policy 按 `PLAN` / `BUILD` 模式校验权限，允许后由对应工具执行。
 4. 工具执行结果作为 observation 回写，memory 记录关键信息，循环继续，直到返回 `final`。
 
 ## 项目结构
@@ -69,13 +72,20 @@ source/
 packages/
   agent-core/                # 核心 agent、上下文、记忆、工具与协议实现
     src/
-      core/                  # agent、runLoop、state、LLM 调用
-      context/               # 上下文构建、历史摘要与 token 管理
-      memory/                # 短期/长期记忆存储与检索
-      protocol/              # 模型 action/observation 协议解析
-      prompt/                # 系统提示词、工具说明、模式提示词
-      tools/                 # 环境、文件、命令等本地工具
-      policy/                # PLAN/BUILD 模式下的工具权限
+      harness/
+        core/                # agent、LLM、任务状态
+        runtime/             # runLoop、会话与工具运行时
+        context/             # 上下文构建、摘要与 token 管理
+        compaction/          # 上下文压缩与分支摘要
+        memory/              # 短期/长期记忆存储与检索
+        protocol/            # 模型 action/observation 协议解析
+        prompt/              # 系统提示词、工具说明、模式提示词
+        session/             # 会话恢复、活动查询与任务会话
+        tools/               # 七个本地工具
+        tools/policy/        # PLAN/BUILD 模式下的工具权限
+        utils/               # shell 与文本截断等工具
+      types/                 # 领域类型
+      utils/                 # JSON、日志工具
       web/                   # GitHub Pages 客户端数据导出
   client/                    # TypeScript + React 会话历史界面，可部署到 GitHub Pages
   session-sqlite/            # 基于 node:sqlite 的会话历史与运行状态存储
@@ -94,14 +104,14 @@ tests/                        # 项目统一单元测试
 
 ## 快速开始
 
-1. 安装依赖（建议 Node.js 20+，并使用 pnpm）。
-2. 将 `.env.example` 复制为 `.env.local`（或 `.env`），配置 `OPENAI_API_KEY` 与 `OPENAI_MODEL`。
+1. 安装依赖（需要 Node.js 22.5+，包管理器为 Bun，版本固定为 1.3.11）。
+2. 将 `.env.example` 复制为 `.env.local`，配置 `OPENAI_API_KEY` 与 `OPENAI_MODEL`；`.env` 与 `.env.local` 都会被加载。
 3. 启动 CLI，入口为 `source/app.tsx`。
 
 ```bash
 cp .env.example .env.local
-pnpm install
-pnpm dev
+bun install
+bun dev
 ```
 
 进入 CLI 后可以直接输入自然语言任务。CLI 默认按当前模式执行：`PLAN` 模式先生成计划，`BUILD` 模式直接参与文件读写和命令执行。计划生成后可用 Enter 确认执行，也可以继续补充修改意见。
@@ -113,6 +123,7 @@ pnpm dev
 | `OPENAI_API_KEY`      | 必填，OpenAI 兼容 API 的 Key。                                               |
 | `OPENAI_API_BASE_URL` | 可选，自定义 OpenAI 兼容 base URL。                                          |
 | `OPENAI_MODEL`        | 必填，模型名称，无默认值；未配置时 CLI 会提示。                              |
+| `OPENAI_CONTEXT_WINDOW` | 可选，上下文窗口 token 数，默认 8000。                                     |
 | `AGENT_DESKTOP_DIR`   | 可选，覆盖桌面目录路径，便于测试或自定义工作环境。                           |
 | `SESSION_DB_PATH`     | 可选，SQLite 会话库文件路径，默认 `.agent-sessions/sessions.db`。            |
 | `CALL_CODE_WEB_DATA`  | 可选，CLI 内 `/export` 的输出路径，默认 `packages/client/public/data.json`。 |
@@ -142,28 +153,28 @@ pnpm dev
 
 ```bash
 # 启动 CLI
-pnpm dev
+bun dev
 
 # 类型检查
-pnpm typecheck
+bun run typecheck
 
 # 类型检查（session-sqlite）
-pnpm exec tsc -p packages/session-sqlite/tsconfig.json --noEmit
+bun x tsc -p packages/session-sqlite/tsconfig.json --noEmit
 
 # 类型检查客户端
-pnpm typecheck:client
+bun run typecheck:client
 
 # 运行全部测试（推荐）
-pnpm test
+bun run test
 
 # 构建 agent-core
-pnpm run build:agent-core
+bun run build:agent-core
 
 # 导出会话历史到 packages/client/public/data.json
-pnpm export:web
+bun run export:web
 
 # 构建 GitHub Pages 客户端
-pnpm build:client
+bun run build:client
 ```
 
 ## 测试说明
