@@ -26,3 +26,4 @@ bundle.*
 docs/*
 !docs/index.html
 .DS_Store                     # macOS
+.agent-sessions/*
