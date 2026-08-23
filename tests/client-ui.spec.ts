@@ -61,7 +61,9 @@ describe('client HeaderBar', () => {
     expect(html).toContain('1 个会话');
     expect(html).toContain('2 条消息');
     expect(html).toContain('1 次工具');
-    expect(html).toContain('高级黑');
+    expect(html).toContain('透明玻璃');
+    expect(html).toContain('毛玻璃');
+    expect(html).toContain('杏色毛玻璃');
   });
 
   it('统计按多个会话累加', () => {

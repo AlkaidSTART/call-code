@@ -5,12 +5,15 @@ import { MainPanel } from './components/MainPanel';
 import { connectLiveExport } from './ws';
 import type { Filter, Theme, WebExport } from './types';
 import { filterSessions } from './utils';
+import { ParticleField } from './components/ParticleField';
 
 const THEME_KEY = 'call-code-theme';
 
 const initialTheme = (): Theme => {
   const stored = localStorage.getItem(THEME_KEY);
-  return stored === 'light' ? 'light' : 'dark';
+  return stored === 'clear' || stored === 'frosted' || stored === 'apricot'
+    ? stored
+    : 'frosted';
 };
 
 export default function App() {
@@ -70,8 +73,10 @@ export default function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem(THEME_KEY, theme);
+    const resolvedTheme = theme === 'light' ? 'frosted' : theme === 'dark' ? 'apricot' : theme;
+    root.classList.remove('dark');
+    root.dataset.theme = resolvedTheme;
+    localStorage.setItem(THEME_KEY, resolvedTheme);
   }, [theme]);
 
   const sessions = useMemo(() => data?.sessions ?? [], [data]);
@@ -115,6 +120,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <ParticleField />
       <div className="app-frame">
         <HeaderBar
           sessions={filteredSessions}

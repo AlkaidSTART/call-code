@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
   color-scheme: light;
   --font-ui:
@@ -11,17 +9,17 @@
     'SF Mono', ui-monospace, 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
 
   /* 基底背景 */
-  --bg-a: #f3f4f7;
-  --bg-b: #fbfbfd;
+  --bg-a: #dfe6e6;
+  --bg-b: #f5f5f1;
 
   /* 中性光晕，仅保留极淡的层次感 */
-  --glow-1: 148 148 158;
-  --glow-2: 148 148 158;
-  --glow-3: 148 148 158;
+  --glow-1: 75 111 109;
+  --glow-2: 169 119 92;
+  --glow-3: 100 125 132;
 
   /* 毛玻璃面板 */
-  --panel-bg: 255 255 255 / 0.42;
-  --panel-border: 145 145 155 / 0.14;
+  --panel-bg: 255 255 255 / 0.3;
+  --panel-border: 255 255 255 / 0.46;
   --panel-shadow:
     0 1px 0 rgb(255 255 255 / 0.75) inset, 0 1px 3px rgb(17 24 39 / 0.06),
     0 20px 50px -16px rgb(17 24 39 / 0.1);
@@ -39,7 +37,7 @@
   /* 文字 */
   --accent: #111827;
   --accent-soft: rgb(17 24 39 / 0.07);
-  --text-primary: #18181b;
+  --text-primary: #182322;
   --text-secondary: #52525b;
   --text-tertiary: #8e8e93;
 
@@ -56,40 +54,47 @@
     0 1px 3px rgb(17 24 39 / 0.08), 0 4px 12px -4px rgb(17 24 39 / 0.08);
 }
 
-:root.dark {
+:root[data-theme='clear'] {
+  --panel-bg: 255 255 255 / 0.14;
+  --panel-border: 255 255 255 / 0.34;
+  --chip-bg: 255 255 255 / 0.18;
+  --bg-a: #c9d5d5;
+  --bg-b: #eef2ef;
+}
+
+:root[data-theme='apricot'] {
   color-scheme: dark;
+  --bg-a: #e5c1a4;
+  --bg-b: #f5e8d7;
 
-  --bg-a: #0a0a0c;
-  --bg-b: #111114;
+  --glow-1: 165 105 72;
+  --glow-2: 119 83 59;
+  --glow-3: 208 137 86;
 
-  --glow-1: 138 138 146;
-  --glow-2: 138 138 146;
-  --glow-3: 138 138 146;
-
-  --panel-bg: 18 18 22 / 0.52;
-  --panel-border: 255 255 255 / 0.1;
+  --panel-bg: 255 247 236 / 0.38;
+  --panel-border: 255 255 255 / 0.48;
   --panel-shadow:
     0 1px 0 rgb(255 255 255 / 0.04) inset, 0 1px 3px rgb(0 0 0 / 0.45),
     0 40px 80px -20px rgb(0 0 0 / 0.55);
 
-  --sidebar-active: 255 255 255 / 0.12;
+  --sidebar-active: 255 255 255 / 0.58;
   --sidebar-active-shadow:
     0 1px 0 rgb(255 255 255 / 0.05) inset, 0 8px 28px -6px rgb(0 0 0 / 0.6);
   --sidebar-hover: 255 255 255 / 0.07;
 
-  --chip-bg: 255 255 255 / 0.06;
-  --chip-border: 255 255 255 / 0.1;
+  --chip-bg: 255 247 236 / 0.32;
+  --chip-border: 124 79 50 / 0.14;
 
-  --accent: #f4f4f5;
-  --accent-soft: rgb(244 244 245 / 0.1);
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-tertiary: #6f6f76;
+  --accent: #5f3825;
+  --accent-soft: rgb(95 56 37 / 0.1);
+  --text-primary: #40281d;
+  --text-secondary: #765644;
+  --text-tertiary: #a27c65;
 
-  --role-user: #d4d4d8;
-  --role-assistant: #a1a1aa;
-  --role-tool: #71717a;
-  --role-system: #52525b;
+  --role-user: #9b684c;
+  --role-assistant: #805037;
+  --role-tool: #bd7d54;
+  --role-system: #b28e78;
 
   --segment-active: 255 255 255 / 0.12;
   --segment-active-text: #fafafa;
@@ -97,6 +102,8 @@
     0 1px 0 rgb(255 255 255 / 0.05) inset, 0 1px 3px rgb(0 0 0 / 0.45),
     0 4px 14px -6px rgb(0 0 0 / 0.5);
 }
+
+:root[data-theme='frosted'] { color-scheme: light; }
 
 html {
   font-family: var(--font-ui);
@@ -118,7 +125,10 @@ body {
 
 /* 中性背景，让毛玻璃面板保持透明层次 */
 body {
-  background: linear-gradient(180deg, var(--bg-a), var(--bg-b));
+  background:
+    radial-gradient(circle at 12% 18%, rgb(var(--glow-1) / 0.12), transparent 24rem),
+    radial-gradient(circle at 86% 82%, rgb(var(--glow-2) / 0.1), transparent 28rem),
+    linear-gradient(135deg, var(--bg-a), var(--bg-b));
   background-attachment: fixed;
 }
 
@@ -126,12 +136,12 @@ body {
 .app-shell {
   position: relative;
   min-height: 100vh;
-  padding: 12px 12px 20px;
+  padding: 18px 14px 28px;
 }
 
 @media (min-width: 1024px) {
   .app-shell {
-    padding: 16px 20px 24px;
+    padding: 28px 32px 42px;
   }
 }
 
@@ -147,6 +157,40 @@ body {
   z-index: 0;
 }
 
+.particle-field {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  color: rgb(var(--glow-1) / 0.2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  animation: drift 16s ease-in-out infinite;
+}
+
+.particle--one { left: 8%; top: 20%; animation-delay: -2s; }
+.particle--two { left: 18%; top: 76%; animation-duration: 20s; }
+.particle--three { left: 35%; top: 10%; animation-delay: -8s; }
+.particle--four { left: 48%; top: 84%; animation-duration: 18s; }
+.particle--five { left: 62%; top: 26%; animation-delay: -5s; }
+.particle--six { left: 73%; top: 72%; animation-duration: 22s; }
+.particle--seven { left: 88%; top: 14%; animation-delay: -11s; }
+.particle--eight { left: 93%; top: 56%; animation-duration: 19s; }
+.particle--nine { left: 4%; top: 52%; animation-delay: -14s; }
+.particle--ten { left: 28%; top: 42%; animation-duration: 21s; }
+.particle--eleven { left: 79%; top: 44%; animation-delay: -7s; }
+.particle--twelve { left: 56%; top: 62%; animation-duration: 17s; }
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 8px, 0); opacity: 0.18; }
+  50% { transform: translate3d(12px, -14px, 0); opacity: 0.42; }
+}
+
 /* 整体框架：顶栏与工作区收进同一个毛玻璃容器 */
 .app-frame {
   display: flex;
@@ -154,11 +198,11 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1480px;
-  min-height: calc(100vh - 28px);
+  max-width: 1540px;
+  min-height: calc(100vh - 46px);
   margin: 0 auto;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 22px;
   border: 1px solid rgb(var(--panel-border));
   background: rgb(var(--panel-bg));
   box-shadow: var(--panel-shadow);
@@ -178,9 +222,17 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 15px 18px;
   border-bottom: 1px solid rgb(var(--panel-border));
   background: rgb(var(--chip-bg));
+}
+
+.brand-kicker {
+  margin-bottom: 3px;
+  color: rgb(var(--glow-1) / 0.8);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
 }
 
 @media (min-width: 1024px) {
@@ -270,6 +322,8 @@ body {
   box-shadow: var(--segment-active-shadow);
 }
 
+.theme-switcher button { min-width: 52px; }
+
 /* 等宽字体 */
 .mono {
   font-family: var(--font-mono);
@@ -308,10 +362,15 @@ body {
 
 /* 消息气泡 */
 .msg-bubble {
-  border-radius: 12px;
+  border-radius: 15px;
   border: 1px solid rgb(var(--chip-border));
   background: rgb(var(--chip-bg));
   backdrop-filter: blur(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle { animation: none; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
 
 .msg-bubble--user {

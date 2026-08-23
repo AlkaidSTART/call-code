@@ -33,14 +33,15 @@ export function HeaderBar({ sessions, theme, onThemeChange }: HeaderBarProps) {
           }}
         />
         <div className="min-w-0">
+          <div className="brand-kicker">LIVE SESSION ARCHIVE</div>
           <h1
-            className="truncate text-[17px] font-semibold leading-tight"
+            className="truncate text-[18px] font-semibold leading-tight tracking-[0.01em]"
             style={{ color: 'var(--text-primary)' }}
           >
             Call Code
           </h1>
           <div
-            className="mt-0.5 truncate text-[11px]"
+            className="mt-1 truncate text-[11px]"
             style={{ color: 'var(--text-tertiary)' }}
           >
             {sessions.length} 个会话 · {count.messages} 条消息 · {count.tools}{' '}
@@ -49,8 +50,8 @@ export function HeaderBar({ sessions, theme, onThemeChange }: HeaderBarProps) {
         </div>
       </div>
 
-      <div className="segmented shrink-0" role="tablist" aria-label="主题切换">
-        {(['light', 'dark'] as const).map((value) => (
+      <div className="segmented theme-switcher shrink-0" role="tablist" aria-label="主题切换">
+        {(['clear', 'frosted', 'apricot'] as const).map((value) => (
           <button
             key={value}
             type="button"
@@ -58,7 +59,7 @@ export function HeaderBar({ sessions, theme, onThemeChange }: HeaderBarProps) {
             aria-pressed={theme === value}
             onClick={() => onThemeChange(value)}
           >
-            {value === 'light' ? '毛玻璃' : '高级黑'}
+            {value === 'clear' ? '透明玻璃' : value === 'frosted' ? '毛玻璃' : '杏色毛玻璃'}
           </button>
         ))}
       </div>
