@@ -6,6 +6,7 @@ import { connectLiveExport, type LiveExportConnection } from "./ws";
 import type { AgentMode, ChatStatusMessage, Filter, Theme, WebExport } from "./types";
 import { filterSessions } from "./utils";
 import { ParticleField } from "./components/ParticleField";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 
 const THEME_KEY = "call-code-theme";
 
@@ -13,6 +14,10 @@ const initialTheme = (): Theme => {
   const stored = localStorage.getItem(THEME_KEY);
   return stored === "light" ? "light" : "dark";
 };
+
+type PendingDelete =
+  | { kind: "session"; sessionId: string }
+  | { kind: "entry"; sessionId: string; entryId: string };
 
 export default function App() {
   const [data, setData] = useState<WebExport | null>(null);
@@ -26,6 +31,9 @@ export default function App() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(
+    null,
+  );
 
   const connectionRef = useRef<LiveExportConnection | null>(null);
 
@@ -97,18 +105,27 @@ export default function App() {
     return connectionRef.current.sendMessage(payload);
   };
 
-  const handleDeleteEntry = (sessionId: string, entryId: string) => {
-    if (!window.confirm("删除这条消息及其后续回复？")) {
-      return;
-    }
-    connectionRef.current?.deleteMessages(sessionId, [entryId]);
+  const requestDeleteEntry = (sessionId: string, entryId: string) => {
+    setPendingDelete({ kind: "entry", sessionId, entryId });
   };
 
-  const handleDeleteSession = (sessionId: string) => {
-    if (!window.confirm("删除整个会话？此操作无法撤销。")) {
+  const requestDeleteSession = (sessionId: string) => {
+    setPendingDelete({ kind: "session", sessionId });
+  };
+
+  const confirmDelete = () => {
+    if (!pendingDelete) {
       return;
     }
-    connectionRef.current?.deleteMessages(sessionId);
+
+    if (pendingDelete.kind === "entry") {
+      connectionRef.current?.deleteMessages(pendingDelete.sessionId, [
+        pendingDelete.entryId,
+      ]);
+    } else {
+      connectionRef.current?.deleteMessages(pendingDelete.sessionId);
+    }
+    setPendingDelete(null);
   };
 
   const sessions = useMemo(() => data?.sessions ?? [], [data]);
@@ -141,7 +158,7 @@ export default function App() {
             query={query}
             onSelect={setActiveId}
             onQueryChange={setQuery}
-            onDeleteSession={handleDeleteSession}
+            onDeleteSession={requestDeleteSession}
           />
           <MainPanel
             session={activeSession}
@@ -149,10 +166,21 @@ export default function App() {
             onFilterChange={setFilter}
             chatStatus={chatStatus}
             onSendMessage={handleSendMessage}
-            onDeleteEntry={handleDeleteEntry}
+            onDeleteEntry={requestDeleteEntry}
           />
         </div>
       </div>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={pendingDelete?.kind === "session" ? "删除会话" : "删除消息"}
+        description={
+          pendingDelete?.kind === "session"
+            ? "删除整个会话？此操作无法撤销。"
+            : "删除这条消息及其后续回复？"
+        }
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

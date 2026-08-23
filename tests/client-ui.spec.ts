@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { HeaderBar } from "../packages/client/src/components/HeaderBar";
 import { MainPanel } from "../packages/client/src/components/MainPanel";
 import { Sidebar } from "../packages/client/src/components/Sidebar";
+import { ConfirmDialog } from "../packages/client/src/components/ConfirmDialog";
 import type { WebSession } from "../packages/client/src/types";
 
 vi.mock("../packages/client/assets/call-code.png", () => ({
@@ -153,5 +154,39 @@ describe("client Sidebar", () => {
     expect(html).toContain('title="删除会话"');
     expect(html).toContain('aria-label="删除会话 hello world"');
     expect(html).toContain('aria-label="删除会话 s2"');
+  });
+});
+
+describe("client ConfirmDialog", () => {
+  it("渲染删除确认标题、说明和操作按钮", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(ConfirmDialog, {
+        open: true,
+        title: "删除会话",
+        description: "删除整个会话？此操作无法撤销。",
+        onConfirm: () => undefined,
+        onCancel: () => undefined,
+      }),
+    );
+
+    expect(html).toContain('role="dialog"');
+    expect(html).toContain("删除会话");
+    expect(html).toContain("删除整个会话？此操作无法撤销。");
+    expect(html).toContain("取消");
+    expect(html).toContain("删除");
+  });
+
+  it("未打开时不渲染对话框", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(ConfirmDialog, {
+        open: false,
+        title: "删除会话",
+        description: "删除整个会话？此操作无法撤销。",
+        onConfirm: () => undefined,
+        onCancel: () => undefined,
+      }),
+    );
+
+    expect(html).toBe("");
   });
 });
