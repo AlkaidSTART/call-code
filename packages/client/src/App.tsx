@@ -11,9 +11,7 @@ const THEME_KEY = 'call-code-theme';
 
 const initialTheme = (): Theme => {
   const stored = localStorage.getItem(THEME_KEY);
-  return stored === 'clear' || stored === 'frosted' || stored === 'apricot'
-    ? stored
-    : 'frosted';
+  return stored === 'light' ? 'light' : 'dark';
 };
 
 export default function App() {
@@ -73,10 +71,9 @@ export default function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const resolvedTheme = theme === 'light' ? 'frosted' : theme === 'dark' ? 'apricot' : theme;
-    root.classList.remove('dark');
-    root.dataset.theme = resolvedTheme;
-    localStorage.setItem(THEME_KEY, resolvedTheme);
+    root.classList.toggle('dark', theme === 'dark');
+    root.dataset.theme = theme;
+    localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
   const sessions = useMemo(() => data?.sessions ?? [], [data]);

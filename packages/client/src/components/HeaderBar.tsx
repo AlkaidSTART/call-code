@@ -28,44 +28,44 @@ export function HeaderBar({
 
   return (
     <header className="header-bar">
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2.5">
         <img
           src={logoUrl}
           alt="Call Code"
-          className="h-9 w-9 shrink-0 rounded-xl border object-contain"
+          className="h-8 w-8 shrink-0 rounded-lg border object-contain"
           style={{
-            borderColor: 'rgb(var(--chip-border))',
-            background: 'rgb(var(--chip-bg))',
+            borderColor: 'var(--chip-border)',
+            background: 'var(--chip-bg)',
           }}
         />
         <div className="min-w-0">
-          <div className="brand-kicker">LIVE SESSION ARCHIVE</div>
-          <h1
-            className="truncate text-[18px] font-semibold leading-tight tracking-[0.01em]"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            Call Code
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1
+              className="truncate text-[15px] font-semibold tracking-tight"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Call Code
+            </h1>
+            <div className={`connection-state connection-state--${connectionState}`}>
+              <span aria-hidden="true" />
+              {connectionState === 'loading'
+                ? '连接中'
+                : connectionState === 'error'
+                  ? '等待会话服务'
+                  : '实时'}
+            </div>
+          </div>
           <div
-            className="mt-1 truncate text-[11px]"
+            className="truncate text-[11px]"
             style={{ color: 'var(--text-tertiary)' }}
           >
-            {sessions.length} 个会话 · {count.messages} 条消息 · {count.tools}{' '}
-            次工具
-          </div>
-          <div className={`connection-state connection-state--${connectionState}`}>
-            <span aria-hidden="true" />
-            {connectionState === 'loading'
-              ? '连接会话服务'
-              : connectionState === 'error'
-                ? '等待会话服务'
-                : '实时同步'}
+            {sessions.length} 个会话 · {count.messages} 条消息 · {count.tools} 次工具
           </div>
         </div>
       </div>
 
       <div className="segmented theme-switcher shrink-0" role="tablist" aria-label="主题切换">
-        {(['clear', 'frosted', 'apricot'] as const).map((value) => (
+        {(['light', 'dark'] as const).map((value) => (
           <button
             key={value}
             type="button"
@@ -73,7 +73,7 @@ export function HeaderBar({
             aria-pressed={theme === value}
             onClick={() => onThemeChange(value)}
           >
-            {value === 'clear' ? '透明玻璃' : value === 'frosted' ? '毛玻璃' : '杏色毛玻璃'}
+            {value === 'light' ? '浅色' : '深色'}
           </button>
         ))}
       </div>

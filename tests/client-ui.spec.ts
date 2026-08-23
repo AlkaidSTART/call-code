@@ -61,9 +61,8 @@ describe('client HeaderBar', () => {
     expect(html).toContain('1 个会话');
     expect(html).toContain('2 条消息');
     expect(html).toContain('1 次工具');
-    expect(html).toContain('透明玻璃');
-    expect(html).toContain('毛玻璃');
-    expect(html).toContain('杏色毛玻璃');
+    expect(html).toContain('浅色');
+    expect(html).toContain('深色');
   });
 
   it('统计按多个会话累加', () => {
@@ -79,14 +78,14 @@ describe('client HeaderBar', () => {
     expect(html).toContain('2 个会话');
     expect(html).toContain('4 条消息');
     expect(html).toContain('2 次工具');
-    expect(html).toContain('毛玻璃');
+    expect(html).toContain('浅色');
   });
 
   it('服务未连接时仍显示完整界面状态', () => {
     const html = renderToStaticMarkup(
       React.createElement(HeaderBar, {
         sessions: [],
-        theme: 'frosted',
+        theme: 'light',
         connectionState: 'error',
         onThemeChange: () => undefined,
       }),
@@ -94,6 +93,6 @@ describe('client HeaderBar', () => {
 
     expect(html).toContain('Call Code');
     expect(html).toContain('等待会话服务');
-    expect(html).toContain('杏色毛玻璃');
+    expect(html).toContain('浅色');
   });
 });

@@ -1,4 +1,4 @@
-export type Theme = 'clear' | 'frosted' | 'apricot' | 'light' | 'dark';
+export type Theme = 'light' | 'dark';
 
 export type EntryRole = 'user' | 'assistant' | 'tool' | 'system';
 
