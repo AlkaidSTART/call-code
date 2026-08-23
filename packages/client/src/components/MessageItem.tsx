@@ -42,12 +42,12 @@ export function MessageItem({ entry, onDelete }: MessageItemProps) {
                 aria-label="删除消息"
                 title="删除消息"
                 onClick={onDelete}
-                className="flex h-6 w-6 items-center justify-center rounded-md opacity-40 transition-opacity hover:opacity-100"
-                style={{ color: 'var(--text-tertiary)' }}
+                className="flex h-6 w-6 items-center justify-center rounded-md opacity-70 transition-opacity hover:opacity-100"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 <svg
-                  width="12"
-                  height="12"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -59,11 +59,11 @@ export function MessageItem({ entry, onDelete }: MessageItemProps) {
                   <path d="M3 6h18" />
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
                   <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  <path d="M10 11v6" />
-                  <path d="M14 11v6" />
-                </svg>
-              </button>
-            ) : null}
+                 <path d="M10 11v6" />
+                 <path d="M14 11v6" />
+               </svg>
+             </button>
+           ) : null}
           </span>
         </div>
 
