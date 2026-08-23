@@ -102,7 +102,19 @@ export default function App() {
     if (!connectionRef.current) {
       return false;
     }
-    return connectionRef.current.sendMessage(payload);
+    return connectionRef.current.sendMessage({
+      ...payload,
+      sessionId: activeSession?.id,
+    });
+  };
+
+  const handleNewTopic = async () => {
+    const sessionId = await connectionRef.current?.createSession();
+    if (sessionId) {
+      setActiveId(sessionId);
+      setQuery("");
+      setFilter("all");
+    }
   };
 
   const requestDeleteEntry = (sessionId: string, entryId: string) => {
@@ -135,10 +147,10 @@ export default function App() {
   );
   const activeSession = useMemo(
     () =>
-      filteredSessions.find((session) => session.id === activeId) ??
-      filteredSessions[0] ??
+      sessions.find((session) => session.id === activeId) ??
+      sessions[0] ??
       null,
-    [filteredSessions, activeId],
+    [sessions, activeId],
   );
 
   return (
@@ -159,6 +171,7 @@ export default function App() {
             onSelect={setActiveId}
             onQueryChange={setQuery}
             onDeleteSession={requestDeleteSession}
+            onNewTopic={handleNewTopic}
           />
           <MainPanel
             session={activeSession}

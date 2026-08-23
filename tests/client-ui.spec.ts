@@ -147,13 +147,32 @@ describe("client Sidebar", () => {
         onSelect: () => undefined,
         onQueryChange: () => undefined,
         onDeleteSession: () => undefined,
+        onNewTopic: () => undefined,
       }),
     );
 
+    expect(html).toContain("开启新话题");
     expect(html.match(/aria-label="删除会话/g)).toHaveLength(2);
     expect(html).toContain('title="删除会话"');
     expect(html).toContain('aria-label="删除会话 hello world"');
     expect(html).toContain('aria-label="删除会话 s2"');
+  });
+
+  it("顶部提供开启新话题入口", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(Sidebar, {
+        sessions: [makeSession()],
+        activeId: "s1",
+        query: "",
+        onSelect: () => undefined,
+        onQueryChange: () => undefined,
+        onDeleteSession: () => undefined,
+        onNewTopic: () => undefined,
+      }),
+    );
+
+    expect(html).toContain("开启新话题");
+    expect(html).toContain('type="button"');
   });
 });
 

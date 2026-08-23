@@ -8,6 +8,7 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onQueryChange: (query: string) => void;
   onDeleteSession: (id: string) => void;
+  onNewTopic: () => void;
 }
 
 export function Sidebar({
@@ -17,6 +18,7 @@ export function Sidebar({
   onSelect,
   onQueryChange,
   onDeleteSession,
+  onNewTopic,
 }: SidebarProps) {
   return (
     <aside className="sidebar-panel max-h-[50vh] lg:max-h-none">
@@ -24,8 +26,34 @@ export function Sidebar({
         className="border-b px-3 py-3"
         style={{ borderColor: 'rgb(var(--panel-border))' }}
       >
+        <button
+          type="button"
+          onClick={onNewTopic}
+          className="sidebar-new-topic flex h-9 w-full items-center justify-center gap-2 rounded-lg border text-[12px] font-medium transition-colors"
+          style={{
+            borderColor: 'var(--chip-border)',
+            background: 'var(--chip-bg)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          开启新话题
+        </button>
         <div
-          className="search-box flex h-8 min-w-0 items-center gap-2 rounded-lg border px-2.5"
+          className="search-box mt-2.5 flex h-8 min-w-0 items-center gap-2 rounded-lg border px-2.5"
           style={{
             borderColor: 'rgb(var(--chip-border))',
             background: 'rgb(var(--chip-bg))',

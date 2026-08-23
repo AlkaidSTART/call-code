@@ -292,6 +292,16 @@ body {
   border-color: var(--text-primary) !important;
 }
 
+.sidebar-new-topic:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.sidebar-new-topic:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
 .confirm-overlay {
   animation: confirm-overlay-in 0.16s ease-out;
 }

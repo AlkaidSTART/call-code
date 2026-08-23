@@ -3,6 +3,7 @@ import { SessionStore } from '../packages/session-sqlite/src/index';
 import type { WebExport } from '@call-code/server/client';
 import {
   connectLiveExport,
+  parseCreatedSessionMessage,
   parseSnapshotMessage,
 } from '@call-code/server/client';
 import {
@@ -47,6 +48,19 @@ describe('客户端 WebSocket 适配', () => {
         type: 'sessions.snapshot',
         data: { schemaVersion: 2, exportedAt: '', sessions: [] },
       }),
+    ).toBeNull();
+  });
+
+  it('解析 sessions.created 消息', () => {
+    expect(
+      parseCreatedSessionMessage({
+        type: 'sessions.created',
+        sessionId: 's-new-topic',
+      }),
+    ).toBe('s-new-topic');
+    expect(parseCreatedSessionMessage({ type: 'other' })).toBeNull();
+    expect(
+      parseCreatedSessionMessage({ type: 'sessions.created', sessionId: 1 }),
     ).toBeNull();
   });
 
@@ -147,6 +161,39 @@ describe('客户端 WebSocket 适配', () => {
       await new Promise((resolve) => setTimeout(resolve, 30));
     }
     expect(snapshots[snapshots.length - 1].sessions).toHaveLength(0);
+
+    connection.close();
+  });
+
+  it('createSession 创建空会话并返回新会话 ID', async () => {
+    const { handle } = await createServer();
+    const snapshots: WebExport[] = [];
+    const connection = connectLiveExport({
+      url: `ws://127.0.0.1:${handle.port}/ws`,
+      timeoutMs: 3000,
+      refreshMs: 3000,
+      onSnapshot: (data) => snapshots.push(data),
+    });
+
+    const first = await connection.ready;
+    expect(first?.sessions).toHaveLength(0);
+
+    const sessionId = await connection.createSession();
+    expect(sessionId).toBeTruthy();
+
+    const deadline = Date.now() + 2000;
+    while (Date.now() < deadline) {
+      const latest = snapshots[snapshots.length - 1];
+      if (latest?.sessions.some((session) => session.id === sessionId)) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+
+    const latest = snapshots[snapshots.length - 1];
+    expect(latest?.sessions).toHaveLength(1);
+    expect(latest?.sessions[0].id).toBe(sessionId);
+    expect(latest?.sessions[0].entries).toEqual([]);
 
     connection.close();
   });
