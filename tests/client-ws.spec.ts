@@ -219,6 +219,18 @@ describe('客户端 WebSocket 适配', () => {
       type: 'assistant',
       payload: { role: 'assistant', content: '第一轮回复' },
     });
+    store.appendEntry('s-client-compact', {
+      id: 'u2',
+      parentId: 'a1',
+      type: 'user',
+      payload: { role: 'user', content: '第二轮需求' },
+    });
+    store.appendEntry('s-client-compact', {
+      id: 'a2',
+      parentId: 'u2',
+      type: 'assistant',
+      payload: { role: 'assistant', content: '第二轮回复' },
+    });
 
     const statuses: unknown[] = [];
     const snapshots: WebExport[] = [];
@@ -230,7 +242,7 @@ describe('客户端 WebSocket 适配', () => {
       onChatStatus: (status) => statuses.push(status),
     });
     const first = await connection.ready;
-    expect(first?.sessions[0].entries).toHaveLength(2);
+    expect(first?.sessions[0].entries).toHaveLength(4);
 
     expect(connection.compactSession('s-client-compact')).toBe(true);
 

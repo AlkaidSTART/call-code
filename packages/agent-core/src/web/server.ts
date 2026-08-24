@@ -148,7 +148,8 @@ export const startWebServer = async (
 ): Promise<WebServerHandle> => {
   const store = options.store;
   const clientDir = options.clientDir ?? DEFAULT_CLIENT_DIR;
-  const host = options.host ?? "127.0.0.1";
+  const host =
+    options.host ?? process.env.CALL_CODE_WEB_HOST ?? "127.0.0.1";
   const port =
     options.port ?? Number(process.env.CALL_CODE_WEB_PORT ?? DEFAULT_PORT);
 

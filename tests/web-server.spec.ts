@@ -476,6 +476,16 @@ describe("WebSocket 会话服务", () => {
     expect(message).toMatchObject({ type: "error" });
   });
 
+  it("CALL_CODE_WEB_HOST 环境变量作为默认监听地址", async () => {
+    process.env.CALL_CODE_WEB_HOST = "0.0.0.0";
+    try {
+      const { handle } = await createServer();
+      expect(handle.host).toBe("0.0.0.0");
+    } finally {
+      delete process.env.CALL_CODE_WEB_HOST;
+    }
+  });
+
   it("HTTP 服务返回客户端页面并支持 SPA 回退", async () => {
     const dir = mkdtempSync(join(tmpdir(), "call-code-web-client-"));
     writeFileSync(join(dir, "index.html"), "<h1>Call Code Web</h1>");
