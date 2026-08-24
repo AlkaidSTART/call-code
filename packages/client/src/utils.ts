@@ -93,8 +93,10 @@ export const filterSessions = (sessions: WebSession[], query: string): WebSessio
   sessions.filter((session) => matchesQuery(session, query));
 
 export const filterEntries = (entries: WebEntry[], filter: Filter): WebEntry[] => {
+  // 压缩摘要等 system 输出只写入历史供上下文使用，不在界面上展示
+  const visible = entries.filter((entry) => entryRole(entry) !== 'system');
   if (filter === 'all') {
-    return entries;
+    return visible;
   }
-  return entries.filter((entry) => entryRole(entry) === filter);
+  return visible.filter((entry) => entryRole(entry) === filter);
 };
