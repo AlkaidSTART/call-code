@@ -140,6 +140,10 @@ export default function App() {
     setPendingDelete(null);
   };
 
+  const handleCompactSession = (sessionId: string) => {
+    connectionRef.current?.compactSession(sessionId);
+  };
+
   const sessions = useMemo(() => data?.sessions ?? [], [data]);
   const filteredSessions = useMemo(
     () => filterSessions(sessions, query),
@@ -180,6 +184,7 @@ export default function App() {
             chatStatus={chatStatus}
             onSendMessage={handleSendMessage}
             onDeleteEntry={requestDeleteEntry}
+            onCompactSession={handleCompactSession}
           />
         </div>
       </div>

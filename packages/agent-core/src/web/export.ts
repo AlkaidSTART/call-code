@@ -71,12 +71,23 @@ const entryText = (payload: unknown): string | undefined => {
     return undefined;
   }
   const content = (payload as { content?: unknown }).content;
-  return typeof content === 'string' ? content : undefined;
+  if (typeof content === 'string') {
+    return content;
+  }
+  // 压缩/分支摘要条目把摘要放 payload.summary，客户端可直接展示
+  const summary = (payload as { summary?: unknown }).summary;
+  return typeof summary === 'string' ? summary : undefined;
 };
 
 const entryRole = (entry: EntryLike): string => {
   const payload = entry.payload as { role?: unknown } | null;
-  return payload && typeof payload.role === 'string' ? payload.role : entry.type;
+  if (payload && typeof payload.role === 'string') {
+    return payload.role;
+  }
+  if (entry.type === 'compaction' || entry.type === 'branch_summary') {
+    return 'system';
+  }
+  return entry.type;
 };
 
 const entryTool = (payload: unknown): string | null => {

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { SessionStore } from '../packages/session-sqlite/src/index';
 import type { WebExport } from '@call-code/server/client';
+import type { SummarizeFn } from '@agent-core/harness/compaction/compaction';
 import {
   connectLiveExport,
   parseCreatedSessionMessage,
@@ -14,10 +15,14 @@ import {
 const stores: SessionStore[] = [];
 const handles: WebServerHandle[] = [];
 
-const createServer = async () => {
+const createServer = async (options?: { summarize?: SummarizeFn }) => {
   const store = new SessionStore({ dbPath: ':memory:' });
   stores.push(store);
-  const handle = await startWebServer({ store, port: 0 });
+  const handle = await startWebServer({
+    store,
+    port: 0,
+    summarize: options?.summarize,
+  });
   handles.push(handle);
   return { store, handle };
 };
@@ -194,6 +199,60 @@ describe('客户端 WebSocket 适配', () => {
     expect(latest?.sessions).toHaveLength(1);
     expect(latest?.sessions[0].id).toBe(sessionId);
     expect(latest?.sessions[0].entries).toEqual([]);
+
+    connection.close();
+  });
+
+  it('compactSession 触发服务端压缩并同步快照', async () => {
+    const { store, handle } = await createServer({
+      summarize: async () => '客户端压缩摘要',
+    });
+    store.createSession({ cwd: '/tmp/project', id: 's-client-compact' });
+    store.appendEntry('s-client-compact', {
+      id: 'u1',
+      type: 'user',
+      payload: { role: 'user', content: '第一轮需求' },
+    });
+    store.appendEntry('s-client-compact', {
+      id: 'a1',
+      parentId: 'u1',
+      type: 'assistant',
+      payload: { role: 'assistant', content: '第一轮回复' },
+    });
+
+    const statuses: unknown[] = [];
+    const snapshots: WebExport[] = [];
+    const connection = connectLiveExport({
+      url: `ws://127.0.0.1:${handle.port}/ws`,
+      timeoutMs: 3000,
+      refreshMs: 3000,
+      onSnapshot: (data) => snapshots.push(data),
+      onChatStatus: (status) => statuses.push(status),
+    });
+    const first = await connection.ready;
+    expect(first?.sessions[0].entries).toHaveLength(2);
+
+    expect(connection.compactSession('s-client-compact')).toBe(true);
+
+    const deadline = Date.now() + 3000;
+    while (Date.now() < deadline) {
+      const latest = snapshots[snapshots.length - 1];
+      if (
+        latest?.sessions[0].entries.some(
+          (entry) => entry.type === 'compaction',
+        )
+      ) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+
+    const latest = snapshots[snapshots.length - 1];
+    const compactionEntry = latest?.sessions[0].entries.find(
+      (entry) => entry.type === 'compaction',
+    );
+    expect(compactionEntry?.text).toContain('客户端压缩摘要');
+    expect(statuses.some((s: any) => s.status === 'success')).toBe(true);
 
     connection.close();
   });

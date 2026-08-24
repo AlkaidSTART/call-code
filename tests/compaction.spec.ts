@@ -13,6 +13,8 @@ import {
   type CompactionSettings,
   type MessageLike,
 } from '@agent-core/harness/compaction/compaction';
+import { compactStoredSession } from '@agent-core/web/compaction';
+import { readTaskHistory } from '@agent-core/harness/session/history';
 import {
   branchSummaryEntryToMessage,
   collectEntriesForBranchSummary,
@@ -124,6 +126,54 @@ describe('compaction', () => {
     const fileOpsResult = createFileOpsWithMessages();
     expect(fileOpsResult.readFiles).toEqual(['src/read.ts']);
     expect(fileOpsResult.modifiedFiles).toEqual(['src/write.ts']);
+  });
+
+  it('手动压缩已持久化会话并写入 compaction 条目', async () => {
+    const store = new SessionStore({ dbPath: ':memory:' });
+    store.createSession({ id: 's-manual', cwd: '/tmp/w' });
+    store.appendEntry('s-manual', {
+      id: 'u1',
+      type: 'user',
+      payload: { role: 'user', content: '第一轮需求' },
+    });
+    store.appendEntry('s-manual', {
+      id: 'a1',
+      parentId: 'u1',
+      type: 'assistant',
+      payload: { role: 'assistant', content: '第一轮回复' },
+    });
+    store.appendEntry('s-manual', {
+      id: 'u2',
+      parentId: 'a1',
+      type: 'user',
+      payload: { role: 'user', content: '第二轮需求' },
+    });
+    store.appendEntry('s-manual', {
+      id: 'a2',
+      parentId: 'u2',
+      type: 'assistant',
+      payload: { role: 'assistant', content: '第二轮回复' },
+    });
+
+    const summarize = vi.fn(async () => '手动压缩摘要');
+    const result = await compactStoredSession('s-manual', store, {
+      summarize,
+    });
+
+    expect(result).not.toBeNull();
+    const entries = store.getEntries('s-manual');
+    const compactionEntry = entries.find((entry) => entry.type === 'compaction');
+    expect(compactionEntry).toBeTruthy();
+    const payload = compactionEntry?.payload as {
+      summary: string;
+      retainedTail: ContextMessage[];
+    };
+    expect(payload.summary).toContain('手动压缩摘要');
+    expect(payload.retainedTail.length).toBeGreaterThan(0);
+
+    const history = readTaskHistory({ id: 's-manual' }, { limit: 100 }, store);
+    expect(history[0]?.content).toContain('[历史摘要]');
+    expect(history[0]?.content).toContain('手动压缩摘要');
   });
 });
 

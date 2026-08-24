@@ -11,11 +11,17 @@ export type ChatSendPayload = {
   workspace?: string;
 };
 
+export type CompactSessionPayload = {
+  type: "sessions.compact";
+  sessionId: string;
+};
+
 /** 客户端发给 WebSocket 服务的请求。 */
 export type WebSocketClientMessage =
   | { type: "sessions.list" }
   | { type: "sessions.create" }
   | { type: "sessions.delete"; sessionId: string; entryIds?: string[] }
+  | CompactSessionPayload
   | ChatSendPayload;
 
 /** 服务端发给客户端的响应。 */
@@ -69,6 +75,14 @@ export const parseClientMessage = (
         sessionId: rawSessionId.trim(),
         entryIds: rawEntryIds?.map((id) => id.trim()),
       };
+    }
+
+    if (message.type === "sessions.compact") {
+      const rawSessionId = (message as { sessionId?: unknown }).sessionId;
+      if (typeof rawSessionId !== "string" || !rawSessionId.trim()) {
+        return null;
+      }
+      return { type: "sessions.compact", sessionId: rawSessionId.trim() };
     }
 
     if (message.type === "chat.send") {

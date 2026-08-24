@@ -111,6 +111,7 @@ describe("client MainPanel", () => {
         onDeleteEntry: () => undefined,
         chatStatus: { status: "idle" },
         onSendMessage: () => true,
+        onCompactSession: () => undefined,
       }),
     );
 
@@ -118,6 +119,8 @@ describe("client MainPanel", () => {
     expect(html).toContain("PLAN");
     expect(html).toContain("发送");
     expect(html).toContain("hello world");
+    expect(html).toContain("压缩上下文");
+    expect(html).not.toContain('aria-label="压缩会话上下文" disabled=""');
   });
 
   it("展示任务运行中的 trace 状态", () => {
@@ -129,10 +132,28 @@ describe("client MainPanel", () => {
         onDeleteEntry: () => undefined,
         chatStatus: { status: "running", trace: "正在执行工具调用..." },
         onSendMessage: () => true,
+        onCompactSession: () => undefined,
       }),
     );
 
     expect(html).toContain("正在执行工具调用...");
+    expect(html).toContain('aria-label="压缩会话上下文" disabled=""');
+  });
+
+  it("没有会话时禁用压缩入口", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(MainPanel, {
+        session: null,
+        filter: "all",
+        onFilterChange: () => undefined,
+        onDeleteEntry: () => undefined,
+        chatStatus: { status: "idle" },
+        onSendMessage: () => true,
+        onCompactSession: () => undefined,
+      }),
+    );
+
+    expect(html).toContain('aria-label="压缩会话上下文" disabled=""');
   });
 });
 

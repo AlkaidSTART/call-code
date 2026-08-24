@@ -10,6 +10,7 @@ interface MainPanelProps {
   chatStatus: ChatStatusMessage;
   onSendMessage: (payload: { input: string; mode: AgentMode }) => boolean;
   onDeleteEntry: (sessionId: string, entryId: string) => void;
+  onCompactSession: (sessionId: string) => void;
 }
 
 const filters: Array<{ value: Filter; label: string }> = [
@@ -133,6 +134,7 @@ export function MainPanel({
   chatStatus,
   onSendMessage,
   onDeleteEntry,
+  onCompactSession,
 }: MainPanelProps) {
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<AgentMode>("build");
@@ -188,6 +190,37 @@ export function MainPanel({
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            title="压缩会话上下文"
+            aria-label="压缩会话上下文"
+            disabled={!session || chatStatus.status === "running"}
+            onClick={() => session && onCompactSession(session.id)}
+            className="flex h-7 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-[11px] font-medium transition-opacity disabled:opacity-30"
+            style={{
+              borderColor: "var(--chip-border)",
+              background: "var(--chip-bg)",
+              color: "var(--text-secondary)",
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 9h4V5" />
+              <path d="M20 15h-4v4" />
+              <path d="M4 5l5 5" />
+              <path d="M20 19l-5-5" />
+            </svg>
+            压缩上下文
+          </button>
           <div className="segmented" role="tablist" aria-label="模式选择">
             <button
               type="button"

@@ -6,7 +6,10 @@ import { randomUUID } from "node:crypto";
 import { WebSocket, WebSocketServer } from "ws";
 import { runLoop } from "../harness/runtime/run-loop.js";
 import { createTaskState } from "../harness/core/state.js";
+import { callLLM } from "../harness/core/llm.js";
+import type { SummarizeFn } from "../harness/compaction/compaction.js";
 import { buildWebExport, type WebStore } from "./export.js";
+import { compactStoredSession } from "./compaction.js";
 import { parseClientMessage, type WebSocketServerMessage } from "./protocol.js";
 
 const DEFAULT_CLIENT_DIR = fileURLToPath(
@@ -35,6 +38,8 @@ export interface WebServerOptions {
   clientDir?: string;
   host?: string;
   port?: number;
+  /** 手动压缩会话时使用的摘要函数，默认走 callLLM */
+  summarize?: SummarizeFn;
 }
 
 export interface WebServerHandle {
@@ -197,6 +202,57 @@ export const startWebServer = async (
           type: "sessions.snapshot",
           data: buildWebExport(store),
         });
+        return;
+      }
+
+      if (message.type === "sessions.compact") {
+        if (isRunning) {
+          sendJson(socket, {
+            type: "chat.status",
+            status: "error",
+            message: "当前已有正在运行的任务，请稍候...",
+          });
+          return;
+        }
+        if (!store.getSession(message.sessionId)) {
+          sendJson(socket, { type: "error", message: "会话不存在" });
+          return;
+        }
+
+        isRunning = true;
+        broadcast(wss, {
+          type: "chat.status",
+          status: "running",
+          trace: "正在压缩会话上下文...",
+        });
+
+        try {
+          const result = await compactStoredSession(
+            message.sessionId,
+            store,
+            { summarize: options.summarize ?? callLLM },
+          );
+          broadcast(wss, {
+            type: "chat.status",
+            status: result ? "success" : "error",
+            message: result
+              ? `上下文已压缩，保留最近 ${result.retainedTail.length} 条消息`
+              : "没有可压缩的会话历史",
+          });
+          broadcast(wss, {
+            type: "sessions.snapshot",
+            data: buildWebExport(store),
+          });
+        } catch (error) {
+          const errMsg = error instanceof Error ? error.message : String(error);
+          broadcast(wss, {
+            type: "chat.status",
+            status: "error",
+            message: errMsg,
+          });
+        } finally {
+          isRunning = false;
+        }
         return;
       }
 
