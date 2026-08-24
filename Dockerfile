@@ -24,6 +24,10 @@ COPY source source
 COPY packages/agent-core packages/agent-core
 COPY packages/server packages/server
 COPY packages/session-sqlite packages/session-sqlite
+COPY packages/client packages/client
+
+# 构建 WebUI 静态资源，web-server 默认从 packages/client/dist 托管
+RUN bun run --cwd packages/client build
 
 # 默认把挂载的用户目录作为工作区，会话和工具执行都落在里面
 WORKDIR /workspace

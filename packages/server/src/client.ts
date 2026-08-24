@@ -196,6 +196,7 @@ export interface LiveExportConnection {
   }) => boolean;
   createSession: () => Promise<string | null>;
   deleteMessages: (sessionId: string, entryIds?: string[]) => boolean;
+  compactSession: (sessionId: string) => boolean;
   refresh: () => void;
   close(): void;
 }
@@ -418,6 +419,13 @@ export const connectLiveExport = (
           ...(entryIds && entryIds.length > 0 ? { entryIds } : {}),
         }),
       );
+      return true;
+    },
+    compactSession(sessionId) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
+      socket.send(JSON.stringify({ type: 'sessions.compact', sessionId }));
       return true;
     },
     refresh() {

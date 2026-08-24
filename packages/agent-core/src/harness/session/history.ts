@@ -3,8 +3,23 @@ import type { EntryLike, SessionStoreLike } from './store-types.js';
 import { getSharedSessionStore } from './store-registry.js';
 
 const entryToContextMessage = (entry: EntryLike): ContextMessage | null => {
-  const payload = entry.payload as { content?: unknown; role?: unknown } | null;
-  if (!payload || typeof payload.content !== 'string') {
+  const payload = entry.payload as
+    | { content?: unknown; role?: unknown; summary?: unknown }
+    | null;
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  // 压缩/分支摘要没有 content，只存 summary，必须放在 content 检查之前
+  if (entry.type === 'compaction' || entry.type === 'branch_summary') {
+    if (typeof payload.summary !== 'string') {
+      return null;
+    }
+    const prefix = entry.type === 'compaction' ? '[历史摘要]' : '[分支摘要]';
+    return { role: 'user', content: `${prefix}\n${payload.summary}` };
+  }
+
+  if (typeof payload.content !== 'string') {
     return null;
   }
 
@@ -14,14 +29,6 @@ const entryToContextMessage = (entry: EntryLike): ContextMessage | null => {
   }
   if (entry.type === 'tool') {
     return { role: 'user', content: payload.content };
-  }
-  if (entry.type === 'compaction' || entry.type === 'branch_summary') {
-    const summary = (payload as { summary?: unknown }).summary;
-    if (typeof summary !== 'string') {
-      return null;
-    }
-    const prefix = entry.type === 'compaction' ? '[历史摘要]' : '[分支摘要]';
-    return { role: 'user', content: `${prefix}\n${summary}` };
   }
   return null;
 };

@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { WebSocket } from "ws";
 import { SessionStore } from "../packages/session-sqlite/src/index";
 import type { WebExport } from "../packages/agent-core/src/web/export";
+import type { SummarizeFn } from "@agent-core/harness/compaction/compaction";
 
 vi.mock("../packages/agent-core/src/harness/runtime/run-loop", () => ({
   runLoop: vi.fn(async (task, handlers, options) => {
@@ -29,10 +30,18 @@ import {
 const stores: SessionStore[] = [];
 const handles: WebServerHandle[] = [];
 
-const createServer = async (clientDir?: string) => {
+const createServer = async (options?: {
+  clientDir?: string;
+  summarize?: SummarizeFn;
+}) => {
   const store = new SessionStore({ dbPath: ":memory:" });
   stores.push(store);
-  const handle = await startWebServer({ store, port: 0, clientDir });
+  const handle = await startWebServer({
+    store,
+    port: 0,
+    clientDir: options?.clientDir,
+    summarize: options?.summarize,
+  });
   handles.push(handle);
   return { store, handle };
 };
@@ -165,6 +174,48 @@ const requestChat = (
 
     socket.on("open", () => {
       socket.send(JSON.stringify({ type: "chat.send", ...payload }));
+    });
+    socket.on("message", (raw) => {
+      const message = JSON.parse(String(raw)) as {
+        type?: string;
+        status?: string;
+        data?: WebExport;
+      };
+      if (message.type === "chat.status") {
+        statuses.push(message);
+      } else if (message.type === "sessions.snapshot" && message.data) {
+        snapshot = message.data;
+      }
+      if (
+        snapshot &&
+        statuses.some((item: any) => item.status === "success")
+      ) {
+        clearTimeout(timeout);
+        socket.close();
+        resolve({ statuses, snapshot });
+      }
+    });
+    socket.on("error", (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+  });
+
+const requestCompact = (
+  url: string,
+  sessionId: string,
+): Promise<{ statuses: unknown[]; snapshot: WebExport | null }> =>
+  new Promise((resolve, reject) => {
+    const socket = new WebSocket(url);
+    const timeout = setTimeout(() => {
+      socket.terminate();
+      reject(new Error("等待压缩执行超时"));
+    }, 4000);
+    const statuses: unknown[] = [];
+    let snapshot: WebExport | null = null;
+
+    socket.on("open", () => {
+      socket.send(JSON.stringify({ type: "sessions.compact", sessionId }));
     });
     socket.on("message", (raw) => {
       const message = JSON.parse(String(raw)) as {
@@ -356,6 +407,49 @@ describe("WebSocket 会话服务", () => {
     expect(data.sessions).toHaveLength(0);
   });
 
+  it("响应 sessions.compact 并回传压缩摘要快照", async () => {
+    const { store, handle } = await createServer({
+      summarize: async () => "手动压缩摘要",
+    });
+    store.createSession({ cwd: "/tmp/project", id: "s-compact-ws" });
+    store.appendEntry("s-compact-ws", {
+      id: "u1",
+      type: "user",
+      payload: { role: "user", content: "第一轮需求" },
+    });
+    store.appendEntry("s-compact-ws", {
+      id: "a1",
+      parentId: "u1",
+      type: "assistant",
+      payload: { role: "assistant", content: "第一轮回复" },
+    });
+    store.appendEntry("s-compact-ws", {
+      id: "u2",
+      parentId: "a1",
+      type: "user",
+      payload: { role: "user", content: "第二轮需求" },
+    });
+    store.appendEntry("s-compact-ws", {
+      id: "a2",
+      parentId: "u2",
+      type: "assistant",
+      payload: { role: "assistant", content: "第二轮回复" },
+    });
+
+    const result = await requestCompact(
+      `ws://127.0.0.1:${handle.port}/ws`,
+      "s-compact-ws",
+    );
+
+    expect(result.statuses.some((s: any) => s.status === "running")).toBe(true);
+    expect(result.statuses.some((s: any) => s.status === "success")).toBe(true);
+    const compactionEntry = result.snapshot?.sessions[0].entries.find(
+      (entry) => entry.type === "compaction",
+    );
+    expect(compactionEntry?.role).toBe("system");
+    expect(compactionEntry?.text).toContain("手动压缩摘要");
+  });
+
   it("无法解析的消息返回 error 响应", async () => {
     const { handle } = await createServer();
     const message = await new Promise<unknown>((resolve, reject) => {
@@ -382,12 +476,22 @@ describe("WebSocket 会话服务", () => {
     expect(message).toMatchObject({ type: "error" });
   });
 
+  it("CALL_CODE_WEB_HOST 环境变量作为默认监听地址", async () => {
+    process.env.CALL_CODE_WEB_HOST = "0.0.0.0";
+    try {
+      const { handle } = await createServer();
+      expect(handle.host).toBe("0.0.0.0");
+    } finally {
+      delete process.env.CALL_CODE_WEB_HOST;
+    }
+  });
+
   it("HTTP 服务返回客户端页面并支持 SPA 回退", async () => {
     const dir = mkdtempSync(join(tmpdir(), "call-code-web-client-"));
     writeFileSync(join(dir, "index.html"), "<h1>Call Code Web</h1>");
 
     try {
-      const { handle } = await createServer(dir);
+      const { handle } = await createServer({ clientDir: dir });
       const home = await fetch(`http://127.0.0.1:${handle.port}/`);
       expect(home.status).toBe(200);
       expect(await home.text()).toContain("Call Code Web");

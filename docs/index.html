@@ -4840,8 +4840,8 @@
       </div>
     </div>
 
-    <script id="archify-guided-views-data" type="application/json">[]</script>
-    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/AlkaidSTART/call-code","revision":"baee5b2614b50e7d4b66eb8831db26b3914b2087","shortRevision":"baee5b2"},"referenceCount":8,"nodes":{"cli":[{"path":"source/app.tsx","label":"入口与交互界面","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/source/app.tsx"}],"core":[{"path":"packages/agent-core/src/harness/core/agent.ts","label":"规划→执行→观察","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/packages/agent-core/src/harness/core/agent.ts"}],"context":[{"path":"packages/agent-core/src/harness/context/builder.ts","label":"构建上下文","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/packages/agent-core/src/harness/context/builder.ts"}],"protocol":[{"path":"packages/agent-core/src/harness/protocol/parser.ts","label":"解析 action","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/packages/agent-core/src/harness/protocol/parser.ts"}],"policy":[{"path":"packages/agent-core/src/harness/tools/policy/modes.ts","label":"模式权限","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/packages/agent-core/src/harness/tools/policy/modes.ts"}],"tools":[{"path":"packages/agent-core/src/harness/tools/index.ts","label":"工具注册","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/packages/agent-core/src/harness/tools/index.ts"}],"memory":[{"path":"packages/agent-core/src/harness/memory/memory-store.ts","label":"内存存储","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/packages/agent-core/src/harness/memory/memory-store.ts"}],"sessdb":[{"path":"packages/session-sqlite/src/store.ts","label":"sessions.db","href":"https://github.com/AlkaidSTART/call-code/blob/baee5b2614b50e7d4b66eb8831db26b3914b2087/packages/session-sqlite/src/store.ts"}]}}</script>
+    <script id="archify-guided-views-data" type="application/json">[{"id":"web-chat","label":"Web 会话流","focus":["browser","webui","webserver","harness","sessdb","llm"],"note":"从浏览器发送消息，经过 WebSocket 与 Harness 后落库并回传快照。"},{"id":"cli-task","label":"CLI 任务流","focus":["terminal","cli","harness","tools","memory","sessdb","llm"],"note":"终端输入任务，CLI 驱动 Harness 调用工具并持久化会话。"},{"id":"storage","label":"会话存储","focus":["harness","webserver","cli","sessdb"],"note":"CLI 与 Web 共用同一个 SQLite 会话库。"}]</script>
+    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/AlkaidSTART/call-code","revision":"e8bcddc20a0d68cac90d0efafb8db132b7ce4d24","shortRevision":"e8bcddc"},"referenceCount":10,"nodes":{"webui":[{"path":"packages/client/src/App.tsx","label":"入口组件","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/client/src/App.tsx"}],"webserver":[{"path":"source/web-server.ts","label":"启动入口","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/source/web-server.ts"},{"path":"packages/agent-core/src/web/server.ts","label":"服务实现","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/agent-core/src/web/server.ts"}],"harness":[{"path":"packages/agent-core/src/harness/runtime/run-loop.ts","label":"runLoop","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/agent-core/src/harness/runtime/run-loop.ts"},{"path":"packages/agent-core/src/harness/context/context-builder.ts","label":"上下文构建","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/agent-core/src/harness/context/context-builder.ts"}],"llm":[{"path":"packages/agent-core/src/harness/core/llm.ts","label":"LLM 客户端","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/agent-core/src/harness/core/llm.ts"}],"cli":[{"path":"source/app.tsx","label":"CLI 交互界面","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/source/app.tsx"}],"sessdb":[{"path":"packages/session-sqlite/src/store.ts","label":"SQLite 存储","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/session-sqlite/src/store.ts"}],"tools":[{"path":"packages/agent-core/src/harness/tools/index.ts","label":"工具注册","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/agent-core/src/harness/tools/index.ts"}],"memory":[{"path":"packages/agent-core/src/harness/memory/memory-store.ts","label":"记忆存储","href":"https://github.com/AlkaidSTART/call-code/blob/e8bcddc20a0d68cac90d0efafb8db132b7ce4d24/packages/agent-core/src/harness/memory/memory-store.ts"}]}}</script>
     <div class="guided-views no-print" id="guided-views" hidden aria-label="Guided diagram views">
       <button id="guided-view-prev" type="button" aria-label="Previous guided view" title="Previous guided view ([)">&#8592;</button>
       <div class="guided-view-copy">
@@ -4883,7 +4883,7 @@
 
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="read">
-      <svg viewBox="0 0 1280 720" role="img" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
+      <svg viewBox="0 0 1390 628" role="img" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
         <title id="archify-diagram-title">call-code 架构</title>
         <desc id="archify-diagram-description">A architecture diagram generated by Archify.</desc>
         <!-- Definitions -->
@@ -4909,166 +4909,217 @@
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Boundaries (behind everything) -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" x="10" y="150" width="1092" height="250" rx="12" class="c-region" stroke-width="1"/>
-        <text x="18" y="168" class="t-cloud" font-size="9" font-weight="600">agent-core</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" x="404" y="74" width="722" height="476" rx="12" class="c-region" stroke-width="1"/>
+        <text x="412" y="92" class="t-cloud" font-size="9" font-weight="600">call-code 本地进程</text>
 
         <!-- Connection paths (before components for correct z-order) -->
-        <path data-edge-from="cli" data-edge-to="core" data-edge-label="任务输入" data-edge-key="0" data-edge-id="cli-core" data-composition-points="160,63;344,63" d="M 160 63 L 344 63" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="core" data-edge-to="llm" data-edge-label="chat.completions" data-edge-key="1" data-edge-id="core-llm" data-composition-points="464,70;952,70" d="M 464 70 L 952 70" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="llm" data-edge-to="core" data-edge-label="流式响应" data-edge-key="2" data-edge-id="llm-core" data-composition-points="952,70;464,70" d="M 952 70 L 464 70" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="core" data-edge-to="context" data-edge-key="3" data-edge-id="core-context" data-composition-points="344,77;252,77;252,210;160,210" d="M 344 77 L 260 77 Q 252 77 252 85 L 252 202 Q 252 210 244 210 L 160 210" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="core" data-edge-to="protocol" data-edge-key="4" data-edge-id="core-protocol" data-composition-points="404,100;404,180" d="M 404 100 L 404 180" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="core" data-edge-to="memory" data-edge-label="记忆读写" data-edge-key="5" data-edge-id="core-memory" data-composition-points="344,70;252,70;252,350;160,350" d="M 344 70 L 260 70 Q 252 70 252 78 L 252 342 Q 252 350 244 350 L 160 350" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="core" data-edge-to="sessdb" data-edge-label="会话持久化" data-edge-key="6" data-edge-id="core-sessdb" data-composition-points="464,70;556,70;556,350;648,350" d="M 464 70 L 548 70 Q 556 70 556 78 L 556 342 Q 556 350 564 350 L 648 350" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="core" data-edge-to="policy" data-edge-key="8" data-edge-id="core-policy" data-composition-points="464,63;556,63;556,210;648,210" d="M 464 63 L 548 63 Q 556 63 556 71 L 556 202 Q 556 210 564 210 L 648 210" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="core" data-edge-to="tools" data-edge-key="9" data-edge-id="core-tools" data-composition-points="464,77;928,77;928,210;952,210" d="M 464 77 L 920 77 Q 928 77 928 85 L 928 202 Q 928 210 936 210 L 952 210" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="browser" data-edge-to="webui" data-edge-label="访问" data-edge-key="0" data-edge-id="browser-webui" data-composition-points="170,80;230,80" d="M 170 80 L 230 80" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="webui" data-edge-to="webserver" data-edge-label="/ws" data-edge-key="1" data-edge-id="webui-webserver" data-composition-points="380,80;405,80;405,130;430,130" d="M 380 80 L 397 80 Q 405 80 405 88 L 405 122 Q 405 130 413 130 L 430 130" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="webserver" data-edge-to="harness" data-edge-label="chat.send" data-edge-key="2" data-edge-id="webserver-harness" data-composition-points="580,130;700,130" d="M 580 130 L 700 130" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="harness" data-edge-to="llm" data-edge-label="chat.completions" data-edge-key="3" data-edge-id="harness-llm" data-composition-points="870,132;894,132;894,148;1176,148;1176,129;1200,129" d="M 870 132 L 886 132 Q 894 132 894 140 L 894 140 Q 894 148 902 148 L 1168 148 Q 1176 148 1176 140 L 1176 137 Q 1176 129 1184 129 L 1200 129" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="llm" data-edge-to="harness" data-edge-label="流式响应" data-edge-key="4" data-edge-id="llm-harness" data-composition-points="1275,100;1275,60;785,60;785,100" d="M 1275 100 L 1275 68 Q 1275 60 1267 60 L 793 60 Q 785 60 785 68 L 785 100" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="terminal" data-edge-to="cli" data-edge-label="自然语言" data-edge-key="5" data-edge-id="terminal-cli" data-composition-points="170,530;300,530;300,500;430,500" d="M 170 530 L 292 530 Q 300 530 300 522 L 300 508 Q 300 500 308 500 L 430 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="cli" data-edge-to="harness" data-edge-label="任务输入" data-edge-key="6" data-edge-id="cli-harness" data-composition-points="580,500;640,500;640,132;700,132" d="M 580 500 L 632 500 Q 640 500 640 492 L 640 140 Q 640 132 648 132 L 700 132" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="harness" data-edge-to="sessdb" data-edge-label="会话读写" data-edge-key="7" data-edge-id="harness-sessdb" data-composition-points="700,132;650,132;650,362;600,362" d="M 700 132 L 658 132 Q 650 132 650 140 L 650 354 Q 650 362 642 362 L 600 362" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="webserver" data-edge-to="sessdb" data-edge-label="快照 / 删除" data-edge-key="8" data-edge-id="webserver-sessdb" data-composition-points="505,160;505,184;531,184;531,306;515,306;515,330" d="M 505 160 L 505 176 Q 505 184 513 184 L 523 184 Q 531 184 531 192 L 531 298 Q 531 306 523 306 L 523 306 Q 515 306 515 314 L 515 330" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="cli" data-edge-to="sessdb" data-edge-label="会话命令" data-edge-key="9" data-edge-id="cli-sessdb" data-composition-points="505,470;505,446;531,446;531,418;515,418;515,394" d="M 505 470 L 505 454 Q 505 446 513 446 L 523 446 Q 531 446 531 438 L 531 426 Q 531 418 523 418 L 523 418 Q 515 418 515 410 L 515 394" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="harness" data-edge-to="tools" data-edge-label="tool_call" data-edge-key="10" data-edge-id="harness-tools" data-composition-points="785,164;785,188;801,188;801,326;775,326;775,350" d="M 785 164 L 785 180 Q 785 188 793 188 L 793 188 Q 801 188 801 196 L 801 318 Q 801 326 793 326 L 783 326 Q 775 326 775 334 L 775 350" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="tools" data-edge-to="harness" data-edge-label="observation" data-edge-key="11" data-edge-id="tools-harness" data-composition-points="775,350;775,326;801,326;801,188;785,188;785,164" d="M 775 350 L 775 334 Q 775 326 783 326 L 793 326 Q 801 326 801 318 L 801 196 Q 801 188 793 188 L 793 188 Q 785 188 785 180 L 785 164" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="harness" data-edge-to="memory" data-edge-label="记忆读写" data-edge-key="12" data-edge-id="harness-memory" data-composition-points="870,132;910,132;910,379;950,379" d="M 870 132 L 902 132 Q 910 132 910 140 L 910 371 Q 910 379 918 379 L 950 379" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
         <!-- Components -->
-        <g id="node-cli" data-node-id="cli" data-node-label="CLI 交互层" tabindex="0" role="button" aria-label="Focus CLI 交互层, source/app.tsx, Architecture component" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="source/app.tsx" data-node-context="Architecture component">
-          <title>CLI 交互层 · source/app.tsx · Architecture component</title>
-          <rect x="40" y="40" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="40" y="40" width="120" height="60" rx="6" class="c-frontend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(46 46) scale(0.6875)">
+        <g id="node-browser" data-node-id="browser" data-node-label="浏览器" tabindex="0" role="button" aria-label="Focus 浏览器, Web 面板访问者, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="Web 面板访问者" data-node-context="Architecture component">
+          <title>浏览器 · Web 面板访问者 · Architecture component</title>
+          <rect x="40" y="50" width="130" height="60" rx="6" class="c-mask"/>
+          <rect x="40" y="50" width="130" height="60" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(46 56) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text data-detail-anchor x="105" y="78" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">浏览器</text>
+        <text data-detail="context" x="105" y="94" class="t-muted" font-size="9" text-anchor="middle">Web 面板访问者</text>
+        </g>
+
+        <g id="node-webui" data-node-id="webui" data-node-label="React Web 面板" tabindex="0" role="button" aria-label="Focus React Web 面板, packages/client, Architecture component" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="packages/client" data-node-context="Architecture component">
+          <title>React Web 面板 · packages/client · Architecture component</title>
+          <rect x="230" y="50" width="150" height="60" rx="6" class="c-mask"/>
+          <rect x="230" y="50" width="150" height="60" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(236 56) scale(0.6875)">
             <rect x="2" y="3" width="12" height="10" rx="2"/>
             <path d="M2 6.5h12"/>
             <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
             <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
-          <text data-detail-anchor x="100" y="68" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">CLI 交互层</text>
-        <text data-detail="context" x="100" y="84" class="t-muted" font-size="9" text-anchor="middle">source/app.tsx</text>
+          <text data-detail-anchor x="305" y="78" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">React Web 面板</text>
+        <text data-detail="context" x="305" y="94" class="t-muted" font-size="9" text-anchor="middle">packages/client</text>
         </g>
 
-        <g id="node-core" data-node-id="core" data-node-label="核心运行器" tabindex="0" role="button" aria-label="Focus 核心运行器, agent · runLoop, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="agent · runLoop" data-node-context="Architecture component">
-          <title>核心运行器 · agent · runLoop · Architecture component</title>
-          <rect x="344" y="40" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="344" y="40" width="120" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(350 46) scale(0.6875)">
+        <g id="node-webserver" data-node-id="webserver" data-node-label="Web 服务" tabindex="0" role="button" aria-label="Focus Web 服务, WebSocket / 静态托管, call-code 本地进程" aria-pressed="false" data-node-kind="backend" data-node-sublabel="WebSocket / 静态托管" data-node-context="call-code 本地进程">
+          <title>Web 服务 · WebSocket / 静态托管 · call-code 本地进程</title>
+          <rect x="430" y="100" width="150" height="60" rx="6" class="c-mask"/>
+          <rect x="430" y="100" width="150" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(436 106) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-detail-anchor x="404" y="68" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">核心运行器</text>
-        <text data-detail="context" x="404" y="84" class="t-muted" font-size="9" text-anchor="middle">agent · runLoop</text>
+          <text data-detail-anchor x="505" y="128" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Web 服务</text>
+        <text data-detail="context" x="505" y="144" class="t-muted" font-size="9" text-anchor="middle">WebSocket / 静态托管</text>
         </g>
 
-        <g id="node-llm" data-node-id="llm" data-node-label="LLM 服务" tabindex="0" role="button" aria-label="Focus LLM 服务, OpenAI 兼容接口, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="OpenAI 兼容接口" data-node-context="Architecture component">
-          <title>LLM 服务 · OpenAI 兼容接口 · Architecture component</title>
-          <rect x="952" y="40" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="952" y="40" width="120" height="60" rx="6" class="c-external" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(958 46) scale(0.6875)">
+        <g id="node-harness" data-node-id="harness" data-node-label="Agent 主循环" tabindex="0" role="button" aria-label="Focus Agent 主循环, runLoop · 上下文 · 压缩, call-code 本地进程" aria-pressed="false" data-node-kind="backend" data-node-sublabel="runLoop · 上下文 · 压缩" data-node-context="call-code 本地进程">
+          <title>Agent 主循环 · runLoop · 上下文 · 压缩 · call-code 本地进程</title>
+          <rect x="700" y="100" width="170" height="64" rx="6" class="c-mask"/>
+          <rect x="700" y="100" width="170" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(706 106) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-detail-anchor x="785" y="130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Agent 主循环</text>
+        <text data-detail="context" x="785" y="146" class="t-muted" font-size="9" text-anchor="middle">runLoop · 上下文 · 压缩</text>
+        </g>
+
+        <g id="node-llm" data-node-id="llm" data-node-label="LLM 服务" tabindex="0" role="button" aria-label="Focus LLM 服务, OpenAI 兼容 API, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="OpenAI 兼容 API" data-node-context="Architecture component">
+          <title>LLM 服务 · OpenAI 兼容 API · Architecture component</title>
+          <rect x="1200" y="100" width="150" height="58" rx="6" class="c-mask"/>
+          <rect x="1200" y="100" width="150" height="58" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(1206 106) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-detail-anchor x="1012" y="68" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">LLM 服务</text>
-        <text data-detail="context" x="1012" y="84" class="t-muted" font-size="9" text-anchor="middle">OpenAI 兼容接口</text>
+          <text data-detail-anchor x="1275" y="127" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">LLM 服务</text>
+        <text data-detail="context" x="1275" y="143" class="t-muted" font-size="9" text-anchor="middle">OpenAI 兼容 API</text>
         </g>
 
-        <g id="node-context" data-node-id="context" data-node-label="上下文构建" tabindex="0" role="button" aria-label="Focus 上下文构建, token 预算 · 摘要, agent-core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="token 预算 · 摘要" data-node-context="agent-core">
-          <title>上下文构建 · token 预算 · 摘要 · agent-core</title>
-          <rect x="40" y="180" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="40" y="180" width="120" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(46 186) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+        <g id="node-terminal" data-node-id="terminal" data-node-label="终端用户" tabindex="0" role="button" aria-label="Focus 终端用户, CLI 访问者, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="CLI 访问者" data-node-context="Architecture component">
+          <title>终端用户 · CLI 访问者 · Architecture component</title>
+          <rect x="40" y="500" width="130" height="60" rx="6" class="c-mask"/>
+          <rect x="40" y="500" width="130" height="60" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(46 506) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-detail-anchor x="100" y="208" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">上下文构建</text>
-        <text data-detail="context" x="100" y="224" class="t-muted" font-size="9" text-anchor="middle">token 预算 · 摘要</text>
+          <text data-detail-anchor x="105" y="528" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">终端用户</text>
+        <text data-detail="context" x="105" y="544" class="t-muted" font-size="9" text-anchor="middle">CLI 访问者</text>
         </g>
 
-        <g id="node-protocol" data-node-id="protocol" data-node-label="协议解析" tabindex="0" role="button" aria-label="Focus 协议解析, tool_call / final, agent-core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="tool_call / final" data-node-context="agent-core">
-          <title>协议解析 · tool_call / final · agent-core</title>
-          <rect x="344" y="180" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="344" y="180" width="120" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(350 186) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+        <g id="node-cli" data-node-id="cli" data-node-label="Ink CLI" tabindex="0" role="button" aria-label="Focus Ink CLI, source/app.tsx, call-code 本地进程" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="source/app.tsx" data-node-context="call-code 本地进程">
+          <title>Ink CLI · source/app.tsx · call-code 本地进程</title>
+          <rect x="430" y="470" width="150" height="60" rx="6" class="c-mask"/>
+          <rect x="430" y="470" width="150" height="60" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(436 476) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
-          <text data-detail-anchor x="404" y="208" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">协议解析</text>
-        <text data-detail="context" x="404" y="224" class="t-muted" font-size="9" text-anchor="middle">tool_call / final</text>
+          <text data-detail-anchor x="505" y="498" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Ink CLI</text>
+        <text data-detail="context" x="505" y="514" class="t-muted" font-size="9" text-anchor="middle">source/app.tsx</text>
         </g>
 
-        <g id="node-policy" data-node-id="policy" data-node-label="模式权限" tabindex="0" role="button" aria-label="Focus 模式权限, PLAN / BUILD, agent-core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="PLAN / BUILD" data-node-context="agent-core">
-          <title>模式权限 · PLAN / BUILD · agent-core</title>
-          <rect x="648" y="180" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="648" y="180" width="120" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(654 186) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-detail-anchor x="708" y="208" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">模式权限</text>
-        <text data-detail="context" x="708" y="224" class="t-muted" font-size="9" text-anchor="middle">PLAN / BUILD</text>
-        </g>
-
-        <g id="node-tools" data-node-id="tools" data-node-label="内置工具集" tabindex="0" role="button" aria-label="Focus 内置工具集, read/write/bash/git_diff/ocr, agent-core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="read/write/bash/git_diff/ocr" data-node-context="agent-core">
-          <title>内置工具集 · read/write/bash/git_diff/ocr · agent-core</title>
-          <rect x="952" y="180" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="952" y="180" width="120" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(958 186) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-detail-anchor x="1012" y="208" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">内置工具集</text>
-        <text data-detail="context" x="1012" y="224" class="t-muted" font-size="6.6" text-anchor="middle">read/write/bash/git_diff/ocr</text>
-        </g>
-
-        <g id="node-memory" data-node-id="memory" data-node-label="记忆" tabindex="0" role="button" aria-label="Focus 记忆, 短期 / 长期, agent-core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="短期 / 长期" data-node-context="agent-core">
-          <title>记忆 · 短期 / 长期 · agent-core</title>
-          <rect x="40" y="320" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="40" y="320" width="120" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(46 326) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-detail-anchor x="100" y="348" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">记忆</text>
-        <text data-detail="context" x="100" y="364" class="t-muted" font-size="9" text-anchor="middle">短期 / 长期</text>
-        </g>
-
-        <g id="node-sessdb" data-node-id="sessdb" data-node-label="会话存储" tabindex="0" role="button" aria-label="Focus 会话存储, node:sqlite, Architecture component" aria-pressed="false" data-node-kind="database" data-node-sublabel="node:sqlite" data-node-context="Architecture component">
-          <title>会话存储 · node:sqlite · Architecture component</title>
-          <rect x="648" y="320" width="120" height="60" rx="6" class="c-mask"/>
-          <rect x="648" y="320" width="120" height="60" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(654 326) scale(0.6875)">
+        <g id="node-sessdb" data-node-id="sessdb" data-node-label="会话存储" tabindex="0" role="button" aria-label="Focus 会话存储, node:sqlite · sessions.db, call-code 本地进程" aria-pressed="false" data-node-kind="database" data-node-sublabel="node:sqlite · sessions.db" data-node-context="call-code 本地进程">
+          <title>会话存储 · node:sqlite · sessions.db · call-code 本地进程</title>
+          <rect x="430" y="330" width="170" height="64" rx="6" class="c-mask"/>
+          <rect x="430" y="330" width="170" height="64" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(436 336) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-detail-anchor x="708" y="348" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">会话存储</text>
-        <text data-detail="context" x="708" y="364" class="t-muted" font-size="9" text-anchor="middle">node:sqlite</text>
+          <text data-detail-anchor x="515" y="360" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">会话存储</text>
+        <text data-detail="context" x="515" y="376" class="t-muted" font-size="9" text-anchor="middle">node:sqlite · sessions.db</text>
+        </g>
+
+        <g id="node-tools" data-node-id="tools" data-node-label="本地工具集" tabindex="0" role="button" aria-label="Focus 本地工具集, read / write / bash / search, call-code 本地进程" aria-pressed="false" data-node-kind="backend" data-node-sublabel="read / write / bash / search" data-node-context="call-code 本地进程">
+          <title>本地工具集 · read / write / bash / search · call-code 本地进程</title>
+          <rect x="700" y="350" width="150" height="58" rx="6" class="c-mask"/>
+          <rect x="700" y="350" width="150" height="58" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(706 356) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-detail-anchor x="775" y="377" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">本地工具集</text>
+        <text data-detail="context" x="775" y="393" class="t-muted" font-size="8.4" text-anchor="middle">read / write / bash / search</text>
+        </g>
+
+        <g id="node-memory" data-node-id="memory" data-node-label="记忆" tabindex="0" role="button" aria-label="Focus 记忆, 短期 / 长期, call-code 本地进程" aria-pressed="false" data-node-kind="backend" data-node-sublabel="短期 / 长期" data-node-context="call-code 本地进程">
+          <title>记忆 · 短期 / 长期 · call-code 本地进程</title>
+          <rect x="950" y="350" width="150" height="58" rx="6" class="c-mask"/>
+          <rect x="950" y="350" width="150" height="58" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(956 356) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-detail-anchor x="1025" y="377" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">记忆</text>
+        <text data-detail="context" x="1025" y="393" class="t-muted" font-size="9" text-anchor="middle">短期 / 长期</text>
         </g>
 
         <!-- Connection labels -->
-        <g data-detail="context" data-edge-from="cli" data-edge-to="core" data-edge-label="任务输入" data-edge-key="0" data-edge-id="cli-core">
-          <rect x="227.8" y="43" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="252" y="53" class="t-muted" font-size="8" text-anchor="middle">任务输入</text>
+        <g data-detail="context" data-edge-from="browser" data-edge-to="webui" data-edge-label="访问" data-edge-key="0" data-edge-id="browser-webui">
+          <rect x="185" y="60" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="200" y="70" class="t-muted" font-size="8" text-anchor="middle">访问</text>
         </g>
-        <g data-detail="context" data-edge-from="core" data-edge-to="llm" data-edge-label="chat.completions" data-edge-key="1" data-edge-id="core-llm">
-          <rect x="636.6" y="10" width="86.8" height="14" rx="3" class="c-mask"/>
-          <text x="680" y="20" class="t-backend" font-size="8" text-anchor="middle">chat.completions</text>
+        <g data-detail="context" data-edge-from="webui" data-edge-to="webserver" data-edge-label="/ws" data-edge-key="1" data-edge-id="webui-webserver">
+          <rect x="390" y="85" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="405" y="95" class="t-muted" font-size="8" text-anchor="middle">/ws</text>
         </g>
-        <g data-detail="context" data-edge-from="llm" data-edge-to="core" data-edge-label="流式响应" data-edge-key="2" data-edge-id="llm-core">
-          <rect x="815.8" y="120" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="840" y="130" class="t-messagebus" font-size="8" text-anchor="middle">流式响应</text>
+        <g data-detail="context" data-edge-from="webserver" data-edge-to="harness" data-edge-label="chat.send" data-edge-key="2" data-edge-id="webserver-harness">
+          <rect x="613.4" y="110" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="640" y="120" class="t-muted" font-size="8" text-anchor="middle">chat.send</text>
+        </g>
+        <g data-detail="context" data-edge-from="harness" data-edge-to="llm" data-edge-label="chat.completions" data-edge-key="3" data-edge-id="harness-llm">
+          <rect x="806.6" y="190" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="850" y="200" class="t-backend" font-size="8" text-anchor="middle">chat.completions</text>
+        </g>
+        <g data-detail="context" data-edge-from="llm" data-edge-to="harness" data-edge-label="流式响应" data-edge-key="4" data-edge-id="llm-harness">
+          <rect x="1005.8" y="44" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="1030" y="54" class="t-messagebus" font-size="8" text-anchor="middle">流式响应</text>
+        </g>
+        <g data-detail="context" data-edge-from="terminal" data-edge-to="cli" data-edge-label="自然语言" data-edge-key="5" data-edge-id="terminal-cli">
+          <rect x="275.8" y="495" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="300" y="505" class="t-muted" font-size="8" text-anchor="middle">自然语言</text>
+        </g>
+        <g data-detail="context" data-edge-from="cli" data-edge-to="harness" data-edge-label="任务输入" data-edge-key="6" data-edge-id="cli-harness">
+          <rect x="565.8" y="310" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="590" y="320" class="t-muted" font-size="8" text-anchor="middle">任务输入</text>
+        </g>
+        <g data-detail="context" data-edge-from="harness" data-edge-to="sessdb" data-edge-label="会话读写" data-edge-key="7" data-edge-id="harness-sessdb">
+          <rect x="675.8" y="220" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="700" y="230" class="t-muted" font-size="8" text-anchor="middle">会话读写</text>
+        </g>
+        <g data-detail="context" data-edge-from="webserver" data-edge-to="sessdb" data-edge-label="快照 / 删除" data-edge-key="8" data-edge-id="webserver-sessdb">
+          <rect x="486.6" y="164" width="62.8" height="14" rx="3" class="c-mask"/>
+          <text x="518" y="174" class="t-messagebus" font-size="8" text-anchor="middle">快照 / 删除</text>
+        </g>
+        <g data-detail="context" data-edge-from="cli" data-edge-to="sessdb" data-edge-label="会话命令" data-edge-key="9" data-edge-id="cli-sessdb">
+          <rect x="493.8" y="426" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="518" y="436" class="t-messagebus" font-size="8" text-anchor="middle">会话命令</text>
+        </g>
+        <g data-detail="context" data-edge-from="harness" data-edge-to="tools" data-edge-label="tool_call" data-edge-key="10" data-edge-id="harness-tools">
+          <rect x="693.4" y="180" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="720" y="190" class="t-muted" font-size="8" text-anchor="middle">tool_call</text>
+        </g>
+        <g data-detail="context" data-edge-from="tools" data-edge-to="harness" data-edge-label="observation" data-edge-key="11" data-edge-id="tools-harness">
+          <rect x="688.6" y="310" width="62.8" height="14" rx="3" class="c-mask"/>
+          <text x="720" y="320" class="t-messagebus" font-size="8" text-anchor="middle">observation</text>
+        </g>
+        <g data-detail="context" data-edge-from="harness" data-edge-to="memory" data-edge-label="记忆读写" data-edge-key="12" data-edge-id="harness-memory">
+          <rect x="885.8" y="235.5" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="910" y="245.5" class="t-muted" font-size="8" text-anchor="middle">记忆读写</text>
         </g>
 
-
-        <g data-detail="context" data-edge-from="core" data-edge-to="memory" data-edge-label="记忆读写" data-edge-key="5" data-edge-id="core-memory">
-          <rect x="275.8" y="160" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="300" y="170" class="t-muted" font-size="8" text-anchor="middle">记忆读写</text>
-        </g>
-        <g data-detail="context" data-edge-from="core" data-edge-to="sessdb" data-edge-label="会话持久化" data-edge-key="6" data-edge-id="core-sessdb">
-          <rect x="671" y="150" width="58" height="14" rx="3" class="c-mask"/>
-          <text x="700" y="160" class="t-muted" font-size="8" text-anchor="middle">会话持久化</text>
-        </g>
         <!-- Legend -->
         <g data-legend data-legend-bridge>
-          <text x="40" y="684" class="t-primary" font-size="12" font-weight="650">Legend</text>
-          <g data-legend-semantic-kind="frontend" data-legend-kind="frontend" data-legend-label="Frontend" data-legend-x="40" data-legend-baseline="704" data-legend-width="83">
-            <rect x="40" y="695" width="16" height="10" rx="2.5" class="c-frontend" stroke-width="1"/>
-            <text x="62" y="704" class="t-muted" font-size="10" font-weight="500">Frontend</text>
+          <text x="40" y="592" class="t-primary" font-size="12" font-weight="650">Legend</text>
+          <g data-legend-semantic-kind="frontend" data-legend-kind="frontend" data-legend-label="Frontend" data-legend-x="40" data-legend-baseline="612" data-legend-width="83">
+            <rect x="40" y="603" width="16" height="10" rx="2.5" class="c-frontend" stroke-width="1"/>
+            <text x="62" y="612" class="t-muted" font-size="10" font-weight="500">Frontend</text>
           </g>
-          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="Backend" data-legend-x="145" data-legend-baseline="704" data-legend-width="78">
-            <rect x="145" y="695" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
-            <text x="167" y="704" class="t-muted" font-size="10" font-weight="500">Backend</text>
+          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="Backend" data-legend-x="145" data-legend-baseline="612" data-legend-width="78">
+            <rect x="145" y="603" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="167" y="612" class="t-muted" font-size="10" font-weight="500">Backend</text>
           </g>
-          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="Database" data-legend-x="245" data-legend-baseline="704" data-legend-width="83">
-            <rect x="245" y="695" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
-            <text x="267" y="704" class="t-muted" font-size="10" font-weight="500">Database</text>
+          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="Database" data-legend-x="245" data-legend-baseline="612" data-legend-width="83">
+            <rect x="245" y="603" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="267" y="612" class="t-muted" font-size="10" font-weight="500">Database</text>
           </g>
-          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="External" data-legend-x="350" data-legend-baseline="704" data-legend-width="83">
-            <rect x="350" y="695" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
-            <text x="372" y="704" class="t-muted" font-size="10" font-weight="500">External</text>
+          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="External" data-legend-x="350" data-legend-baseline="612" data-legend-width="83">
+            <rect x="350" y="603" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="372" y="612" class="t-muted" font-size="10" font-weight="500">External</text>
           </g>
         </g>
       </svg>
@@ -5257,26 +5308,33 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h3>功能特性</h3>
+          <h3>双入口</h3>
         </div>
         <ul>
-          <li>&bull; Ink 终端界面 · 双模式 PLAN/BUILD</li>
-          <li>&bull; 本地工具集 · 结构化 action 协议</li>
-          <li>&bull; 短期 / 长期记忆 · token 预算裁剪</li>
-          <li>&bull; node:sqlite 会话持久化</li>
+          <li>&bull; CLI 与 Web 面板共用 Agent 主循环和 SQLite 会话库</li>
+          <li>&bull; Web 端支持开启新话题、按会话续聊、删除消息与会话</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Agent 核心</h3>
+        </div>
+        <ul>
+          <li>&bull; runLoop 流式请求模型并解析 tool_call / final</li>
+          <li>&bull; 上下文按 token 预算压缩，压缩摘要持久化到会话库</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot violet"></div>
-          <h3>运行流程</h3>
+          <h3>会话数据</h3>
         </div>
         <ul>
-          <li>&bull; CLI 接任务 → 核心构建上下文</li>
-          <li>&bull; LLM 返回 tool_call / final</li>
-          <li>&bull; policy 校验权限后工具执行</li>
-          <li>&bull; 结果回写 observation 循环直至完成</li>
+          <li>&bull; node:sqlite 保存会话、条目、泳道、分支与记录</li>
+          <li>&bull; 统计、事实与写租约用于长任务和并发保护</li>
         </ul>
       </div>
     </div>
