@@ -66,7 +66,8 @@ export const startServer = async (
 
   const port =
     config.port ?? Number(process.env.CALL_CODE_WEB_PORT ?? 4173);
-  const host = config.host ?? "127.0.0.1";
+  const host =
+    config.host ?? process.env.CALL_CODE_WEB_HOST ?? "127.0.0.1";
   const clientDir = config.clientDir;
 
   const handle = await startWebServer({

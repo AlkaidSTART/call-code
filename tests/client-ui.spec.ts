@@ -140,6 +140,38 @@ describe("client MainPanel", () => {
     expect(html).toContain('aria-label="压缩会话上下文" disabled=""');
   });
 
+  it("不渲染 system 输出（压缩摘要）", () => {
+    const session = makeSession({
+      entries: [
+        ...makeSession().entries,
+        {
+          seq: 3,
+          id: "e3",
+          parentId: null,
+          type: "compaction",
+          role: "system",
+          timestamp: "2026-08-05T00:00:00.000Z",
+          text: "手动压缩摘要",
+          payload: { summary: "手动压缩摘要" },
+        },
+      ],
+    });
+    const html = renderToStaticMarkup(
+      React.createElement(MainPanel, {
+        session,
+        filter: "all",
+        onFilterChange: () => undefined,
+        onDeleteEntry: () => undefined,
+        chatStatus: { status: "idle" },
+        onSendMessage: () => true,
+        onCompactSession: () => undefined,
+      }),
+    );
+
+    expect(html).not.toContain("手动压缩摘要");
+    expect(html).not.toContain(">系统<");
+  });
+
   it("没有会话时禁用压缩入口", () => {
     const html = renderToStaticMarkup(
       React.createElement(MainPanel, {

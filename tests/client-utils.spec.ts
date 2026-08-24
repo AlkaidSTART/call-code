@@ -122,4 +122,22 @@ describe('client utils', () => {
     expect(filterEntries(entries, 'tool')).toEqual([entries[2]]);
     expect(filterEntries(entries, 'system')).toEqual([]);
   });
+
+  it('全部视图不展示 system 输出', () => {
+    const entries = [
+      makeEntry({ id: 'u1', type: 'user', role: 'user' }),
+      makeEntry({
+        id: 'c1',
+        type: 'compaction',
+        role: 'system',
+        text: '手动压缩摘要',
+      }),
+      makeEntry({ id: 'a1', type: 'assistant', role: 'assistant' }),
+    ];
+
+    expect(filterEntries(entries, 'all')).toEqual([
+      entries[0],
+      entries[2],
+    ]);
+  });
 });
