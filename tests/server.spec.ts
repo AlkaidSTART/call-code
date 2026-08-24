@@ -162,4 +162,14 @@ describe("Server SDK 与集成服务", () => {
       data.sessions[0].entries.some((entry) => entry.text === "已处理完毕"),
     ).toBe(true);
   });
+
+  it("startServer 默认监听地址读取 CALL_CODE_WEB_HOST", async () => {
+    process.env.CALL_CODE_WEB_HOST = "0.0.0.0";
+    try {
+      const { server } = await createTestServer();
+      expect(server.host).toBe("0.0.0.0");
+    } finally {
+      delete process.env.CALL_CODE_WEB_HOST;
+    }
+  });
 });
